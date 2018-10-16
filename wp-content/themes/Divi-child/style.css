@@ -1,0 +1,142 @@
+/*
+Theme Name: Divi Child Theme
+Template: Divi
+Author: Gregory Becker
+Version: 1.0.1442743134
+Updated: 2015-09-20 09:58:54
+*/
+
+.et_mobile_menu {
+border:0px #fff;/*Change this*/
+width:125%;
+margin-left: -12.5%;
+}
+
+#sidebar .et_pb_widget {
+ 
+border-bottom: 5px solid #ddd;
+ 
+padding-bottom: 20px;
+ 
+margin-bottom: 20px;
+ 
+}
+ 
+#sidebar .et_pb_widget:last-of-type {
+ 
+border-bottom:0;
+ 
+}
+
+
+.et_mobile_menu li a,
+.et_mobile_menu .menu-item-has-children > a {
+width: 49%;
+float: left;
+background:#252525;/*Change this*/
+margin-bottom:5px;
+margin-right:1%;
+color:#b30707;/*Change this*/
+text-align: center;
+height: 50px;
+top: 50%;
+left: 50%;
+}
+
+#mobile_menu .current_page_item a {
+background: #db1c24;/*Change this*/
+color: #fff;/*Change this*/
+}
+
+/** App Style header and Drop Down Menu **/
+.mobile_nav.opened .mobile_menu_bar:before {
+content: "\4d";
+}
+
+
+
+/* begin product bundle optional highlighting features */
+.bundled_product_summary .bundled_product_optional_checkbox {
+    margin-bottom: 0;
+    padding-bottom: 5%;
+    display: inline-block;
+    padding-left: 15%;
+    background-color: rgba(225,0,0,.75);
+    padding-top: 5%;
+    color: white;
+	border-radius: 10px;
+}
+/* end product bundle optional highlighting features */
+
+
+
+
+
+
+
+
+@charset "UTF-8";
+/*
+#logo {
+    position: absolute;
+    top: 0;
+    max-width: 30%;
+    min-width: 100px;
+}
+
+
+/* BEGIN CUSTOM CALL TO ACTION MENU ITEM */
+          .get-started {border-radius: 0px;}
+            .get-started a {color: #fff!important;}
+            li.get-started {
+                background-color:#b30707; 
+                font-weight: 700; 
+                text-transform: uppercase; 
+                text-align: center; 
+                padding: 10px 10px 10px!important;
+            border-radius: 3px;
+                -moz-transition: all 0.5s; 
+                -webkit-transition: all 0.5s;
+                transition: all 0.5s;}
+            li.get-started:hover {background-color:#c96310;}
+ 
+/* fixed header button text color */
+                 .et-fixed-header #top-menu .get-started a {
+                        color: #fff!important;}
+        .get-started li.current-menu-ancestor > a, .get-started li.current-menu-item > a {
+                    color: #fff !important;}
+ 
+ 
+ 
+    @media only screen and (min-width : 981px) {
+            li.get-started {height: 33px;}}
+
+/* END CUSTOM CTA MENU ITEM */
+
+
+.et_fixed_nav #logo {
+    max-height: 140px;
+}
+.et-fixed-header #logo {
+    max-height: 90px !important;
+    padding: 0 !important;
+}
+*/
+
+ /*begin overlay*/
+        .et_overlay {
+            display:none;
+        }
+
+
+.woocommerce #content div.product div.images, .woocommerce div.product div.images, .woocommerce-page #content div.product div.images, .woocommerce-page div.product div.images {
+float: right !important!;
+width: 30%;
+height: 30%;
+padding-right: 15px;
+}
+.woocommerce #content div.product div.summary, .woocommerce div.product div.summary, .woocommerce-page #content div.product div.summary, .woocommerce-page div.product div.summary {
+float: left !important!;
+width: 70%;
+}
+         

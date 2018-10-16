@@ -1,0 +1,1 @@
+{"api_endpoint":"https:\/\/api.snapcx.io\/tracking\/v1\/getTrackingDetails","carrier_api":"https:\/\/api.snapcx.io\/tracking\/v1\/getCarriers","verify_url":"https:\/\/api.snapcx.io\/developer\/account\/verify"}
