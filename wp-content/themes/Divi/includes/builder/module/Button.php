@@ -42,6 +42,7 @@ class ET_Builder_Module_Button extends ET_Builder_Module {
 					'label' => esc_html__( 'Button', 'et_builder' ),
 					'css' => array(
 						'main' => $this->main_css_element,
+						'limited_main' => "{$this->main_css_element}.et_pb_button",
 					),
 					'box_shadow' => false,
 				),
@@ -131,6 +132,10 @@ class ET_Builder_Module_Button extends ET_Builder_Module {
 		return et_pb_get_alignment( $text_orientation );
 	}
 
+	public function get_transition_fields_css_props() {
+		return array();
+	}
+
 	function render( $attrs, $content = null, $render_slug ) {
 		$button_url                      = $this->props['button_url'];
 		$button_rel                      = $this->props['button_rel'];
@@ -186,12 +191,17 @@ class ET_Builder_Module_Button extends ET_Builder_Module {
 			'<div class="et_pb_button_module_wrapper et_pb_button_%3$s_wrapper %2$s et_pb_module "%4$s%5$s>
 				%1$s
 			</div>',
-			$button,
+			et_core_esc_previously( $button ),
 			sprintf( 'et_pb_button_alignment_%1$s', esc_attr( $button_alignment ) ),
-			$this->render_count(),
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover )
+			esc_attr( $this->render_count() ),
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover )
 		);
+
+		self::set_style( $render_slug, array(
+			'selector'    => '%%order_class%%, %%order_class%%:after',
+			'declaration' => esc_html( $this->get_transition_style( array( 'all' ) ) )
+		) );
 
 		return $output;
 	}

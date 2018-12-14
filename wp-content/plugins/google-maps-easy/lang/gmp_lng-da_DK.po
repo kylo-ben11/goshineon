@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2015-12-10 19:04+0300\n"
-"PO-Revision-Date: 2018-04-28 14:59+0300\n"
+"PO-Revision-Date: 2018-11-14 10:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: da_DK\n"
@@ -221,8 +221,8 @@ msgid "Description Of Map"
 msgstr "Beskrivelse af Kort"
 
 #: classes/tables/marker.php:10
-msgid "X coordinate of marker(lng)"
-msgstr "X koordinat, hvis markør(lng)"
+msgid "X coordinate of marker (lng)"
+msgstr "X koordinat, hvis markør (lng)"
 
 #: classes/tables/marker.php:11
 msgid "Y coordinate of marker(lat)"
@@ -377,7 +377,7 @@ msgid "Please, type a search address."
 msgstr "Skriv en søgning adresse."
 
 #: doc/google-maps-easy-pro/custom_controls/views/tpl/customMapControls.php:118
-msgid "Search area have no markers, please try to modify search criterias."
+msgid "Search area have no markers, please try to modify search criteria."
 msgstr "Søgt område har ingen markører, du kan forsøge at ændre søgekriterier."
 
 #: doc/google-maps-easy-pro/directions/views/tpl/directionsBtn.php:1
@@ -422,7 +422,7 @@ msgstr "Sikkerhedscheck mislykkedes"
 msgid ""
 "Your license is expired. Once you extend your license - you will be able to "
 "Update PRO version. To extend PRO version license - follow <a href='%s' "
-"target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab anc "
+"target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab and "
 "click on 'Re-activate' button to re-activate your PRO version."
 msgstr ""
 "Din licens er udløbet. Når du udvide din licens - vil du være i stand til at "
@@ -435,13 +435,13 @@ msgstr ""
 msgid ""
 "Your license for PRO version of %s plugin - expired. You can <a href='%s' "
 "target='_blank'>click here</a> to extend your license, then - go to <a "
-"href='%s'>License</a> tab anc click on 'Re-activate' button to re-activate "
+"href='%s'>License</a> tab and click on 'Re-activate' button to re-activate "
 "your PRO version."
 msgstr ""
 "Din licens til PRO version af %s plugin - udløbet. Du kan <a href='%s' "
 "target='_blank'>klik her</a> for at forlænge din licens, så - gå til <a "
-"href='%s'>License</a> fanen og klik på 'Genaktiver'knappen for at "
-"genaktivere din PRO versionen."
+"href='%s'>License</a> fanen og klik på 'Genaktiver'knappen for at genaktivere "
+"din PRO versionen."
 
 #: doc/google-maps-easy-pro/license/mod.php:51
 msgid "License"
@@ -468,8 +468,8 @@ msgid ""
 "There was a problem with sending request to your authentication server. "
 "Please try later."
 msgstr ""
-"Der var et problem med at sende anmodning til vores godkendelses server. "
-"Prøv venligst senere."
+"Der var et problem med at sende anmodning til vores godkendelses server. Prøv "
+"venligst senere."
 
 #: doc/google-maps-easy-pro/license/models/license.php:154
 #, php-format
@@ -488,8 +488,7 @@ msgstr "Licens til plugin'et %s udløber om %d dage."
 
 #: doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:4
 #, php-format
-msgid ""
-"Congratulations! PRO version of %s plugin is activated and working fine!"
+msgid "Congratulations! PRO version of %s plugin is activated and working fine!"
 msgstr "Tillykke! PRO version af %s plugin'et er aktiveret og fungerer fint!"
 
 #: doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:6
@@ -512,8 +511,8 @@ msgid ""
 "site."
 msgstr ""
 "Tillykke! Du har installeret PRO version af %s plugin'et. Sidste trin til at "
-"afslutte  PRO version opsætning, er at indtaste din e-mail og licens nøgle "
-"på denne side. Dette vil aktivere din kopi af softwaren på dette websted."
+"afslutte  PRO version opsætning, er at indtaste din e-mail og licens nøgle på "
+"denne side. Dette vil aktivere din kopi af softwaren på dette websted."
 
 #: doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:20
 #: modules/supsystic_promo/mod.php:183
@@ -526,8 +525,8 @@ msgid ""
 "Your email address, used on checkout procedure on <a href='%s' "
 "target='_blank'>%s</a>"
 msgstr ""
-"Din e-mail-adresse, som blev brugt da du købte PRO-licensen på hjemmesiden "
-"<a href='%s' target='_blank'>%s</a>"
+"Din e-mail-adresse, som blev brugt da du købte PRO-licensen på hjemmesiden <a "
+"href='%s' target='_blank'>%s</a>"
 
 #: doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:31
 msgid "License Key"
@@ -804,8 +803,7 @@ msgstr "Operationer"
 msgid "None"
 msgstr "Ingen"
 
-#: modules/gmap/views/tpl/gmapAdmin.php:5
-#: modules/gmap/views/tpl/gmapAdmin.php:8
+#: modules/gmap/views/tpl/gmapAdmin.php:5 modules/gmap/views/tpl/gmapAdmin.php:8
 #: modules/marker_groups/views/tpl/mgrAdmin.php:10
 #: modules/marker_groups/views/tpl/mgrAdmin.php:13
 msgid "Delete selected"
@@ -831,8 +829,8 @@ msgstr "Søg"
 #: modules/gmap/views/tpl/gmapAdmin.php:26
 #, php-format
 msgid ""
-"You have no Maps for now. <a href='%s' style='font-style: italic;'>Create</"
-"a> your first Map!"
+"You have no Maps for now. <a href='%s' style='font-style: italic;'>Create</a> "
+"your first Map!"
 msgstr ""
 "Du har ingen kort endnu. <a href='%s' style='font-style: italic;'>Opret</a> "
 "your first Map!"
@@ -889,7 +887,7 @@ msgid "Px"
 msgstr "Px"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:63
-msgid "Percents"
+msgid "Percent"
 msgstr "Procenter"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:70
@@ -906,7 +904,7 @@ msgstr "Kort typen kontrol"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:99
 msgid ""
-"Control view for map type - you can see it in right upper corner by default"
+"Control view for map type - you can see it in left upper corner by default"
 msgstr ""
 "Kontrol visning for kort type - du kan se det i øverste højre hjørne som "
 "standard"
@@ -970,15 +968,15 @@ msgid ""
 "Standard Zoom control will not displaying for this map, because the Custom "
 "Map Controls option enabled now."
 msgstr ""
-"Standard Zoom kontrol vil ikke vise for dette kort, fordi Custom Map "
-"Controls indstillingen er aktiveret nu."
+"Standard Zoom kontrol vil ikke vise for dette kort, fordi Custom Map Controls "
+"indstillingen er aktiveret nu."
 
 #: modules/gmap/views/tpl/gmapEditMap.php:158
 msgid "Street view control"
 msgstr "Street view kontrol"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:160
-msgid "Street view control usually is located on left upper corner of your map"
+msgid "Street view control usually is located on right lower corner of your map"
 msgstr ""
 "Street view kontrol normalt er placeret på venstre øverste hjørne af dit kort"
 
@@ -1004,8 +1002,8 @@ msgid ""
 "By default double left click on map will zoom it in. But you can change this "
 "here."
 msgstr ""
-"Som standard dobbelt venstre klik på kortet vil zoome det i. Men du kan "
-"ændre dette her."
+"Som standard dobbelt venstre klik på kortet vil zoome det i. Men du kan ændre "
+"dette her."
 
 #: modules/gmap/views/tpl/gmapEditMap.php:256
 msgid "Mouse wheel to zoom"
@@ -1013,15 +1011,14 @@ msgstr "Musehjulet til at zoome"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:258
 msgid ""
-"Sometimes you need to disable possibility to zoom your map using mouse "
-"wheel. This can be required for example - if you need to use your wheel for "
-"some other action, for example scroll your site even if mouse is over your "
-"map."
+"Sometimes you need to disable possibility to zoom your map using mouse wheel. "
+"This can be required for example - if you need to use your wheel for some "
+"other action, for example scroll your site even if mouse is over your map."
 msgstr ""
-"Nogle gange er du nødt til at deaktivere muligheden for at zoome dit kort "
-"med musehjulet. Dette kan være nødvendigt. Foreksempel - hvis du skal bruge "
-"din hjul til en anden handling, for eksempel rulle dit websted, selvom musen "
-"er over dit kort."
+"Nogle gange er du nødt til at deaktivere muligheden for at zoome dit kort med "
+"musehjulet. Dette kan være nødvendigt. Foreksempel - hvis du skal bruge din "
+"hjul til en anden handling, for eksempel rulle dit websted, selvom musen er "
+"over dit kort."
 
 #: modules/gmap/views/tpl/gmapEditMap.php:269
 msgid "Google Map Theme"
@@ -1029,8 +1026,8 @@ msgstr "Google kort Theme"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:271
 msgid ""
-"You can select your Google Map theme - Road Map, Hybrid, Satellite or "
-"Terrain - here. By default your map will have Road Map Google maps theme."
+"You can select your Google Map theme - Road Map, Hybrid, Satellite or Terrain "
+"- here. By default your map will have Road Map Google maps theme."
 msgstr ""
 "Du kan vælge din Google kort tema - Vejkort, Hybrid, Satellit eller Terræn - "
 "her. Som standard din kort vil have kort vejkort Google tema."
@@ -1083,8 +1080,7 @@ msgstr "Transit Lag"
 msgid ""
 "Display the public transit network of a city on your map. When the Transit "
 "Layer is enabled, and the map is centered on a city that supports transit "
-"information, the map will display major transit lines as thick, colored "
-"lines."
+"information, the map will display major transit lines as thick, colored lines."
 msgstr ""
 "Vis offentlig transport vejnet af en by på kortet. Når Transit Lag er "
 "aktiveret, og kortet er centreret om en by, der understøtter transit "
@@ -1122,7 +1118,7 @@ msgstr "Markør Liste"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:368
 msgid ""
-"Display all map markers - as list bellow Your map. This will help your users "
+"Display all map markers - as list below Your map. This will help your users "
 "get more info about your markers and find required marker more faster."
 msgstr ""
 "Vis alle kort markører - som listen nedenfor dit kort. Dette vil hjælpe dine "
@@ -1149,8 +1145,8 @@ msgid ""
 msgstr ""
 "Hvis du har mange markører - du kan have en problemer med at se dem, når du "
 "zoomer ud for eksempel: de vil bare dække hver-anden. Marker clasterization "
-"kan løse dette problem ved at gruppere dine markører i grupper, når de er "
-"for tæt på hinanden-andet."
+"kan løse dette problem ved at gruppere dine markører i grupper, når de er for "
+"tæt på hinanden-andet."
 
 #: modules/gmap/views/tpl/gmapEditMap.php:398
 msgid "Base Clusterization"
@@ -1331,8 +1327,7 @@ msgid "Marker Description"
 msgstr "Markør Beskrivelse"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:827
-msgid ""
-"Write here all text, that you want to appear in marker info-window PopUp"
+msgid "Write here all text, that you want to appear in marker info-window PopUp"
 msgstr "Skriv her alt tekst, som du vil have vist i markør info-vindue 'PopUp'"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:843
@@ -1624,9 +1619,9 @@ msgid ""
 "bottom of your Google Maps. This is easy for you - but very helpful for us!"
 msgstr ""
 "Vi forsøger at gøre vores plugin bedre for dig, og du kan hjælpe os med "
-"dette. Bare klik denne mulighed af - og små promotion link vil blive "
-"tilføjet i bunden af dine Google Maps. Dette er nemt for dig - men meget "
-"nyttigt for os!"
+"dette. Bare klik denne mulighed af - og små promotion link vil blive tilføjet "
+"i bunden af dine Google Maps. Dette er nemt for dig - men meget nyttigt for "
+"os!"
 
 #: modules/options/models/modules.php:35
 msgid "Module Updated"
@@ -1658,12 +1653,12 @@ msgid ""
 "Please be advised that this option is available only in <a target='_blank' "
 "href='%s'>PRO version</a>. You can <a target='_blank' href='%s' "
 "class='button'>Get PRO</a> today and get this and other PRO option for your "
-"PopUps!"
+"Maps!"
 msgstr ""
 "Bemærk, at denne indstilling er kun tilgængelig i <a target='_blank' "
 "href='%s'>PRO versionen</a>. Du kan  <a target='_blank' href='%s' "
 "class='button'>Få PRO</a> i dag og få dette og andre PRO løsning til dine "
-"popups!"
+"Maps!"
 
 #: modules/options/views/tpl/optionsSettingsTabContent.php:3
 msgid "Save all options"
@@ -1698,9 +1693,9 @@ msgstr "Indtast venligst gyldig e-mailadresse"
 #: modules/supsystic_promo/mod.php:34
 #, php-format
 msgid ""
-"<h3>Hey, I noticed you just use %s over a week - that's awesome!</"
-"h3><p>Could you please do me a BIG favor and give it a 5-star rating on "
-"WordPress? Just to help us spread the word and boost our motivation.</p>"
+"<h3>Hey, I noticed you just use %s over a week - that's awesome!</h3><p>Could "
+"you please do me a BIG favor and give it a 5-star rating on WordPress? Just "
+"to help us spread the word and boost our motivation.</p>"
 msgstr ""
 "<H3>Hey, jeg bemærket, at du bare bruge %s over en uge - det er fantastisk</"
 "h3><p> Kan du gøre mig en stor tjeneste og give det en 5-stjernet rating på "
@@ -1721,7 +1716,7 @@ msgstr "det har jeg allerede gjort"
 
 #: modules/supsystic_promo/mod.php:38
 #, php-format
-msgid "<h3>More then eleven days with our %s plugin - Congratulations!</h3>"
+msgid "<h3>More than eleven days with our %s plugin - Congratulations!</h3>"
 msgstr "<H3> Mere end elleve dage med vores %s plugin -  Tillykke !</h3>"
 
 #: modules/supsystic_promo/mod.php:39
@@ -1736,10 +1731,10 @@ msgstr ""
 
 #: modules/supsystic_promo/mod.php:40
 msgid ""
-"<p>And today, if you want, - you can help us. This is really simple - you "
-"can just add small promo link to our site under your maps. This is small "
-"step for you, but a big help for us! Sure, if you don't want - just skip "
-"this and continue enjoy our software!</p>"
+"<p>And today, if you want, - you can help us. This is really simple - you can "
+"just add small promo link to our site under your maps. This is small step for "
+"you, but a big help for us! Sure, if you don't want - just skip this and "
+"continue enjoy our software!</p>"
 msgstr ""
 "<p>Og i dag, hvis du vil, - du kan hjælpe os. Dette er virkelig simpelt - du "
 "kan bare tilføje små promo link til vores hjemmeside under dine kort. Dette "
@@ -1783,7 +1778,7 @@ msgid "Report a bug"
 msgstr "Rapporter en fejl"
 
 #: modules/supsystic_promo/mod.php:189
-msgid "Require a new functionallity"
+msgid "Require a new functionality"
 msgstr "Kræv en ny funktionalitet"
 
 #: modules/supsystic_promo/mod.php:190
@@ -1804,17 +1799,17 @@ msgstr "Hvordan bruger jeg Google Maps Easy Widget?"
 
 #: modules/supsystic_promo/views/supsystic_promo.php:33
 msgid ""
-"1. Go to Appearance -> Widgets in the WordPress navigation menu.<br />2. "
-"Find the Google Maps Easy in the list of available widgets.<br />3. Drag the "
+"1. Go to Appearance -> Widgets in the WordPress navigation menu.<br />2. Find "
+"the Google Maps Easy in the list of available widgets.<br />3. Drag the "
 "Google Maps Easy widget to widget area, which you need.<br />4. Choose the "
 "map for widget and configure the settings - Widget Map width and height.<br /"
 ">5. Click 'Save'."
 msgstr ""
 "1. Gå til Udseende -> Widgets i WordPress navigationsmenu <br /> 2.. Find "
 "Google Maps Easy på listen over tilgængelige widgets. <br /> 3. Træk Google "
-"Maps Nem widget til widget område, som du har brug for. <br /> 4. Vælg "
-"kortet for widget og konfigurere indstillinger -. Widget Kort bredde og "
-"højde <br /> 5. Klik på 'Gem'."
+"Maps Nem widget til widget område, som du har brug for. <br /> 4. Vælg kortet "
+"for widget og konfigurere indstillinger -. Widget Kort bredde og højde <br /> "
+"5. Klik på 'Gem'."
 
 #: modules/supsystic_promo/views/supsystic_promo.php:34
 msgid "How to add map into the site content?"
@@ -1837,15 +1832,15 @@ msgstr "Hvordan tilføjer man et pop-up vindue på kortet?"
 #: modules/supsystic_promo/views/supsystic_promo.php:37
 msgid ""
 "You can add a map in popup window by inserting map shortcode in any popup "
-"text field. Learn more about how to do this <a href='http://supsystic.com/"
-"add-map-in-popup-window/'>here</a>."
+"text field. Learn more about how to do this <a href='http://supsystic.com/add-"
+"map-in-popup-window/'>here</a>."
 msgstr ""
-"Du kan tilføje et kort i pop-up-vinduet ved at indsætte kortet shortcode i "
-"en hvilken som helst popup tekstfeltet. Lær mere om hvordan du gør dette <a "
+"Du kan tilføje et kort i pop-up-vinduet ved at indsætte kortet shortcode i en "
+"hvilken som helst popup tekstfeltet. Lær mere om hvordan du gør dette <a "
 "href='http://supsystic.com/add-map-in-popup-window/'>her</a>."
 
 #: modules/supsystic_promo/views/supsystic_promo.php:38
-msgid "How to zoom and center the initial map on markers ?"
+msgid "How to zoom and center the initial map on markers?"
 msgstr "Hvordan zoome og centrere indledende kortet på markører?"
 
 #: modules/supsystic_promo/views/supsystic_promo.php:39
@@ -1853,13 +1848,13 @@ msgid ""
 "There is a few different ways to zoom and centralize map. The easiest one is "
 "to drag your map using mouse - 'Draggable' option must be enabled, or with "
 "pan controller help in live preview. <a href='http://supsystic.com/how-to-"
-"zoom-and-center-the-initial-map-on-markers/'>Read more..</a>"
+"zoom-and-center-the-initial-map-on-markers/'>Read more...</a>"
 msgstr ""
 "Der er et par forskellige måder at zoome og centralisere kort. Den nemmeste "
-"er at trække dit kort ved hjælp af musen - 'Draggable' valgmulighed skal "
-"være aktiveret, eller med pan controller hjælp i live preview. <a "
-"href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-"
-"markers/'> Læs mere .. </a>"
+"er at trække dit kort ved hjælp af musen - 'Draggable' valgmulighed skal være "
+"aktiveret, eller med pan controller hjælp i live preview. <a href='http://"
+"supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'> Læs "
+"mere .. </a>"
 
 #: modules/supsystic_promo/views/supsystic_promo.php:40
 msgid "How to get PRO version of plugin for FREE?"
@@ -1894,15 +1889,15 @@ msgid ""
 msgstr ""
 "Alle tilgængelige sprog er forsynet med Supsystic Google Maps plugin. Hvis "
 "dit sprog ikke er tilgængeligt, vil dit plugin være på engelsk som standard."
-"<br /><b>Tilgængelige oversættelser:. Engelsk, polsk, tysk, spansk, russisk "
-"</b><br /> Oversæt eller opdatere en oversættelse Google Maps WordPress "
-"plugin på dit sprog og få en Premium licens gratis. <a target='_blank' "
-"href='%s'> Kontakt os </a>."
+"<br /><b>Tilgængelige oversættelser:. Engelsk, polsk, tysk, spansk, russisk </"
+"b><br /> Oversæt eller opdatere en oversættelse Google Maps WordPress plugin "
+"på dit sprog og få en Premium licens gratis. <a target='_blank' href='%s'> "
+"Kontakt os </a>."
 
 #: modules/supsystic_promo/views/supsystic_promo.php:57
 #, php-format
 msgid ""
-"There were some problem while trying to retrive our news, but you can always "
+"There was some problem while trying to retrieve our news, but you can always "
 "check all list <a target='_blank' href='%s'>here</a>."
 msgstr ""
 "Der var nogle problemer under forsøget på at hente dine nyheder, men du kan "
@@ -1980,11 +1975,11 @@ msgstr "Send e-mail"
 
 #: modules/supsystic_promo/views/tpl/overviewTabContent.php:105
 msgid ""
-"Your email was send, we will try to respond to you as soon as possible. "
-"Thank you for support!"
+"Your email was send, we will try to respond to you as soon as possible. Thank "
+"you for support!"
 msgstr ""
-"Din e-mail blev sendt, vil vi forsøge at svare dig så hurtigt som muligt. "
-"Tak for støtte!"
+"Din e-mail blev sendt, vil vi forsøge at svare dig så hurtigt som muligt. Tak "
+"for støtte!"
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:76
 msgid "Welcome to"
@@ -1997,11 +1992,11 @@ msgstr "Dette er første opstart af %s plugin'et."
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:85
 msgid ""
-"If you are newbie - check all features on that page, if you are guru - "
-"please correct us."
+"If you are newbie - check all features on that page, if you are guru - please "
+"correct us."
 msgstr ""
-"Hvis du er nybegynder - tjek alle funktioner på denne side, hvis du er guru "
-"- du må rette os."
+"Hvis du er nybegynder - tjek alle funktioner på denne side, hvis du er guru - "
+"du må rette os."
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:94
 msgid "Please, post url"
@@ -2018,8 +2013,8 @@ msgstr "Boost os"
 #: modules/supsystic_promo/views/tpl/welcomePage.php:113
 #, php-format
 msgid ""
-"It's amazing when you boost development with your feedback and ratings. So "
-"we create special <a target='_blank' href='%s'>boost page</a> to help you to "
+"It's amazing when you boost development with your feedback and ratings. So we "
+"create special <a target='_blank' href='%s'>boost page</a> to help you to "
 "help us."
 msgstr ""
 "Det er forbløffende, når du sætte gang i udviklingen med din feedback og "
@@ -2036,9 +2031,8 @@ msgid ""
 "Check <a target='_blank' href='%s'>documentation</a> and FAQ section. If you "
 "can't solve your problems - <a target='_blank' href='%s'>contact us</a>."
 msgstr ""
-"Tjek  <a target='_blank' href='%s'>dokumentation</a>> og FAQ sektion. Hvis "
-"du ikke kan løse dine problemer - <a target='_blank' href='%s'>kontakte os</"
-"a>."
+"Tjek  <a target='_blank' href='%s'>dokumentation</a>> og FAQ sektion. Hvis du "
+"ikke kan løse dine problemer - <a target='_blank' href='%s'>kontakte os</a>."
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:122
 msgid "Full Features List"
@@ -2050,7 +2044,7 @@ msgstr ""
 "Der er så mange funktioner, så vi kan ikke skrive det her. Synes godt om"
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:125
-msgid "Capcha for admin login"
+msgid "Captcha for admin login"
 msgstr "Captcha for admin login"
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:126

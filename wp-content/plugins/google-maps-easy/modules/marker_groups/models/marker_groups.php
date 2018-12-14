@@ -11,6 +11,7 @@ class marker_groupsModelGmp extends modelGmp {
 
 		$markerGroups = frameGmp::_()->getTable('marker_groups')->orderBy($sortOrder)->get('*', $d);
 		$markerGroups = $this->_afterGet($markerGroups);
+
 		return $markerGroups;
 	}
 	public function getMarkerGroupsByIds($ids){
@@ -41,6 +42,13 @@ class marker_groupsModelGmp extends modelGmp {
 	public function remove($markerGroupId){
 		$markerGroupId = (int) $markerGroupId;
 		if(!empty($markerGroupId)) {
+			//After category with parent was deleted, connect it to "parent parent" category
+			$groupToRemoveData = array_shift($this->getMarkerGroupsByIds($markerGroupId));
+			$parentGroupToRemove = $groupToRemoveData['parent'];
+			$groupChildren = frameGmp::_()->getTable('marker_groups')->get('*', array('parent' => (int)$markerGroupId), '', 'row');
+			if(!empty($groupChildren)){
+				frameGmp::_()->getTable("marker_groups")->update(array('parent'=>$parentGroupToRemove), array('id'=>$groupChildren['id']));
+			}
 			$deleteMarkerGroup = frameGmp::_()->getTable("marker_groups")->delete($markerGroupId);
 			if($deleteMarkerGroup){
 				return frameGmp::_()->getTable("marker")->update(array('marker_group_id' => 0), array('marker_group_id' => $markerGroupId));
@@ -55,11 +63,27 @@ class marker_groupsModelGmp extends modelGmp {
 		}
 		foreach($data as $k => $group) {
 			$data[$k]['params'] = utilsGmp::unserialize($data[$k]['params']);
+			// try to find parent element, if no parent set parent = 0
+			// its for correct display category in view
+			if($data[$k]['parent'] === $data[$k]['id']){
+				$data[$k]['parent'] = 0;
+			}
+			if(!$this->searchForId($data[$k]['parent'], $data)){
+				$data[$k]['parent'] = 0;
+			}
 		}
 		if($single) {
 			$data = $data[0];
 		}
 		return $data;
+	}
+	public function searchForId($id, $array) {
+		foreach ($array as $key => $val) {
+			if ($val['id'] === $id) {
+				return $key;
+			}
+		}
+		return false;
 	}
 	protected function _dataSave($data, $update = false) {
 		$data['title'] = trim($data['title']);
@@ -211,7 +235,7 @@ class marker_groupsModelGmp extends modelGmp {
 	public function _itemGetLevel($group, $allMarkerGroups, $level = 0) {
 		if($group['parent'] != 0) {
 			foreach($allMarkerGroups as $g) {
-				if($g['id'] == $group['parent']) {
+				if($g['id'] == $group['parent'] && $level < 10) {
 					$level = $this->_itemGetLevel($g, $allMarkerGroups, ++$level);
 				}
 			}

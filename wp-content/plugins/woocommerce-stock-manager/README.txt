@@ -97,6 +97,12 @@ A: Be sure, that you have active stock manage.
 
 == Changelog ==
 
+= 1.2.7 =
+* Changed loading text domain
+* Added new feature for stock editing. When manage stock is changed, backorder and stock inputs are disabled. 
+  Stock status is changed automatically, based on stock value and backorder value, when manage stock is "yes"
+  This new feature is used for allowing only correct stock "scenario" - for example: you cannot change stock quantity, when manage stock is "no".
+
 = 1.2.6 =
 * Fixed default values for disaplay setting
 * Fixed variations ordering

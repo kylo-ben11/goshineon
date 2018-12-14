@@ -332,7 +332,7 @@ class ET_Builder_Module_Testimonial extends ET_Builder_Module {
 			ET_Builder_Element::set_style( $render_slug, array(
 				'selector'    => '%%order_class%% .et_pb_testimonial_portrait',
 				'declaration' => sprintf(
-					'width: %1$s;',
+					'width: %1$s!important;',
 					esc_html( et_builder_process_range_value( $portrait_width ) )
 				),
 			) );
@@ -342,7 +342,7 @@ class ET_Builder_Module_Testimonial extends ET_Builder_Module {
 			ET_Builder_Element::set_style( $render_slug, array(
 				'selector'    => '%%order_class%% .et_pb_testimonial_portrait',
 				'declaration' => sprintf(
-					'height: %1$s;',
+					'height: %1$s!important;',
 					esc_html( et_builder_process_range_value( $portrait_height ) )
 				),
 			) );
@@ -401,13 +401,16 @@ class ET_Builder_Module_Testimonial extends ET_Builder_Module {
 			);
 		}
 
+		$author = ! empty( $author ) ? $author : '';
+		$company_name = ! empty( $company_name ) ? $company_name : '';
+
 		if ( '' !== $url && ( '' !== $company_name || '' !== $author ) ) {
 			// NOT allowing full html for backwards compatibility in this case.
 			$author       = $this->_esc_attr( 'author' );
 			$company_name = $this->_esc_attr( 'company_name' );
 			$link_output  = sprintf( '<a href="%1$s"%3$s>%2$s</a>',
 				esc_url( $url ),
-				( '' !== $company_name ? et_esc_previously( $company_name ) : et_esc_previously( $author ) ),
+				( '' !== $company_name ? et_core_esc_previously( $company_name ) : et_core_esc_previously( $author ) ),
 				( 'on' === $url_new_window ? ' target="_blank"' : '' )
 			);
 
@@ -494,13 +497,13 @@ class ET_Builder_Module_Testimonial extends ET_Builder_Module {
 				</div> <!-- .et_pb_testimonial_description -->
 			</div> <!-- .et_pb_testimonial -->',
 			$this->content,
-			et_esc_previously( $author ),
+			et_core_esc_previously( $author ),
 			$this->module_id(),
 			$this->module_classname( $render_slug ),
-			( '' !== $job_title ? et_esc_previously( $job_title ) : '' ), // #5
+			( '' !== $job_title ? et_core_esc_previously( $job_title ) : '' ), // #5
 			( '' !== $company_name
 				? sprintf( '%2$s%1$s',
-					et_esc_previously( $company_name ),
+					et_core_esc_previously( $company_name ),
 					( '' !== $job_title ? ', ' : '' )
 				)
 				: ''
@@ -508,8 +511,8 @@ class ET_Builder_Module_Testimonial extends ET_Builder_Module {
 			( '' !== $portrait_image ? $portrait_image : '' ),
 			$video_background,
 			$parallax_image_background,
-			et_esc_previously( $data_background_layout ), // #10
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ), // #10
+			et_core_esc_previously( $data_background_layout_hover )
 		);
 
 		return $output;

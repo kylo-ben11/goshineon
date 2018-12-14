@@ -628,7 +628,7 @@ class WCM_Table {
     public static function manage_stock_box($product_meta, $item){
         ?>
         <td>
-            <select name="manage_stock[<?php echo $item; ?>]" class="manage_stock_<?php echo $item; ?>">
+            <select name="manage_stock[<?php echo $item; ?>]" class="manage_stock_<?php echo $item; ?> manage_stock_select" data-item="<?php echo $item; ?>">
               <option value="yes" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','stock-manager'); ?></option>
               <option value="no" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','stock-manager'); ?></option>
             </select>
@@ -643,9 +643,10 @@ class WCM_Table {
     public static function stock_status_box($product_meta, $item){
         ?>
         <td>
-            <select name="stock_status[<?php echo $item; ?>]" class="stock_status_<?php echo $item; ?>">
+            <select name="stock_status[<?php echo $item; ?>]" class="stock_status_<?php echo $item; ?> stock_status_select" data-item="<?php echo $item; ?>" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'yes'){ echo 'disabled'; } ?>>
               <option value="instock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'instock'){ echo 'selected="selected"'; } ?>><?php _e('In stock','stock-manager'); ?></option>
               <option value="outofstock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'outofstock'){ echo 'selected="selected"'; } ?>><?php _e('Out of stock','stock-manager'); ?></option>
+              <option value="onbackorder" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'onbackorder'){ echo 'selected="selected"'; } ?>><?php _e('On backorder','stock-manager'); ?></option>
             </select>
           </td>
         <?php
@@ -658,7 +659,7 @@ class WCM_Table {
     public static function backorders_box($product_meta, $item){
         ?>
         <td>
-            <select name="backorders[<?php echo $item; ?>]" class="backorders_<?php echo $item; ?>">
+            <select name="backorders[<?php echo $item; ?>]" class="backorders_<?php echo $item; ?> backorders_select" data-item="<?php echo $item; ?>" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'disabled'; } ?>>
               <option value="no" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','stock-manager'); ?></option>
               <option value="notify" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'notify'){ echo 'selected="selected"'; } ?>><?php _e('Notify','stock-manager'); ?></option>
               <option value="yes" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','stock-manager'); ?></option>
@@ -683,8 +684,9 @@ class WCM_Table {
             $class = self::get_stock_qty_class( $stock_number );
         }else{
             $class = '';
-            $stock_number = 0;
+            $stock_number = '0';
         }
+        if( empty( $stock_number ) ){ $stock_number = 0; }
         $_product = wc_get_product( $item );
         $product_type = $_product->get_type();
             if( $product_type == 'variable' ){
@@ -693,7 +695,7 @@ class WCM_Table {
                 if( !empty( $variable_stock ) && $variable_stock == 'ok' ){
                     ?>
                     <td class="td_center <?php echo $class; ?>" style="width:70px;">
-                        <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?>" style="width:70px;" />
+                        <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?> stock_number" data-item="<?php echo $item; ?>" style="width:70px;"  <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'disabled'; } ?> />
                     </td>
                     <?php
                 }else{
@@ -702,14 +704,14 @@ class WCM_Table {
                     $class = self::get_stock_qty_class( $stock_number );
                     ?>
                     <td class="td_center <?php echo $class; ?>" style="width:70px;">
-                        <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?>" style="width:70px;background:#ffffff;" disabled="disabled" />
+                        <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?> stock_number" data-item="<?php echo $item; ?>" style="width:70px;background:#ffffff;" disabled="disabled" />
                     </td>
                     <?php
                 }
             }else{
             ?>
                 <td class="td_center <?php echo $class; ?>" style="width:70px;">
-                    <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?>" style="width:70px;" />
+                    <input type="number" name="stock[<?php echo $item; ?>]" step="<?php echo $step; ?>" value="<?php echo $stock_number; ?>" class="stock_<?php echo $item; ?> stock_number" data-item="<?php echo $item; ?>" style="width:70px;"  <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'disabled'; } ?> />
                 </td>
             <?php
             }

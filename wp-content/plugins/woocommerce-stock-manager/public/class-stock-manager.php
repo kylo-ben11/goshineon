@@ -16,7 +16,7 @@ class Stock_Manager {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '1.2.6';
+	const VERSION = '1.2.7';
 
 	/**
 	 * Plugin slug
@@ -44,12 +44,12 @@ class Stock_Manager {
 	private function __construct() {
 
 		// Load plugin text domain
-		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_plugin_textdomain' ) );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
 
-   add_action( 'init', array( $this, 'output_buffer' ) );
+   		add_action( 'init', array( $this, 'output_buffer' ) );
     
 	}                   
 
@@ -226,7 +226,8 @@ class Stock_Manager {
 		$domain = $this->plugin_slug;
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
-		load_textdomain( $domain, STOCKDIR . 'languages/woocommerce-stock-manager-' . $locale . '.mo' );
+		//load_textdomain( $domain, STOCKDIR . 'languages/woocommerce-stock-manager-' . $locale . '.mo' );
+		load_plugin_textdomain( $domain, FALSE, STOCKDIR . '/languages/' );
 
 	}
 

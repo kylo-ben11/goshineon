@@ -53,6 +53,11 @@
 	padding: 10px 0px;
 	font-weight: 600;
 }
+.gmp_map_opts .filterRight .list-group {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
 .gmp_map_opts .filterRight .treeview span.icon.check-icon{
 	font-size: 22px;
 	margin-right: 12px;
@@ -72,4 +77,54 @@
 }
 .gm-control-active {
 	white-space: inherit;
+}
+@media
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	.gmpMarkerGroupWrapper table,
+	.gmpMarkerGroupWrapper thead,
+	.gmpMarkerGroupWrapper tbody,
+	.gmpMarkerGroupWrapper th,
+	.gmpMarkerGroupWrapper td,
+	.gmpMarkerGroupWrapper tr {
+		display: block;
+	}
+
+	/* Hide table headers (but not display: none;, for accessibility) */
+	.gmpMarkerGroupWrapper thead tr {
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+
+	.gmpMmlSlideTableHeader{
+		display: none!important;
+	}
+
+	.gmpMarkerGroupWrapper  tr { border: 1px solid #ccc; }
+
+	.gmpMarkerGroupWrapper  td {
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee;
+		position: relative;
+		padding-left: 50%!important;
+	}
+
+	.gmpMarkerGroupWrapper  td:before {
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		left: 6px;
+		width: 45%;
+		padding-right: 10px;
+		white-space: nowrap;
+		top: 50%;
+		-webkit-transform: translateY(-50%);
+		-moz-transform: translateY(-50%);
+		-ms-transform: translateY(-50%);
+		transform: translateY(-50%);
+	}
 }

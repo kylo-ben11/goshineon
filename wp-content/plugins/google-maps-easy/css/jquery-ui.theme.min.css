@@ -50,7 +50,7 @@ table, th {
 	font-size: 13px !important;
 }
 .ui-dialog .ui-icon {
-	background: transparent !important;
+	/*background: transparent !important;*/
 	text-indent: inherit;
 	font: normal normal normal 14px/1 FontAwesome;
 	color: black !important;
@@ -238,5 +238,5 @@ thead .ui-jqgrid-labels th[id$='_cb'] .s-ico {
   content: "\f002";
 }
 .ui-dialog-titlebar-close::before {	/*disallow other close btns style be here*/
-	content: "" !important;
+	content: "x" !important;
 }

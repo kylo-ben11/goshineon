@@ -244,13 +244,14 @@ class ET_Builder_Module_Field_Border extends ET_Builder_Module_Field_Base {
 		return $additional_options;
 	}
 
-	public function get_radii_style( array $atts, array $advanced_options, $suffix = '', $overflow = true, $is_hover = false ) {
+	public function get_radii_style( array $atts, array $advanced_fields, $suffix = '', $overflow = true, $is_hover = false ) {
 		$style = '';
 
 		$important = '';
-		if ( isset( $advanced_fields['border']['css']['important'] ) ) {
-			if ( 'plugin_only' === $advanced_fields['border']['css']['important'] ) {
-				$important = et_is_builder_plugin_active() ? '!important' : '';
+
+		if ( isset( $advanced_options['border']['css']['important'] ) ) {
+			if ( 'plugin_only' === $advanced_options['border']['css']['important'] ) {
+				$important = et_builder_has_limitation( 'force_use_global_important' ) ? '!important' : '';
 			} else {
 				$important = '!important';
 			}
@@ -258,22 +259,22 @@ class ET_Builder_Module_Field_Border extends ET_Builder_Module_Field_Base {
 
 		// Border Radius CSS
 		$value_suffix = true === $is_hover ? et_pb_hover_options()->get_suffix() : '';
-		$settings     = $advanced_options["border{$suffix}"]["border_radii{$suffix}"];
+		$settings     = $advanced_fields["border{$suffix}"]["border_radii{$suffix}"];
 		$radii        = isset( $atts["border_radii{$suffix}{$value_suffix}"] ) ? $atts["border_radii{$suffix}{$value_suffix}"] : false;
 
 		if ( true === $is_hover && false === $radii ) {
 			return '';
 		}
 
-		if ( isset( $settings['default'] ) && ( $settings['default'] != $radii ) ) {
+		if ( isset( $settings['default'] ) && ( $settings['default'] !== $radii ) ) {
 			$radii = explode( '|', $radii );
-			if ( count( $radii ) == 5 ) {
+			if ( count( $radii ) === 5 ) {
 				$top_left_radius     = empty( $radii[1] ) ? '0' : esc_html( $radii[1] );
 				$top_right_radius    = empty( $radii[2] ) ? '0' : esc_html( $radii[2] );
 				$bottom_right_radius = empty( $radii[3] ) ? '0' : esc_html( $radii[3] );
 				$bottom_left_radius  = empty( $radii[4] ) ? '0' : esc_html( $radii[4] );
 
-				$important = et_intentionally_unescaped( $important, 'fixed_string' );
+				$important = et_core_intentionally_unescaped( $important, 'fixed_string' );
 				$style = "border-radius: {$top_left_radius} {$top_right_radius} {$bottom_right_radius} {$bottom_left_radius}{$important};";
 				if ( true === $overflow ) {
 					$style .= "overflow: hidden{$important};";
@@ -295,9 +296,9 @@ class ET_Builder_Module_Field_Border extends ET_Builder_Module_Field_Base {
 
 		self::$_is_default = array();
 
-		if ( isset( $advanced_fields['border']['css']['important'] ) ) {
-			if ( 'plugin_only' === $advanced_fields['border']['css']['important'] ) {
-				$important = et_is_builder_plugin_active() ? '!important' : '';
+		if ( isset( $advanced_options['border']['css']['important'] ) ) {
+			if ( 'plugin_only' === $advanced_options['border']['css']['important'] ) {
+				$important = et_builder_has_limitation( 'force_use_global_important' ) ? '!important' : '';
 			} else {
 				$important = '!important';
 			}

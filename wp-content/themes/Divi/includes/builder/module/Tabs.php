@@ -42,7 +42,7 @@ class ET_Builder_Module_Tabs extends ET_Builder_Module {
 					'label'    => esc_html__( 'Body', 'et_builder' ),
 					'css'      => array(
 						'main' => "{$this->main_css_element} .et_pb_all_tabs .et_pb_tab",
-						'plugin_main' => "{$this->main_css_element} .et_pb_all_tabs .et_pb_tab, {$this->main_css_element} .et_pb_all_tabs .et_pb_tab p",
+						'limited_main' => "{$this->main_css_element} .et_pb_all_tabs .et_pb_tab, {$this->main_css_element} .et_pb_all_tabs .et_pb_tab p",
 						'line_height' => "{$this->main_css_element} .et_pb_tab p",
 					),
 				),
@@ -181,7 +181,7 @@ class ET_Builder_Module_Tabs extends ET_Builder_Module {
 			foreach ( $et_pb_tab_titles as $tab_title ){
 				++$i;
 				$tabs .= sprintf( '<li class="%3$s%1$s"><a href="#">%2$s</a></li>',
-					( 1 == $i ? ' et_pb_tab_active' : '' ),
+					( 1 === $i ? ' et_pb_tab_active' : '' ),
 					esc_html( $tab_title ),
 					esc_attr( ltrim( $et_pb_tab_classes[ $i-1 ] ) )
 				);

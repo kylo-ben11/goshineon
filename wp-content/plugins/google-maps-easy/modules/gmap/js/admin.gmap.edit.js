@@ -495,6 +495,14 @@ jQuery(document).ready(function(){
 		}
 	});
 	// Map Marker Info Window width and height units
+	jQuery('#gmpMapForm #map_opts_enable_google_kml_api').change(function(){
+		if(this.checked) {
+			jQuery('#gmpMapForm #map_opts_enable_kml_filter_text').closest('div').addClass('gmpHidden');
+		}else{
+			jQuery('#gmpMapForm #map_opts_enable_kml_filter_text').closest('div').removeClass('gmpHidden');
+		}
+	});
+	// Map Marker Info Window width and height units
 	jQuery('#gmpMapForm select[name="map_opts[marker_infownd_type]"]').change(function(){
 		gmpToggleSubOptionsByDataParam(jQuery(this).val());
 	});

@@ -35,7 +35,7 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 					'label'    => esc_html__( 'Title', 'et_builder' ),
 					'css'      => array(
 						'main' => "{$this->main_css_element} h2, {$this->main_css_element} .et_pb_module_header",
-						'plugin_main' => "{$this->main_css_element} h2, {$this->main_css_element} h2 a, {$this->main_css_element} h1.et_pb_module_header, {$this->main_css_element} h1.et_pb_module_header a, {$this->main_css_element} h3.et_pb_module_header, {$this->main_css_element} h3.et_pb_module_header a, {$this->main_css_element} h4.et_pb_module_header, {$this->main_css_element} h4.et_pb_module_header a, {$this->main_css_element} h5.et_pb_module_header, {$this->main_css_element} h5.et_pb_module_header a, {$this->main_css_element} h6.et_pb_module_header, {$this->main_css_element} h6.et_pb_module_header a",
+						'limited_main' => "{$this->main_css_element} h2, {$this->main_css_element} h2 a, {$this->main_css_element} h1.et_pb_module_header, {$this->main_css_element} h1.et_pb_module_header a, {$this->main_css_element} h3.et_pb_module_header, {$this->main_css_element} h3.et_pb_module_header a, {$this->main_css_element} h4.et_pb_module_header, {$this->main_css_element} h4.et_pb_module_header a, {$this->main_css_element} h5.et_pb_module_header, {$this->main_css_element} h5.et_pb_module_header a, {$this->main_css_element} h6.et_pb_module_header, {$this->main_css_element} h6.et_pb_module_header a",
 						'important' => 'all',
 					),
 					'header_level' => array(
@@ -47,7 +47,7 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 					'hide_text_align' => true,
 					'css'      => array(
 						'main' => "{$this->main_css_element} .et_pb_portfolio_filter",
-						'plugin_main' => "{$this->main_css_element} .et_pb_portfolio_filter, {$this->main_css_element} .et_pb_portfolio_filter a",
+						'limited_main' => "{$this->main_css_element} .et_pb_portfolio_filter, {$this->main_css_element} .et_pb_portfolio_filter a",
 						'color' => "{$this->main_css_element} .et_pb_portfolio_filter a",
 					),
 				),
@@ -425,7 +425,7 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 
 				$post_index++;
 			}
-		} else if ( wp_doing_ajax() ) {
+		} else if ( wp_doing_ajax() || et_core_is_fb_enabled() ) {
 			// This is for the VB
 			$query = array( 'posts' => self::get_no_results_template() );
 		}
@@ -554,7 +554,7 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 
 								printf( '<span class="et_overlay%1$s"%2$s></span>',
 									( '' !== $hover_icon ? ' et_pb_inline_icon' : '' ),
-									$data_icon
+									et_core_esc_previously( $data_icon )
 								);
 
 						?>
@@ -566,11 +566,13 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 				?>
 
 				<?php if ( 'on' === $show_title ) : ?>
-					<<?php echo et_pb_process_header_level( $header_level, 'h2' ) ?> class="et_pb_module_header"><a href="<?php echo esc_url( $permalink ); ?>"><?php echo $titletext; ?></a></<?php echo et_pb_process_header_level( $header_level, 'h2' ) ?>>
+					<<?php echo et_pb_process_header_level( $header_level, 'h2' ) ?> class="et_pb_module_header">
+						<a href="<?php echo esc_url( $permalink ); ?>"><?php echo et_core_intentionally_unescaped( $titletext, 'html' ); ?></a>
+					</<?php echo et_pb_process_header_level( $header_level, 'h2' ) ?>>
 				<?php endif; ?>
 
 				<?php if ( 'on' === $show_categories ) : ?>
-					<p class="post-meta"><?php echo $post_meta; ?></p>
+					<p class="post-meta"><?php echo et_core_esc_wp( $post_meta ); ?></p>
 				<?php endif; ?>
 
 				</div><!-- .et_pb_portfolio_item -->
@@ -668,8 +670,8 @@ class ET_Builder_Module_Filterable_Portfolio extends ET_Builder_Module_Type_Post
 			is_rtl() ? ' data-rtl="true"' : '',
 			$video_background,
 			$parallax_image_background, // #10
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover )
 		);
 
 		return $output;

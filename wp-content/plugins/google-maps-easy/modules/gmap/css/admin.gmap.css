@@ -165,8 +165,9 @@
 #gmpMapPropertiesTabs a.nav-tab p {
 	font-size: 16px;
 	font-weight: normal;
-	min-height: 35px;
+	min-height: 28px;
 	vertical-align: middle;
+	line-height: unset;
 }
 #gmpMapPropertiesTabs a.nav-tab:first-of-type p {
 	padding-top: 4px;
@@ -258,4 +259,7 @@
 }
 .gmpKmlImportToMarkerLbl > div {
 	margin-right: 10px;
+}
+.gmpHidden{
+	display: none;
 }

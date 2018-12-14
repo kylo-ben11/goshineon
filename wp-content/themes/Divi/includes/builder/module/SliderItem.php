@@ -55,7 +55,7 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 					'label'    => esc_html__( 'Title', 'et_builder' ),
 					'css'      => array(
 						'main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_slide_description .et_pb_slide_title",
-						'plugin_main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_slide_description .et_pb_slide_title, .et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_slide_description .et_pb_slide_title a",
+						'limited_main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_slide_description .et_pb_slide_title, .et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_slide_description .et_pb_slide_title a",
 						'important' => 'all',
 					),
 					'line_height' => array(
@@ -90,7 +90,7 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 					'label' => esc_html__( 'Button', 'et_builder' ),
 					'css'      => array(
 						'main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_more_button.et_pb_button",
-						'plugin_main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_more_button.et_pb_button",
+						'limited_main' => ".et_pb_slider {$this->main_css_element}.et_pb_slide .et_pb_more_button.et_pb_button",
 						'alignment' => ".et_pb_slider {$this->main_css_element} .et_pb_slide_description .et_pb_button_wrapper",
 					),
 					'use_alignment' => true,
@@ -477,7 +477,7 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 		// In VB, inheritance is done in VB side. However in migrating changing default that is affected by inheritance, the value
 		// needs to be modified before being set to avoid sudden color change when _builder_version is bumped when settings modal
 		// is opened. This making prior saved value changed but it is the safest option considering old Divi doesn't trim background_color
-		if ( ! empty( $et_pb_slider ) && is_admin() && $is_prior_v32 ) {
+		if ( ! empty( $et_pb_slider ) && ( is_admin() || et_core_is_fb_enabled() ) && $is_prior_v32 ) {
 			$slider_background_color           = self::$_->array_get( $et_pb_slider, 'background_color', '' );
 			$is_slide_background_color_empty   = in_array( $this->props['background_color'], array( '', '#ffffff', et_builder_accent_color() ) );
 			$is_slider_background_color_filled = '' !== $slider_background_color;
@@ -530,14 +530,14 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 			if ( '#' !== $button_link ) {
 				$heading = sprintf( '<a href="%1$s">%2$s</a>',
 					esc_url( $button_link ),
-					et_esc_previously( $heading )
+					et_core_esc_previously( $heading )
 				);
 			}
 
 			$heading = sprintf(
 				'<%1$s class="et_pb_slide_title">%2$s</%1$s>',
 				et_pb_process_header_level( $header_level, 'h2' ),
-				et_esc_previously( $heading )
+				et_core_esc_previously( $heading )
 			);
 		}
 
@@ -565,7 +565,7 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 			'display_button'      => true,
 		) );
 
-		$style = $class = '';
+		$class = '';
 
 		if ( 'on' === $use_bg_overlay && '' !== $bg_overlay_color ) {
 			ET_Builder_Element::set_style( $render_slug, array(
@@ -607,8 +607,6 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 				),
 			) );
 		}
-
-		$style = '' !== $style ? " style='{$style}'" : '';
 
 		$image = '' !== $image
 			? sprintf( '<div class="et_pb_slide_image"><img src="%1$s" alt="%2$s" /></div>',
@@ -681,7 +679,7 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 		$slide_content = sprintf(
 			'%1$s
 				<div class="et_pb_slide_content%3$s">%2$s</div>',
-			et_esc_previously( $heading ),
+			et_core_esc_previously( $heading ),
 			$this->content,
 			( 'on' !== $et_pb_slider_show_mobile['show_content_on_mobile'] ? esc_attr( " {$hide_on_mobile_class}" ) : '' )
 		);
@@ -710,24 +708,23 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 		}
 
 		$output = sprintf(
-			'<div class="%5$s"%3$s%8$s%9$s%11$s%12$s>
-				%7$s
-				%10$s
+			'<div class="%4$s"%7$s%8$s%10$s%11$s>
+				%6$s
+				%9$s
 				<div class="et_pb_container clearfix">
 					<div class="et_pb_slider_container_inner">
-						%4$s
+						%3$s
 						<div class="et_pb_slide_description">
 							%1$s
 							%2$s
 						</div> <!-- .et_pb_slide_description -->
 					</div>
 				</div> <!-- .et_pb_container -->
-				%6$s
+				%5$s
 			</div> <!-- .et_pb_slide -->
 			',
 			$slide_content,
 			$button,
-			$style,
 			$image,
 			$this->module_classname( $render_slug ), // #5
 			$video_background,
@@ -735,8 +732,8 @@ class ET_Builder_Module_Slider_Item extends ET_Builder_Module {
 			$data_dot_nav_custom_color,
 			$data_arrows_custom_color,
 			'on' === $use_bg_overlay ? '<div class="et_pb_slide_overlay_container"></div>' : '', // #10
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover )
 		);
 
 		return $output;

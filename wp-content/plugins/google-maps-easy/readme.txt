@@ -4,8 +4,8 @@ Author URI: https://supsystic.com/
 Plugin URI: https://supsystic.com/plugins/google-maps-plugin
 Donate link: https://supsystic.com/plugins/google-maps-plugin
 Tags: google map, map, Google Maps, map markers, location
-Tested up to: 4.9.8
-Stable tag: 1.9.8
+Tested up to: 5.0.0
+Stable tag: 1.9.14
 
 Google Maps with markers, locations and clusterization. Any data on the google map: text, images, videos. Custom google map markers with map builder
 
@@ -18,14 +18,14 @@ Google Maps with markers, locations and clusterization. Any data on the google m
 
 = Google Maps Plugin Features =
 
-* Google Map builder in live mode
-* Unlimited number of map markers and locations
-* Map Markers with media description. Text, images, video, email, phone
-* Compatible with any mobile devices
-* Add google map markers and locations by searching or coordinates
+* Online Google Map builder
+* [Unlimited number](https://supsystic.com/feature/unlimited-maps-and-markers/ "Unlimited Number of Map Markers") of map markers and locations
+* Map Markers with [media description](http://supsystic.com/marker-description-example/ "Google Maps Marker Descriptions"). Text, images, video, email, phone
+* Compatible with [any mobile devices](https://supsystic.com/feature/fully-responsive-google-maps/ "Fully Responsive Google Maps")
+* Add Google Map markers and locations by searching or coordinates
 * 100% customizable. All google map and markers options can be modified
 * Works with any WordPress themes
-* Add map with shortcode or PHP code
+* [Add map with shortcode or PHP code](https://supsystic.com/documentation/add-map-site-content/ "Add Google Map to the website")
 * Google Maps and Markers Import and Export feature
 * [Map with Exposition slider](https://supsystic.com/exposition-slider-example/ "Exposition slider")
 * [KML layers (import and filter)](https://supsystic.com/kml-filter/ "KML filter") (pro)
@@ -33,9 +33,9 @@ Google Maps with markers, locations and clusterization. Any data on the google m
 * [Heatmap Layer](https://supsystic.com/heatmap-layer/ "Heatmap") (pro)
 * [Front-end map and markers editing](https://supsystic.com/add-markers-frontend-pro-option/ "Front-end markers editing") (pro)
 * [Map Markers and Locations groups (clusterization)](http://supsystic.com/clusterization-example/ "Google Maps Clusterization") (pro)
-* [Display google map markers with slider mode](http://supsystic.com/horizontal-slider-example/ "Google Maps with Slider") (pro)
+* [Display Google Map markers with slider mode](http://supsystic.com/horizontal-slider-example/ "Google Maps with Slider") (pro)
 * [Draw figures and paths on the map](http://supsystic.com/google-map-with-kml-layer/ "Draw Figures and Paths on the Map") (pro)
-See more examples [here](https://supsystic.com/google-maps-easy-usage-examples/ "Map examples") 
+More [Google Maps Examples](https://supsystic.com/google-maps-easy-usage-examples/ "Google Maps Examples") 
 
 Create [Google Maps](http://supsystic.com/plugins/google-maps-plugin?utm_source=wordpress&utm_medium=description&utm_campaign=maps "Google Maps WordPress plugin") in a minute with with Google Maps Easy WordPress plugin. 
 Google Map markers with any media, location points with video and text descriptions.
@@ -202,7 +202,7 @@ Copy and paste the shortcode into your post or page and Google Maps Easy will au
 
 2. [Google Maps Easy WordPress plugin](http://supsystic.com/plugins/google-maps-plugin?utm_source=wordpress&utm_medium=screenshots&utm_campaign=maps "Google Maps WordPress plugin") admin area. Provides directions, interactive maps, and satellite/aerial imagery.
 
-3. Map with markers images slider - display all map markers - as list bellow your map. This will help your users get more info about your markers and find required marker more faster.
+3. Map with markers images slider - display all map markers - as list below your map. This will help your users get more info about your markers and find required marker more faster.
 
 4. Google Maps Easy plugin admin area. Add marker to the google map.
 
@@ -211,6 +211,46 @@ Copy and paste the shortcode into your post or page and Google Maps Easy will au
 6. Google Map Stylizations. Make your map unique with our Map Themes!
 
 == Changelog ==
+
+= Google Map Plugin v1.9.14 / 11.12.2018 =
+ * Fixed marker category behavior
+ * Small fix for Checkbox Marker List for Frontend
+
+= Google Map Plugin v1.9.13 / 04.12.2018 =
+ * Small fix for Checkbox Marker List for Frontend
+ * Minor issues fix
+
+= Google Map Plugin v1.9.12 / 15.11.2018 =
+ * Added possibility to display kml layers fast but without filters
+ * Add tooltip for KML faster load feature
+ * Minor issues fix
+
+= Google Map Plugin v1.9.11 / 30.10.2018 =
+ * Fix issue with responsivity of Google Maps and whole sies
+
+= Google Map Plugin v1.9.10 / 29.10.2018 =
+ * Free maps for all!
+
+= Google Map Plugin v1.9.9 / 24.10.2018 =
+ * Possibility to load Google Maps scripts - from frontend
+ * Added possibility to show map as Static Image
+ * Fixed tables views, added responsive mode
+ * Fixed bugs with not loaded google libraries in admin panel
+ * Revert "Fixed bugs with not loaded google libraries in admin panel."
+ * Fixed display direction with filter
+ * Added posibility to export and import figure and heatmap
+ * Fixed compability with jquery ver > 3
+ * Fixed marker import from kml
+ * Fixed import figures and heatmaps
+ * Fixed menu height
+ * Fix of displaying of Directions Form after opening of map on full screen via default full screen button
+ * Disabled loading kml scripts without kml file
+ * Fixed markers import from kml
+ * Fixed bug with closed markers list
+ * Fixed map width params
+ * Prevented create maps with width > 100 %. Changed width, height input`s type to number
+ * Fixed tab positions. Removed heatmaps points from preview after delete
+ * Minor issues fix
 
 = Google Map Plugin v1.9.8 / 04.09.2018 =
  * Fix for gm control buttons

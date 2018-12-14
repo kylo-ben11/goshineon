@@ -59,7 +59,7 @@ class ET_Builder_Module_Fullwidth_Post_Title extends ET_Builder_Module {
 					'label'    => esc_html__( 'Meta', 'et_builder' ),
 					'css'      => array(
 						'main' => "{$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container, {$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container a",
-						'plugin_main' => "{$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container, {$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container a, {$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container span",
+						'limited_main' => "{$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container, {$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container a, {$this->main_css_element} .et_pb_title_container .et_pb_title_meta_container span",
 					),
 				),
 			),
@@ -328,13 +328,13 @@ class ET_Builder_Module_Fullwidth_Post_Title extends ET_Builder_Module {
 
 		if ( 'on' === $title ) {
 			if ( is_et_pb_preview() && isset( $_POST['post_title'] ) && wp_verify_nonce( $_POST['et_pb_preview_nonce'], 'et_pb_preview_nonce' ) ) {
-				$post_title = sanitize_text_field( wp_unslash( $_POST['post_title'] ) );
+				$post_title = esc_html( sanitize_text_field( wp_unslash( $_POST['post_title'] ) ) );
 			} else {
 				$post_title = get_the_title();
 			}
 
 			$output .= sprintf( '<%2$s class="entry-title">%s</%2$s>',
-				$post_title,
+				et_core_esc_previously( $post_title ),
 				et_pb_process_header_level( $header_level, 'h1' )
 			);
 		}

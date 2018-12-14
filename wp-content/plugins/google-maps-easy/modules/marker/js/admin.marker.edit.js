@@ -324,6 +324,11 @@ function gmpResetMarkerForm() {
 
 	gmpSetIconImg();
 	gmpAddLinkOptions();
+
+	jQuery('#gmpMarkerForm select[name="marker_opts[marker_group_id][]"] option:selected').prop("selected", false);
+	jQuery('#gmpMarkerForm select[name="marker_opts[marker_group_id][]"] option[value="0"]').prop("selected", true);
+	jQuery('#marker_opts_marker_group_id').trigger("chosen:updated");
+	
 	jQuery(document).trigger('gmpAfterResetMarkerForm');
 }
 function _gmpCreateNewMapMarker(params) {
@@ -727,3 +732,6 @@ function gmpBindMarkerTinyMceUpdate() {
 			buildListClb( gmpMainMap.markers );
 	}
 }*/
+
+
+

@@ -260,9 +260,11 @@ class ET_Builder_Section extends ET_Builder_Structure_Element {
 				'type'             => 'range',
 				'option_category'  => 'layout',
 				'range_settings'   => array(
-					'min'  => 1,
-					'max'  => 4,
-					'step' => 1,
+					'min'       => 1,
+					'max'       => 4,
+					'step'      => 1,
+					'min_limit' => 1,
+					'max_limit' => 4,
 				),
 				'depends_show_if'  => 'on',
 				'tab_slug'         => 'advanced',
@@ -632,8 +634,8 @@ class ET_Builder_Section extends ET_Builder_Structure_Element {
 					$gutter_class .= ' et_pb_gutter_hover';
 
 					$gutter_hover_data = sprintf(
-						' data-original_gutter="%1$s" data-hover_gutter="%2$s"', 
-						esc_attr($gutter_width), 
+						' data-original_gutter="%1$s" data-hover_gutter="%2$s"',
+						esc_attr($gutter_width),
 						esc_attr($gutter_width_hover)
 					);
 				}
@@ -824,8 +826,10 @@ class ET_Builder_Section extends ET_Builder_Structure_Element {
 			}
 
 			if ( 'on' === $use_custom_width ) {
+				// Override the fullwidth post row width styles so rows do not have different
+				// widths on posts compared to other post types.
 				ET_Builder_Element::set_style( $function_name, array(
-					'selector'    => '%%order_class%% > .et_pb_row',
+					'selector'    => '%%order_class%% > .et_pb_row, .et_pb_pagebuilder_layout.single.et_full_width_page #page-container %%order_class%% .et_pb_row',
 					'declaration' => sprintf(
 						'max-width:%1$s !important;
 						%2$s',
@@ -928,7 +932,9 @@ class ET_Builder_Section extends ET_Builder_Structure_Element {
 			) );
 		}
 
-		$is_transparent_background = 'rgba(255,255,255,0)' === $background_color || ( et_is_builder_plugin_active() && '' === $background_color );
+		// Transparent is default for Builder Plugin, but not for theme
+		$page_setting_section_background = et_builder_settings_get( 'et_pb_section_background_color', get_the_ID() );
+		$is_transparent_background = 'rgba(255,255,255,0)' === $background_color || ( et_is_builder_plugin_active() && '' === $background_color && '' === $page_setting_section_background );
 
 		if ( '' !== $background_video_mp4 || '' !== $background_video_webm || ( '' !== $background_color && ! $is_transparent_background ) || '' !== $background_image ) {
 			$this->add_classname( 'et_pb_with_background' );
@@ -1029,21 +1035,23 @@ class ET_Builder_Section extends ET_Builder_Structure_Element {
 			$module_classes, // 3
 			$this->module_id(), // 4
 			( 'on' === $specialty ?
-				sprintf( '<div class="et_pb_row%1$s"%2$s>', $gutter_class, et_esc_previously( $gutter_hover_data ) )
+				sprintf( '<div class="et_pb_row%1$s"%2$s>', $gutter_class, et_core_esc_previously( $gutter_hover_data ) )
 				: '' ), // 5
 			( 'on' === $specialty ? '</div> <!-- .et_pb_row -->' : '' ), // 6
 			( '' !== $background_image && 'on' === $parallax
 				? sprintf(
-					'<div class="et_parallax_bg%2$s%3$s" style="background-image: url(%1$s);"></div>',
+					'%4$s<div class="et_parallax_bg%2$s%3$s" style="background-image: url(%1$s);"></div>%5$s',
 					esc_attr( $background_image ),
 					( 'off' === $parallax_method ? ' et_pb_parallax_css' : '' ),
-					( ( 'off' !== $inner_shadow && 'off' === $parallax_method ) ? ' et_pb_inner_shadow' : '' )
+					( ( 'off' !== $inner_shadow && 'off' === $parallax_method ) ? ' et_pb_inner_shadow' : '' ),
+					!et_core_is_fb_enabled() ? '' : '<div class="et_parallax_bg_wrap">',
+					!et_core_is_fb_enabled() ? '' : '</div>'
 				)
 				: ''
 			), // 7
 			$this->get_module_data_attributes(), // 8
-			et_esc_previously( $top ), // 9
-			et_esc_previously( $bottom ) // 10
+			et_core_esc_previously( $top ), // 9
+			et_core_esc_previously( $bottom ) // 10
 		);
 
 		if ( 'on' === $specialty ) {
@@ -1363,9 +1371,11 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 				'type'             => 'range',
 				'option_category'  => 'layout',
 				'range_settings'   => array(
-					'min'  => 1,
-					'max'  => 4,
-					'step' => 1,
+					'min'       => 1,
+					'max'       => 4,
+					'step'      => 1,
+					'min_limit' => 1,
+					'max_limit' => 4,
 				),
 				'depends_show_if'  => 'on',
 				'description'      => esc_html__( 'Adjust the spacing between each column in this row.', 'et_builder' ),
@@ -2237,8 +2247,8 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 				$this->add_classname( 'et_pb_gutter_hover' );
 
 				$gutter_hover_data = sprintf(
-					' data-original_gutter="%1$s" data-hover_gutter="%2$s"', 
-					esc_attr($gutter_width), 
+					' data-original_gutter="%1$s" data-hover_gutter="%2$s"',
+					esc_attr($gutter_width),
 					esc_attr($gutter_width_hover)
 				);
 			}
@@ -2313,7 +2323,7 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 
 		if ( 'on' === $use_custom_width ) {
 			ET_Builder_Element::set_style( $function_name, array(
-				'selector'    => '%%order_class%%',
+				'selector'    => '%%order_class%%, .et_pb_pagebuilder_layout.single.et_full_width_page #page-container %%order_class%%',
 				'declaration' => sprintf(
 					'max-width:%1$s !important;
 					%2$s',
@@ -2359,10 +2369,6 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 		$parallax_image = $this->get_parallax_image_background();
 		$background_video = $this->video_background();
 
-		if ( $et_pb_rendering_column_content_row ) {
-			$et_pb_rendering_column_content_row = false;
-		}
-
 		// CSS Filters
 		$this->add_classname( $this->generate_css_filters( $function_name ) );
 
@@ -2375,11 +2381,16 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 
 		// Inner content shortcode parsing has to be done after all classname addition/removal
 		$inner_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
-		$content_dependent_classname = '' == trim( $inner_content ) ? ' et_pb_row_empty' : '';
+		$content_dependent_classname = '' === trim( $inner_content ) ? ' et_pb_row_empty' : '';
 
 		// reset the global column settings to make sure they are not affected by internal content
 		// This has to be done after inner content's shortcode being parsed
 		$et_pb_all_column_settings = $et_pb_all_column_settings_backup;
+
+		// Reset row's column content flag
+		if ( $et_pb_rendering_column_content_row ) {
+			$et_pb_rendering_column_content_row = false;
+		}
 
 		$output = sprintf(
 			'<div%4$s class="%2$s%7$s"%8$s>
@@ -2394,7 +2405,7 @@ class ET_Builder_Row extends ET_Builder_Structure_Element {
 			$background_video,
 			$parallax_image,
 			$content_dependent_classname,
-			et_esc_previously( $gutter_hover_data )
+			et_core_esc_previously( $gutter_hover_data )
 		);
 
 		return $output;
@@ -2556,9 +2567,11 @@ class ET_Builder_Row_Inner extends ET_Builder_Structure_Element {
 				'type'             => 'range',
 				'option_category'  => 'layout',
 				'range_settings'   => array(
-					'min'  => 1,
-					'max'  => 4,
-					'step' => 1,
+					'min'       => 1,
+					'max'       => 4,
+					'step'      => 1,
+					'min_limit' => 1,
+					'max_limit' => 4,
 				),
 				'depends_show_if'  => 'on',
 				'description'      => esc_html__( 'Adjust the spacing between each column in this row.', 'et_builder' ),
@@ -3247,8 +3260,8 @@ class ET_Builder_Row_Inner extends ET_Builder_Structure_Element {
 				$this->add_classname( 'et_pb_gutter_hover' );
 
 				$gutter_hover_data = sprintf(
-					' data-original_gutter="%1$s" data-hover_gutter="%2$s"', 
-					esc_attr($gutter_width), 
+					' data-original_gutter="%1$s" data-hover_gutter="%2$s"',
+					esc_attr($gutter_width),
 					esc_attr($gutter_width_hover)
 				);
 			}
@@ -3269,7 +3282,7 @@ class ET_Builder_Row_Inner extends ET_Builder_Structure_Element {
 
 		// Inner content shortcode parsing has to be done after all classname addition/removal
 		$inner_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
-		$content_dependent_classname = '' == trim( $inner_content ) ? ' et_pb_row_empty' : '';
+		$content_dependent_classname = '' === trim( $inner_content ) ? ' et_pb_row_empty' : '';
 
 		// reset the global column settings to make sure they are not affected by internal content
 		$et_pb_all_column_settings_inner = $et_pb_all_column_settings_backup;
@@ -3287,7 +3300,7 @@ class ET_Builder_Row_Inner extends ET_Builder_Structure_Element {
 			$parallax_image,
 			$background_video,
 			$content_dependent_classname,
-			et_esc_previously( $gutter_hover_data )
+			et_core_esc_previously( $gutter_hover_data )
 		);
 
 		return $output;
@@ -3391,7 +3404,7 @@ class ET_Builder_Column extends ET_Builder_Structure_Element {
 		}
 
 		// Last column is when sum of column type value equals to 1
-		$is_last_column = 1 == $et_pb_column_completion;
+		$is_last_column = 1 === $et_pb_column_completion;
 
 		$background_color = isset( $backgrounds_array[$array_index]['color'] ) ? $backgrounds_array[$array_index]['color'] : '';
 		$background_img = isset( $backgrounds_array[$array_index]['image'] ) ? $backgrounds_array[$array_index]['image'] : '';
@@ -3728,7 +3741,7 @@ class ET_Builder_Column extends ET_Builder_Structure_Element {
 		$inner_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
 
 		// Inner content dependant class in column shouldn't use add_classname/remove_classname method
-		$content_dependent_classname = '' == trim( $inner_content ) ? ' et_pb_column_empty' : '';
+		$content_dependent_classname = '' === trim( $inner_content ) ? ' et_pb_column_empty' : '';
 
 		$output = sprintf(
 			'<div class="%1$s%6$s"%4$s>
@@ -3740,9 +3753,11 @@ class ET_Builder_Column extends ET_Builder_Structure_Element {
 			$inner_content,
 			( '' !== $background_img && '' !== $parallax_method
 				? sprintf(
-					'<div class="et_parallax_bg%2$s" style="background-image: url(%1$s);"></div>',
+					'%3$s<div class="et_parallax_bg%2$s" style="background-image: url(%1$s);"></div>%4$s',
 					esc_attr( $background_img ),
-					( 'off' === $parallax_method ? ' et_pb_parallax_css' : '' )
+					( 'off' === $parallax_method ? ' et_pb_parallax_css' : '' ),
+					!et_core_is_fb_enabled() ? '' : '<div class="et_parallax_bg_wrap">',
+					!et_core_is_fb_enabled() ? '' : '</div>'
 				)
 				: ''
 			),

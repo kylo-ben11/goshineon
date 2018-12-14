@@ -806,3 +806,6 @@ html[dir="rtl"] .supsystic-plugin .supsystic-content .supsystic-container {
 	margin-right: 75px;
 	margin-left: 0;
 }
+.ui-button .ui-button-text{
+	display: none!important;
+}

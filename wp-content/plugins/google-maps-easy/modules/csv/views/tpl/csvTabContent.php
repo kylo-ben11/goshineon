@@ -45,6 +45,48 @@
 					</td>
 				</tr>
 				<tr>
+					<th scope="row">
+						<label for="gmpCsvExportFiguresBtn">
+							<?php _e('Figures', GMP_LANG_CODE); ?>
+						</label>
+					</th>
+					<td>
+						<button id="gmpCsvExportFiguresBtn" class="button">
+							<?php _e('Export', GMP_LANG_CODE); ?>
+						</button>
+						<?php echo htmlGmp::ajaxfile('csv_import_file_figures', array(
+							'url' => uriGmp::_(array('baseUrl' => admin_url('admin-ajax.php'), 'page' => 'csv', 'action' => 'import', 'type' => 'figures', 'reqType' => 'ajax')),
+							'data' => 'gmpCsvImportData',
+							'buttonName' => __('Import', GMP_LANG_CODE),
+							'responseType' => 'json',
+							'onSubmit' => 'gmpCsvImportOnSubmit',
+							'onComplete' => 'gmpCsvImportOnComplete',
+							'btn_class' => 'button',
+						))?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="gmpCsvExportHeatMapBtn">
+							<?php _e('HeatMap Layer', GMP_LANG_CODE); ?>
+						</label>
+					</th>
+					<td>
+						<button id="gmpCsvExportHeatmapBtn" class="button">
+							<?php _e('Export', GMP_LANG_CODE); ?>
+						</button>
+						<?php echo htmlGmp::ajaxfile('csv_import_file_heatmap', array(
+							'url' => uriGmp::_(array('baseUrl' => admin_url('admin-ajax.php'), 'page' => 'csv', 'action' => 'import', 'type' => 'heatmap', 'reqType' => 'ajax')),
+							'data' => 'gmpCsvImportData',
+							'buttonName' => __('Import', GMP_LANG_CODE),
+							'responseType' => 'json',
+							'onSubmit' => 'gmpCsvImportOnSubmit',
+							'onComplete' => 'gmpCsvImportOnComplete',
+							'btn_class' => 'button',
+						))?>
+					</td>
+				</tr>
+				<tr>
 					<td colspan="2"><div id="gmpCsvImportMsg"></div></td>
 				</tr>
 			</table>

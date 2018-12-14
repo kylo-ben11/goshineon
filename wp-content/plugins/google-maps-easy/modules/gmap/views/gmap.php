@@ -382,21 +382,31 @@ class gmapViewGmp extends viewGmp {
 		}
 		return $formsList;
 	}
-
+	
 	public function connectMapsAssets($params, $forAdminArea = false) {
-		$params['language'] = isset($params['language']) && !empty($params['language']) ? $params['language'] : utilsGmp::getLangCode2Letter();
+		if(!$forAdminArea && isset($params['is_static']) && (int)$params['is_static']) {
+			// Maybe we will need some additional assets in future, for now - it's light as lighting :)
+			if(frameGmp::_()->getModule('supsystic_promo')->isPro() 
+				&& frameGmp::_()->getModule('add_map_options') 
+				&& method_exists(frameGmp::_()->getModule('add_map_options'), 'connectStaticMapCore')
+			) {
+				frameGmp::_()->getModule('add_map_options')->connectStaticMapCore();
+			} 
+		} else {
+			$params['language'] = isset($params['language']) && !empty($params['language']) ? $params['language'] : utilsGmp::getLangCode2Letter();
+			
+			frameGmp::_()->addScript('google_maps_api', $this->getApiUrl(). '&language='. $params['language']);
+			frameGmp::_()->addScript('core.gmap', $this->getModule()->getModPath(). 'js/core.gmap.js');
+			frameGmp::_()->addScript('core.marker', frameGmp::_()->getModule('marker')->getModPath(). 'js/core.marker.js');
+			if((isset($params['marker_clasterer']) && $params['marker_clasterer'] != 'none') || $forAdminArea) {
+				//frameGmp::_()->addScript('core.markerclusterer', $this->getModule()->getModPath(). 'js/core.markerclusterer.min.js');
+				frameGmp::_()->addScript('core.markerclusterer', $this->getModule()->getModPath(). 'js/core.markerclusterer.js', array(), '1.0');
+			}
 
-		frameGmp::_()->addScript('google_maps_api', $this->getApiUrl(). '&language='. $params['language']);
-		frameGmp::_()->addScript('core.gmap', $this->getModule()->getModPath(). 'js/core.gmap.js');
-		frameGmp::_()->addScript('core.marker', frameGmp::_()->getModule('marker')->getModPath(). 'js/core.marker.js');
-		if((isset($params['marker_clasterer']) && $params['marker_clasterer'] != 'none') || $forAdminArea) {
-			//frameGmp::_()->addScript('core.markerclusterer', $this->getModule()->getModPath(). 'js/core.markerclusterer.min.js');
-			frameGmp::_()->addScript('core.markerclusterer', $this->getModule()->getModPath(). 'js/core.markerclusterer.js', array(), '1.0');
+			frameGmp::_()->addStyle('core.gmap', $this->getModule()->getModPath(). 'css/core.gmap.css');
+
+			dispatcherGmp::doAction('afterConnectMapAssets', $params, $forAdminArea);
 		}
-
-		frameGmp::_()->addStyle('core.gmap', $this->getModule()->getModPath(). 'css/core.gmap.css');
-
-		dispatcherGmp::doAction('afterConnectMapAssets', $params, $forAdminArea);
 	}
 
 	public function generateSocialSharingHtml($map) {

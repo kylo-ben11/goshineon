@@ -63,7 +63,7 @@ class gmapModelGmp extends modelGmp {
 					'marker_clasterer', 'marker_clasterer_icon', 'marker_clasterer_icon_width', 'marker_clasterer_icon_height', 'marker_clasterer_grid_size',
 					'marker_filter_color', 'marker_filter_button_title',
 					// Maybe PRO params - but let them be here - to avoid dublications
-					'markers_list_type', 'markers_list_color',));
+					'markers_list_type', 'markers_list_color', 'is_static'));
 		return $mapOptKeys;
 	}
 	public function getHtmlOptionsList() {

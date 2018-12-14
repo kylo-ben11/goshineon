@@ -99,7 +99,7 @@ class ET_Builder_Module_Number_Counter extends ET_Builder_Module {
 			'button'                => false,
 		);
 
-		if ( et_is_builder_plugin_active() ) {
+		if ( et_builder_has_limitation( 'force_use_global_important' ) ) {
 			$this->advanced_fields['fonts']['number']['css']['important'] = 'all';
 		}
 
@@ -163,7 +163,7 @@ class ET_Builder_Module_Number_Counter extends ET_Builder_Module {
 		$background_layout_hover_enabled = et_pb_hover_options()->is_enabled( 'background_layout', $this->props );
 		$header_level                    = $this->props['title_level'];
 
-		if ( et_is_builder_plugin_active() ) {
+		if ( et_builder_has_limitation( 'register_fittext_script' ) ) {
 			wp_enqueue_script( 'fittext' );
 		}
 
@@ -207,12 +207,12 @@ class ET_Builder_Module_Number_Counter extends ET_Builder_Module {
 			esc_attr( $number ),
 			( '' !== $counter_color ? sprintf( ' style="color:%s"', esc_attr( $counter_color ) ) : '' ),
 			( 'on' == $percent_sign ? '%' : ''), // #5
-			( '' !== $title ? sprintf( '<%1$s class="title">%2$s</%1$s>', et_pb_process_header_level( $header_level, 'h3' ), et_esc_previously( $title ) ) : '' ),
+			( '' !== $title ? sprintf( '<%1$s class="title">%2$s</%1$s>', et_pb_process_header_level( $header_level, 'h3' ), et_core_esc_previously( $title ) ) : '' ),
 			esc_attr( $separator ),
 			$video_background,
 			$parallax_image_background,
-			et_esc_previously( $data_background_layout ), // #10
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ), // #10
+			et_core_esc_previously( $data_background_layout_hover )
 		 );
 
 		return $output;

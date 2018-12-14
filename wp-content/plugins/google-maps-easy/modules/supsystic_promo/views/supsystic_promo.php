@@ -40,8 +40,8 @@ class supsystic_promoViewGmp extends viewGmp {
 				=> sprintf(__("You can add a map in the site content via shortcode or php code. Learn more about how to do this <a href='http://supsystic.com/add-map-into-site-content/'>here</a>.", GMP_LANG_CODE), $this->getModule()->getMainLink()),
 			__('How to add map in popup window?', GMP_LANG_CODE)
 				=> sprintf(__("You can add a map in popup window by inserting map shortcode in any popup text field. Learn more about how to do this <a href='http://supsystic.com/add-map-in-popup-window/'>here</a>.", GMP_LANG_CODE), $this->getModule()->getMainLink()),
-			__('How to zoom and center the initial map on markers ?', GMP_LANG_CODE)
-				=> sprintf(__("There is a few different ways to zoom and centralize map. The easiest one is to drag your map using mouse - 'Draggable' option must be enabled, or with pan controller help in live preview. <a href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'>Read more..</a>", GMP_LANG_CODE), $this->getModule()->getMainLink()),
+			__('How to zoom and center the initial map on markers?', GMP_LANG_CODE)
+				=> sprintf(__("There is a few different ways to zoom and centralize map. The easiest one is to drag your map using mouse - 'Draggable' option must be enabled, or with pan controller help in live preview. <a href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'>Read more...</a>", GMP_LANG_CODE), $this->getModule()->getMainLink()),
 			__('How to get PRO version of plugin for FREE?', GMP_LANG_CODE) => sprintf(__("You have an incredible opportunity to get PRO version for free. Make Translation of plugin! It will be amazing if you take advantage of this offer! More info you can find here <a target='_blank' href='%s'>Get PRO version of any plugin for FREE'</a>", GMP_LANG_CODE), $this->getModule()->getMainLink()),
 			__('Translation', GMP_LANG_CODE) => sprintf(__("All available languages are provided with the Supsystic Google Maps plugin. If your language isn't available, your plugin will be in English by default.<br /><b>Available Translations: English, Polish, German, Spanish, Russian</b><br />Translate or update a translation Google Maps WordPress plugin in your language and get a Premium license for FREE. <a target='_blank' href='%s'>Contact us</a>.", GMP_LANG_CODE), $this->getModule()->getMainLink(). '#contact'),
 		);
@@ -59,7 +59,7 @@ class supsystic_promoViewGmp extends viewGmp {
 		) {
 			$content = $getData['body'];
 		} else {
-			$content = sprintf(__("There were some problem while trying to retrive our news, but you can always check all list <a target='_blank' href='%s'>here</a>.", GMP_LANG_CODE), 'http://supsystic.com/news');
+			$content = sprintf(__("There was some problem while trying to retrieve our news, but you can always check all list <a target='_blank' href='%s'>here</a>.", GMP_LANG_CODE), 'http://supsystic.com/news');
 		}
 		return $content;
 	}

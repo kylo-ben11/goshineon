@@ -22,23 +22,7 @@ class ET_Builder_Module_Map_Item extends ET_Builder_Module {
 			),
 		);
 
-		$this->advanced_fields = array(
-			'box_shadow'            => array(
-				'default' => false,
-			),
-			'filters'               => array(
-				'css' => array(
-					'main' => '%%order_class%%',
-				),
-			),
-			'background'            => false,
-			'fonts'                 => false,
-			'max_width'             => false,
-			'text'                  => false,
-			'margin_padding' => false,
-			'button'                => false,
-			'link_options'          => false,
-		);
+		$this->advanced_fields = false;
 	}
 
 	function get_fields() {
@@ -120,8 +104,8 @@ class ET_Builder_Module_Map_Item extends ET_Builder_Module {
 			</div>',
 			esc_attr( $pin_address_lat ),
 			esc_attr( $pin_address_lng ),
-			et_esc_previously( $title ),
-			( '' != $content ? sprintf( '<div class="infowindow">%1$s</div>', $content ) : '' ),
+			et_core_esc_previously( $title ),
+			( ! empty( $content ) ? sprintf( '<div class="infowindow">%1$s</div>', $content ) : '' ),
 			esc_attr( $title )
 		);
 

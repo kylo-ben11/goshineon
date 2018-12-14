@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Google Maps Easy\n"
 "POT-Creation-Date: 2015-04-12 19:26+0200\n"
-"PO-Revision-Date: 2018-04-28 15:00+0300\n"
+"PO-Revision-Date: 2018-11-14 10:35+0200\n"
 "Last-Translator: Sam <a9100a9957@gmail.com>\n"
 "Language-Team: supsystic.com <supsystic.team@gmail.com>\n"
 "Language: zh_TW\n"
@@ -314,12 +314,12 @@ msgstr "地圖的描述"
 
 #: ../classes/tables/marker.php:10
 #: ../doc/old-version/classes/tables/marker.php:10
-msgid "X coordinate of marker(lng)"
+msgid "X coordinate of marker (lng)"
 msgstr "X座標 (經度)"
 
 #: ../classes/tables/marker.php:11
 #: ../doc/old-version/classes/tables/marker.php:11
-msgid "Y coordinate of marker(lat)"
+msgid "Y coordinate of marker (lat)"
 msgstr "Y座標 (緯度)"
 
 #: ../classes/tables/marker.php:12
@@ -452,12 +452,8 @@ msgid "Visits Count"
 msgstr "瀏覽次數"
 
 #: ../doc/google-maps-easy-pro/wpUpdater.php:68
-msgid ""
-"An Unexpected HTTP Error occurred during the API request.</p> <p><a href='?' "
-"onclick='document.location.reload(); return false;'>Try again</a>"
-msgstr ""
-"An Unexpected HTTP Error occurred during the API request.</p> <p><a href='?' "
-"onclick='document.location.reload(); return false;'>Try again</a>"
+msgid "An Unexpected HTTP Error occurred during the API request.</p> <p><a href='?' onclick='document.location.reload(); return false;'>Try again</a>"
+msgstr "An Unexpected HTTP Error occurred during the API request.</p> <p><a href='?' onclick='document.location.reload(); return false;'>Try again</a>"
 
 #: ../doc/google-maps-easy-pro/wpUpdater.php:73
 msgid "An unknown error occurred"
@@ -465,27 +461,13 @@ msgstr "未知的錯誤"
 
 #: ../doc/google-maps-easy-pro/license/mod.php:23
 #, php-format
-msgid ""
-"Your license is expired. Once you extend your license - you will be able to "
-"Update PRO version. To extend PRO version license - follow <a href='%s' "
-"target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab anc "
-"click on 'Re-activate' button to re-activate your PRO version."
-msgstr ""
-"您的授權已經到期. 一旦您延展您的授權, 您將可以再次更新到 PRO 版本．要延展您"
-"的 PRO版本授權, 請點<a href='%s' target='_blank'>這個連結</a> ，接著到　<a "
-"href='%s'>授權</a>標籤按下'重新啟用'按鈕來重新啟用您的 PRO版本"
+msgid "Your license is expired. Once you extend your license - you will be able to Update PRO version. To extend PRO version license - follow <a href='%s' target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab and click on 'Re-activate' button to re-activate your PRO version."
+msgstr "您的授權已經到期. 一旦您延展您的授權, 您將可以再次更新到 PRO 版本．要延展您的 PRO版本授權, 請點<a href='%s' target='_blank'>這個連結</a> ，接著到　<a href='%s'>授權</a>標籤按下'重新啟用'按鈕來重新啟用您的 PRO版本"
 
 #: ../doc/google-maps-easy-pro/license/mod.php:31
 #, php-format
-msgid ""
-"Your license for PRO version of %s plugin - expired. You can <a href='%s' "
-"target='_blank'>click here</a> to extend your license, then - go to <a "
-"href='%s'>License</a> tab anc click on 'Re-activate' button to re-activate "
-"your PRO version."
-msgstr ""
-"您的 %s 外掛PRO 版本已經到期. 您可以 <a href='%s' target='_blank'>點擊這邊</"
-"a> 來延展您的授權, 然後到 <a href='%s'>授權</a> 標籤並且點擊'重新啟用' 按鈕來"
-"重新啟動您的 PRO 版本"
+msgid "Your license for PRO version of %s plugin - expired. You can <a href='%s' target='_blank'>click here</a> to extend your license, then - go to <a href='%s'>License</a> tab and click on 'Re-activate' button to re-activate your PRO version."
+msgstr "您的 %s 外掛PRO 版本已經到期. 您可以 <a href='%s' target='_blank'>點擊這邊</a> 來延展您的授權, 然後到 <a href='%s'>授權</a> 標籤並且點擊'重新啟用' 按鈕來重新啟動您的 PRO 版本"
 
 #: ../doc/google-maps-easy-pro/license/mod.php:44
 msgid "License"
@@ -500,12 +482,8 @@ msgid "Please enter your Email address"
 msgstr "請輸入您的 Email 地址"
 
 #: ../doc/google-maps-easy-pro/license/models/license.php:130
-msgid ""
-"There was a problem with sending request to your authentication server. "
-"Please try later."
-msgstr ""
-"There was a problem with sending request to your authentication server. "
-"Please try later."
+msgid "There was a problem with sending request to your authentication server. Please try later."
+msgstr "There was a problem with sending request to your authentication server. Please try later."
 
 #: ../doc/google-maps-easy-pro/license/models/license.php:153
 #, php-format
@@ -524,30 +502,18 @@ msgstr "%s 外掛授權碼將於 %d 天內到期"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:4
 #, php-format
-msgid ""
-"Congradulations! PRO version of %s plugin is activated and working fine!"
+msgid "Congradulations! PRO version of %s plugin is activated and working fine!"
 msgstr "恭喜 %s 外掛 PRO 版本已經啟用並且正常運作！"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:6
 #, php-format
-msgid ""
-"Your license for PRO version of %s plugin - expired. You can <a href='%s' "
-"target='_blank'>click here</a> to extend your license, then - click on 'Re-"
-"activate' button to re-activate your PRO version."
-msgstr ""
-"您的 %s 外掛 PRO授權碼已經到期. 您可以<a href='%s' target='_blank'>點擊這裡</"
-"a> 來延長您的授權,然後 -點擊 '重新啟用' 按鈕來重新啟用您的PRO版本"
+msgid "Your license for PRO version of %s plugin - expired. You can <a href='%s' target='_blank'>click here</a> to extend your license, then - click on 'Re-activate' button to re-activate your PRO version."
+msgstr "您的 %s 外掛 PRO授權碼已經到期. 您可以<a href='%s' target='_blank'>點擊這裡</a> 來延長您的授權,然後 -點擊 '重新啟用' 按鈕來重新啟用您的PRO版本"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:8
 #, php-format
-msgid ""
-"Congradulations! You have successfully installed PRO version of %s plugin. "
-"Final step to finish Your PRO version setup - is to enter your Email and "
-"License Key on this page. This will activate Your copy of software on this "
-"site."
-msgstr ""
-"恭喜！ 您已經成功安裝 %s 外掛的 PRO 版本. 最後一個完成的步驟是在本頁面輸入您"
-"的Emai 與 授權碼, 系統將會在這個頁面啟用您的軟體副本"
+msgid "Congradulations! You have successfully installed PRO version of %s plugin. Final step to finish Your PRO version setup - is to enter your Email and License Key on this page. This will activate Your copy of software on this site."
+msgstr "恭喜！ 您已經成功安裝 %s 外掛的 PRO 版本. 最後一個完成的步驟是在本頁面輸入您的Emai 與 授權碼, 系統將會在這個頁面啟用您的軟體副本"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:20
 #: ../doc/old-version/modules/supsystic_promo/mod.php:124
@@ -556,9 +522,7 @@ msgid "Email"
 msgstr "Email"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:23
-msgid ""
-"Your email address, used on checkout procedure on <a href='%' "
-"target='_blank'>%s</a>"
+msgid "Your email address, used on checkout procedure on <a href='%' target='_blank'>%s</a>"
 msgstr "您的 Email 地址使用在<a href='%' target='_blank'>%s</a>驗證過程"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:31
@@ -566,10 +530,8 @@ msgid "License Key"
 msgstr "授權碼"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:34
-msgid ""
-"Your License Key from your account on <a href='%' target='_blank'>%s</a>"
-msgstr ""
-"Your License Key from your account on <a href='%' target='_blank'>%s</a>"
+msgid "Your License Key from your account on <a href='%' target='_blank'>%s</a>"
+msgstr "Your License Key from your account on <a href='%' target='_blank'>%s</a>"
 
 #: ../doc/google-maps-easy-pro/license/views/tpl/licenseAdmin.php:47
 msgid "Re-activate"
@@ -701,8 +663,7 @@ msgstr "已經更新 %s 地標"
 
 #: ../doc/old-version/modules/csv/controller.php:164
 #: ../modules/csv/controller.php:164
-msgid ""
-"File should contain more then 1 row, at least 1 row should be for headers"
+msgid "File should contain more then 1 row, at least 1 row should be for headers"
 msgstr "檔案至少應該要包含1個以上的資料列, 至少一列應該是檔頭"
 
 #: ../doc/old-version/modules/csv/controller.php:166
@@ -883,12 +844,8 @@ msgstr "搜尋"
 #: ../doc/old-version/modules/gmap/views/tpl/gmapAdmin.php:26
 #: ../modules/gmap/views/tpl/gmapAdmin.php:26
 #, php-format
-msgid ""
-"You have no Maps for now. <a href='%s' style='font-style: italic;'>Create</"
-"a> your first Map!"
-msgstr ""
-"您目前沒有任何地圖 <a href='%s' style='font-style: italic;'>建立</a> 您的地"
-"圖!"
+msgid "You have no Maps for now. <a href='%s' style='font-style: italic;'>Create</a> your first Map!"
+msgstr "您目前沒有任何地圖 <a href='%s' style='font-style: italic;'>建立</a> 您的地圖!"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapDrawMap.php:3
 #: ../modules/gmap/views/tpl/gmapDrawMap.php:3
@@ -898,12 +855,8 @@ msgstr "找不到地圖"
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:2
 #: ../modules/gmap/views/tpl/gmapEditMap.php:2
 #, php-format
-msgid ""
-"This option is available in <a target='_blank' href='%s'>PRO version</a> "
-"only, you can get it <a target='_blank' href='%s'>here.</a>"
-msgstr ""
-"這個選項只能用在<a target='_blank' href='%s'>PRO 版本</a> 您可以在 <a "
-"target='_blank' href='%s'>這裡</a> 取得"
+msgid "This option is available in <a target='_blank' href='%s'>PRO version</a> only, you can get it <a target='_blank' href='%s'>here.</a>"
+msgstr "這個選項只能用在<a target='_blank' href='%s'>PRO 版本</a> 您可以在 <a target='_blank' href='%s'>這裡</a> 取得"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:4
 #: ../modules/gmap/views/tpl/gmapEditMap.php:117
@@ -946,7 +899,7 @@ msgstr "像素 (px)"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:48
 #: ../modules/gmap/views/tpl/gmapEditMap.php:63
-msgid "Percents"
+msgid "Percent"
 msgstr "百分比 (%)"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:55
@@ -970,8 +923,7 @@ msgstr "地圖類型控制"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:84
 #: ../modules/gmap/views/tpl/gmapEditMap.php:99
-msgid ""
-"Control view for map type - you can see it in right upper corner by default"
+msgid "Control view for map type - you can see it in left upper corner by default"
 msgstr "控制地圖顯示類型, 預設您可以在右上角看到"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:89
@@ -1026,7 +978,7 @@ msgstr "街景控制"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:134
 #: ../modules/gmap/views/tpl/gmapEditMap.php:155
-msgid "Street view control usually is located on left upper corner of your map"
+msgid "Street view control usually is located on right lower corner of your map"
 msgstr "街景控制通常顯示於您的地圖左上方"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:143
@@ -1041,9 +993,7 @@ msgstr "平移控制"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:158
 #: ../modules/gmap/views/tpl/gmapEditMap.php:182
-msgid ""
-"Pan control - allow you to pan over your map using mouse, usually is located "
-"on left upper corner of your map"
+msgid "Pan control - allow you to pan over your map using mouse, usually is located on left upper corner of your map"
 msgstr "平移控制 - 允許您使用滑鼠在地圖上平移，通在在您地圖的左上角"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:167
@@ -1058,9 +1008,7 @@ msgstr "概觀控制"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:182
 #: ../modules/gmap/views/tpl/gmapEditMap.php:209
-msgid ""
-"Overview control for your map, by default is disabled, and if enabled - is "
-"located on the right bottom corner"
+msgid "Overview control for your map, by default is disabled, and if enabled - is located on the right bottom corner"
 msgstr "您的地圖概觀控制, 預設是停用, 如果您啟用概觀控制將會顯示於右下角"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:187
@@ -1090,9 +1038,7 @@ msgstr "雙擊縮放"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:211
 #: ../modules/gmap/views/tpl/gmapEditMap.php:238
-msgid ""
-"By default double left click on map will zoom it in. But you can change this "
-"here."
+msgid "By default double left click on map will zoom it in. But you can change this here."
 msgstr "當您點滑鼠左鍵兩次，地圖預設會拉近．但您可以在這邊修改"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:222
@@ -1102,14 +1048,8 @@ msgstr "滑鼠滾輪縮放"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:224
 #: ../modules/gmap/views/tpl/gmapEditMap.php:251
-msgid ""
-"Sometimes you need to disable possibility to zoom your map using mouse "
-"wheel. This can be required for example - if you need to use your wheel for "
-"some other action, for example scroll your site even if mouse is over your "
-"map."
-msgstr ""
-"有些時候您可能必須要禁止使用滑鼠滾輪縮放．這個選項是您需要的，例如您可能需要"
-"使用您的滑鼠滾輪做其他事，像是您要捲動您的頁面但您滑鼠停留在地圖上"
+msgid "Sometimes you need to disable possibility to zoom your map using mouse wheel. This can be required for example - if you need to use your wheel for some other action, for example scroll your site even if mouse is over your map."
+msgstr "有些時候您可能必須要禁止使用滑鼠滾輪縮放．這個選項是您需要的，例如您可能需要使用您的滑鼠滾輪做其他事，像是您要捲動您的頁面但您滑鼠停留在地圖上"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:235
 #: ../modules/gmap/views/tpl/gmapEditMap.php:262
@@ -1118,12 +1058,8 @@ msgstr "Google地圖類型"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:237
 #: ../modules/gmap/views/tpl/gmapEditMap.php:264
-msgid ""
-"You can select your Google Map theme - Road Map, Hybrid, Satellite or "
-"Terrain - here. By default your map will have Road Map Google maps theme."
-msgstr ""
-"您可以選擇您的 Google 地圖樣式 - 路線地圖, 混合地圖, 衛星地圖,或 地形圖 - 這"
-"裡在預設的情況下將有路線圖 Google地圖的樣式"
+msgid "You can select your Google Map theme - Road Map, Hybrid, Satellite or Terrain - here. By default your map will have Road Map Google maps theme."
+msgstr "您可以選擇您的 Google 地圖樣式 - 路線地圖, 混合地圖, 衛星地圖,或 地形圖 - 這裡在預設的情況下將有路線圖 Google地圖的樣式"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:241
 #: ../modules/gmap/views/tpl/gmapEditMap.php:268
@@ -1152,12 +1088,8 @@ msgstr "地圖風格"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:251
 #: ../modules/gmap/views/tpl/gmapEditMap.php:329
-msgid ""
-"Make your map unique with our Map Themes, just try to change it here - and "
-"you will see results on your Map Preview."
-msgstr ""
-"使用地圖樣式讓您的地圖獨一無二！您可以在這邊試著改變，接著可以在地圖預覽看到"
-"結果．"
+msgid "Make your map unique with our Map Themes, just try to change it here - and you will see results on your Map Preview."
+msgstr "使用地圖樣式讓您的地圖獨一無二！您可以在這邊試著改變，接著可以在地圖預覽看到結果．"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:261
 msgid "Get 300+ Themes"
@@ -1170,15 +1102,8 @@ msgstr "地標群集"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:271
 #: ../modules/gmap/views/tpl/gmapEditMap.php:366
-msgid ""
-"If you have many markers - you can have a problems with viewing them when "
-"zoom out for example: they will just cover each-other. Marker clusterization "
-"can solve this problem by grouping your markers in groups when they are too "
-"close to each-other."
-msgstr ""
-"如果您有許多地標，您可能再放大檢視的時候會發現一個問．例如這些地標之間距離太"
-"過靠近可能會蓋在一起，地標群集可以解決這個問題，將彼此太過接近的地標群組成一"
-"個群集．"
+msgid "If you have many markers - you can have a problems with viewing them when zoom out for example: they will just cover each-other. Marker clusterization can solve this problem by grouping your markers in groups when they are too close to each-other."
+msgstr "如果您有許多地標，您可能再放大檢視的時候會發現一個問．例如這些地標之間距離太過靠近可能會蓋在一起，地標群集可以解決這個問題，將彼此太過接近的地標群組成一個群集．"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:275
 #: ../modules/gmap/views/tpl/gmapEditMap.php:370
@@ -1214,8 +1139,7 @@ msgstr "地標描述"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:318
 #: ../modules/gmap/views/tpl/gmapEditMap.php:406
-msgid ""
-"Write here all text, that you want to appear in marker info-window PopUp"
+msgid "Write here all text, that you want to appear in marker info-window PopUp"
 msgstr "在這邊撰寫文字，將會顯示在地標彈出的浮動視窗中"
 
 #: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:334
@@ -1291,18 +1215,6 @@ msgstr "儲存地圖"
 msgid "Delete Map"
 msgstr "刪除地圖"
 
-#: ../doc/old-version/modules/gmap/views/tpl/gmapEditMap.php:464
-#, php-format
-msgid ""
-"Please be advised that this option is available only in <a target='_blank' "
-"href='%s'>PRO version</a>. You can <a target='_blank' href='%s' "
-"class='button'>Get PRO</a> today and get this and other PRO option for your "
-"Maps!"
-msgstr ""
-"請注意, 這個選項只能使用在 <a target='_blank' href='%s'>PRO 版本</a>. 您可以"
-"馬上  <a target='_blank' href='%s' class='button'>取得PRO</a> 來使用您的地圖"
-"外掛任何 PRO 選項"
-
 #: ../doc/old-version/modules/gmap/views/tpl/gmapListMarkers.php:20
 #: ../modules/gmap/views/tpl/gmapListMarkers.php:20
 #, php-format
@@ -1341,8 +1253,7 @@ msgstr "以圖片方式顯示"
 
 #: ../doc/old-version/modules/gmap_widget/views/tpl/form.php:40
 #: ../modules/gmap_widget/views/tpl/form.php:40
-msgid ""
-"Map will be displayed as image at sidebar, on click - will be opened in popup"
+msgid "Map will be displayed as image at sidebar, on click - will be opened in popup"
 msgstr "地圖將以圖片的形式顯示在側欄，點一下會開啟一個新的地圖視窗"
 
 #: ../doc/old-version/modules/gmap_widget/views/tpl/form.php:42
@@ -1549,9 +1460,7 @@ msgstr "訊息已經儲存. 感謝您！"
 
 #: ../doc/old-version/modules/supsystic_promo/controller.php:23
 #: ../modules/supsystic_promo/controller.php:23
-msgid ""
-"Please don't send contact requests so often - wait for response for your "
-"previous requests."
+msgid "Please don't send contact requests so often - wait for response for your previous requests."
 msgstr "請不要太常發送請求，請等待您之前的請求回覆．"
 
 #: ../doc/old-version/modules/supsystic_promo/controller.php:45
@@ -1601,7 +1510,7 @@ msgstr "回報 Bug"
 
 #: ../doc/old-version/modules/supsystic_promo/mod.php:130
 #: ../modules/supsystic_promo/mod.php:130
-msgid "Require a new functionallity"
+msgid "Require a new functionality"
 msgstr "請求一個新的功能"
 
 #: ../doc/old-version/modules/supsystic_promo/mod.php:131
@@ -1627,15 +1536,8 @@ msgstr "如何免費取得外掛 PRO版本？"
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:30
 #: ../modules/supsystic_promo/views/supsystic_promo.php:30
 #, php-format
-msgid ""
-"You have an incredible opportunity to get PRO version for free. Make "
-"Translation of plugin! It will be amazing if you take advantage of this "
-"offer! More info you can find here <a target='_blank' href='%s'>'Get PRO "
-"version of any plugin for FREE'</a>"
-msgstr ""
-"您有一個很難得的機會取得免費的 PRO 版本！ 協助我們翻譯這個外掛！ 更多訊息您可"
-"以在這邊找到 <a target='_blank' href='%s'>'Get PRO version of any plugin for "
-"FREE'</a>"
+msgid "You have an incredible opportunity to get PRO version for free. Make Translation of plugin! It will be amazing if you take advantage of this offer! More info you can find here <a target='_blank' href='%s'>'Get PRO version of any plugin for FREE'</a>"
+msgstr "您有一個很難得的機會取得免費的 PRO 版本！ 協助我們翻譯這個外掛！ 更多訊息您可以在這邊找到 <a target='_blank' href='%s'>'Get PRO version of any plugin for FREE'</a>"
 
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:31
 #: ../modules/supsystic_promo/views/supsystic_promo.php:31
@@ -1645,27 +1547,14 @@ msgstr "翻譯"
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:31
 #: ../modules/supsystic_promo/views/supsystic_promo.php:31
 #, php-format
-msgid ""
-"All available languages are provided with the Supsystic Google Maps plugin. "
-"If your language isn't available, your plugin will be in English by default."
-"<br /><b>Available Translations: English</b><br />Translate or update a "
-"translation Google Maps WordPress plugin in your language and get a Premium "
-"license for FREE. <a target='_blank' href='%s'>Contact us</a>."
-msgstr ""
-"所有可用的語言都在Supsystic Google Maps plugin, 如果沒有您的語言, 外掛將自動"
-"預設為英文. <br /><b>翻譯語言：English</b><br /> 協助翻譯或是更新一個您的語"
-"言 Google Maps Wordpress 外掛可以得到一個免費的Premium授權 <a "
-"target='_blank' href='%s'>聯絡我們</a>."
+msgid "All available languages are provided with the Supsystic Google Maps plugin. If your language isn't available, your plugin will be in English by default.<br /><b>Available Translations: English</b><br />Translate or update a translation Google Maps WordPress plugin in your language and get a Premium license for FREE. <a target='_blank' href='%s'>Contact us</a>."
+msgstr "所有可用的語言都在Supsystic Google Maps plugin, 如果沒有您的語言, 外掛將自動預設為英文. <br /><b>翻譯語言：English</b><br /> 協助翻譯或是更新一個您的語言 Google Maps Wordpress 外掛可以得到一個免費的Premium授權 <a target='_blank' href='%s'>聯絡我們</a>."
 
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:48
 #: ../modules/supsystic_promo/views/supsystic_promo.php:48
 #, php-format
-msgid ""
-"There were some problem while trying to retrive our news, but you can always "
-"check all list <a target='_blank' href='%s'>here</a>."
-msgstr ""
-"當您嘗試檢視我們的公告時發生了一些問題, 但您可以在 <a target='_blank' "
-"href='%s'>這裡</a> 查看我們所有的公告"
+msgid "There was some problem while trying to retrieve our news, but you can always check all list <a target='_blank' href='%s'>here</a>."
+msgstr "當您嘗試檢視我們的公告時發生了一些問題, 但您可以在 <a target='_blank' href='%s'>這裡</a> 查看我們所有的公告"
 
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:58
 #: ../doc/old-version/modules/supsystic_promo/views/supsystic_promo.php:59
@@ -1764,9 +1653,7 @@ msgstr "發送Email"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/overviewTabContent.php:96
 #: ../modules/supsystic_promo/views/tpl/overviewTabContent.php:96
-msgid ""
-"Your email was send, we will try to respond to you as soon as possible. "
-"Thank you for support!"
+msgid "Your email was send, we will try to respond to you as soon as possible. Thank you for support!"
 msgstr "您的Email已經送出, 我們將盡快回覆您．感謝您的支持!"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:76
@@ -1782,9 +1669,7 @@ msgstr "這是首次啟用 %s 外掛"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:85
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:85
-msgid ""
-"If you are newbie - check all features on that page, if you are guru - "
-"please correct us."
+msgid "If you are newbie - check all features on that page, if you are guru - please correct us."
 msgstr "如果您是新手, 在這個頁面查看所有的特色, 如果您是專家, 且糾正我們"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:94
@@ -1805,14 +1690,8 @@ msgstr "Boost us"
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:113
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:113
 #, php-format
-msgid ""
-"It's amazing when you boost development with your feedback and ratings. So "
-"we create special <a target='_blank' href='%s'>boost page</a> to help you to "
-"help us."
-msgstr ""
-"It's amazing when you boost development with your feedback and ratings. So "
-"we create special <a target='_blank' href='%s'>boost page</a> to help you to "
-"help us."
+msgid "It's amazing when you boost development with your feedback and ratings. So we create special <a target='_blank' href='%s'>boost page</a> to help you to help us."
+msgstr "It's amazing when you boost development with your feedback and ratings. So we create special <a target='_blank' href='%s'>boost page</a> to help you to help us."
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:117
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:117
@@ -1822,12 +1701,8 @@ msgstr "文件"
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:118
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:118
 #, php-format
-msgid ""
-"Check <a target='_blank' href='%s'>documentation</a> and FAQ section. If you "
-"can't solve your problems - <a target='_blank' href='%s'>contact us</a>."
-msgstr ""
-"點擊 <a target='_blank' href='%s'>文件</a> 與 問答部分. 如果您無法解決您的問"
-"題,  <a target='_blank' href='%s'>聯絡我們</a>."
+msgid "Check <a target='_blank' href='%s'>documentation</a> and FAQ section. If you can't solve your problems - <a target='_blank' href='%s'>contact us</a>."
+msgstr "點擊 <a target='_blank' href='%s'>文件</a> 與 問答部分. 如果您無法解決您的問題,  <a target='_blank' href='%s'>聯絡我們</a>."
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:122
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:122
@@ -1841,7 +1716,7 @@ msgstr "有太多的特色，所以我們沒辦法呈現在此. 像"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:125
 #: ../modules/supsystic_promo/views/tpl/welcomePage.php:125
-msgid "Capcha for admin login"
+msgid "Captcha for admin login"
 msgstr "管理員登入驗證碼"
 
 #: ../doc/old-version/modules/supsystic_promo/views/tpl/welcomePage.php:126
@@ -1903,32 +1778,16 @@ msgid "Transit Layer"
 msgstr "交通圖層"
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:295
-msgid ""
-"Display the public transit network of a city on your map. When the Transit "
-"Layer is enabled, and the map is centered on a city that supports transit "
-"information, the map will display major transit lines as thick, colored "
-"lines."
-msgstr ""
-"在您的地圖上顯示城市公共交通網路. 當交通圖層啟用, 並且在地圖的位置有提供交通"
-"資訊, 地圖將顯示主要的交通路線, 彩色線條"
+msgid "Display the public transit network of a city on your map. When the Transit Layer is enabled, and the map is centered on a city that supports transit information, the map will display major transit lines as thick, colored lines."
+msgstr "在您的地圖上顯示城市公共交通網路. 當交通圖層啟用, 並且在地圖的位置有提供交通資訊, 地圖將顯示主要的交通路線, 彩色線條"
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:310
 msgid "Bicycling Layer"
 msgstr "單車圖層"
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:312
-msgid ""
-"Add a layer of bike paths, suggested bike routes and other overlays specific "
-"to bicycling usage on top of the given map.Dark green routes indicated "
-"dedicated bicycle routes. Light green routes indicate streets with dedicated "
-"'bike lanes.' Dashed routes indicate streets or paths otherwise recommended "
-"for bicycle usage."
-msgstr ""
-"Add a layer of bike paths, suggested bike routes and other overlays specific "
-"to bicycling usage on top of the given map.Dark green routes indicated "
-"dedicated bicycle routes. Light green routes indicate streets with dedicated "
-"'bike lanes.' Dashed routes indicate streets or paths otherwise recommended "
-"for bicycle usage."
+msgid "Add a layer of bike paths, suggested bike routes and other overlays specific to bicycling usage on top of the given map.Dark green routes indicated dedicated bicycle routes. Light green routes indicate streets with dedicated 'bike lanes.' Dashed routes indicate streets or paths otherwise recommended for bicycle usage."
+msgstr "Add a layer of bike paths, suggested bike routes and other overlays specific to bicycling usage on top of the given map.Dark green routes indicated dedicated bicycle routes. Light green routes indicate streets with dedicated 'bike lanes.' Dashed routes indicate streets or paths otherwise recommended for bicycle usage."
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:339
 msgid "Get 300+ Themes with PRO"
@@ -1939,12 +1798,8 @@ msgid "Markers List"
 msgstr "地標列表"
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:349
-msgid ""
-"Display all map markers - as list bellow Your map. This will help your users "
-"get more info about your markers and find required marker more faster."
-msgstr ""
-"顯示所有的地圖地標在您的地圖下方，這將會協助您的使用者有更多的資訊更快找到所"
-"需的地標"
+msgid "Display all map markers - as list below Your map. This will help your users get more info about your markers and find required marker more faster."
+msgstr "顯示所有的地圖地標在您的地圖下方，這將會協助您的使用者有更多的資訊更快找到所需的地標"
 
 #: ../modules/gmap/views/tpl/gmapEditMap.php:356
 msgid "Select Markers List type"
@@ -1981,12 +1836,5 @@ msgstr "升級免費版本"
 
 #: ../modules/options/views/tpl/optionsAdminPage.php:33
 #, php-format
-msgid ""
-"Please be advised that this option is available only in <a target='_blank' "
-"href='%s'>PRO version</a>. You can <a target='_blank' href='%s' "
-"class='button'>Get PRO</a> today and get this and other PRO option for your "
-"PopUps!"
-msgstr ""
-"請注意, 這個選項只能使用在 <a target='_blank' href='%s'>PRO 版本</a>. 您可以"
-"馬上  <a target='_blank' href='%s' class='button'>取得PRO</a> 來使用您的地圖"
-"外掛任何 PRO 選項"
+msgid "Please be advised that this option is available only in <a target='_blank' href='%s'>PRO version</a>. You can <a target='_blank' href='%s' class='button'>Get PRO</a> today and get this and other PRO option for your Maps!"
+msgstr "請注意, 這個選項只能使用在 <a target='_blank' href='%s'>PRO 版本</a>. 您可以馬上  <a target='_blank' href='%s' class='button'>取得PRO</a> 來使用您的地圖外掛任何 PRO 選項"

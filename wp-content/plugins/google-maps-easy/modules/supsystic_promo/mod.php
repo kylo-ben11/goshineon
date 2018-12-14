@@ -57,20 +57,28 @@ class supsystic_promoGmp extends moduleGmp {
 			$rateMsg .= '<p><a href="https://wordpress.org/support/view/plugin-reviews/google-maps-easy?rate=5#postform" target="_blank" class="button button-primary" data-statistic-code="done">'. __('Ok, you deserve it', GMP_LANG_CODE). '</a>
 			<a href="#" class="button" data-statistic-code="later">'. __('Nope, maybe later', GMP_LANG_CODE). '</a>
 			<a href="#" class="button" data-statistic-code="hide">'. __('I already did', GMP_LANG_CODE). '</a></p>';
-			$enbPromoLinkMsg = sprintf(__("<h3>More then eleven days with our %s plugin - Congratulations!</h3>", GMP_LANG_CODE), GMP_WP_PLUGIN_NAME);
+			$enbPromoLinkMsg = sprintf(__("<h3>More than eleven days with our %s plugin - Congratulations!</h3>", GMP_LANG_CODE), GMP_WP_PLUGIN_NAME);
 			$enbPromoLinkMsg .= __("<p>On behalf of the entire <a href='https://supsystic.com/' target='_blank'>supsystic.com</a> company I would like to thank you for been with us, and I really hope that our software helped you.</p>", GMP_LANG_CODE);
 			$enbPromoLinkMsg .= __("<p>And today, if you want, - you can help us. This is really simple - you can just add small promo link to our site under your maps. This is small step for you, but a big help for us! Sure, if you don't want - just skip this and continue enjoy our software!</p>", GMP_LANG_CODE);
 			$enbPromoLinkMsg .= '<p><a href="#" class="button button-primary" data-statistic-code="done">'. __('Ok, you deserve it', GMP_LANG_CODE). '</a>
 			<a href="#" class="button" data-statistic-code="later">'. __('Nope, maybe later', GMP_LANG_CODE). '</a>
 			<a href="#" class="button" data-statistic-code="hide">'. __('Skip', GMP_LANG_CODE). '</a></p>';
 			$checkOtherPlugins = '<p>'
-				. sprintf(__("Check out <a href='%s' target='_blank' class='button button-primary' data-statistic-code='hide'>our other Plugins</a>! Years of experience in WordPress plugins developers made those list unbreakable!", GMP_LANG_CODE), frameGmp::_()->getModule('options')->getTabUrl('featured-plugins'))
+				. sprintf(__("Check out <a href='%s' target='_blank' class='button button-primary' data-statistic-code='hide'>our other Plugins</a>! Years of experience in WordPress plugins developers made that list unbreakable!", GMP_LANG_CODE), frameGmp::_()->getModule('options')->getTabUrl('featured-plugins'))
 			. '</p>';
 			$notices = array(
 				'rate_msg' => array('html' => $rateMsg, 'show_after' => 7 * $day),
 				'enb_promo_link_msg' => array('html' => $enbPromoLinkMsg, 'show_after' => 11 * $day),
 				'check_other_plugs_msg' => array('html' => $checkOtherPlugins, 'show_after' => 1 * $day),
 			);
+			// Wait for next week - when icons will be ready
+			if(!class_exists('frameUms')) {
+				$ultimateMapsInstallUrl = admin_url('plugin-install.php?tab=search&type=term&s=Ultimate+Maps+by+Supsystic');
+				$ultimateMapsMsg = '<p>'. 
+						sprintf(__("Tired from Google Maps and it's pricings? We developed <b>Free Maps alternative for You</b> - <a href='%s' target='_blank'>Ultimate Maps by Supsystic</a>! Just try it in <a href='%s' target='_blank'>few clicks</a>!", GMP_LANG_CODE), $ultimateMapsInstallUrl, $ultimateMapsInstallUrl)
+						. '</p>';
+				$notices['ultimate_maps_promo'] = array('html' => $ultimateMapsMsg, 'show_after' => 1 * $day);
+			}
 			foreach($notices as $nKey => $n) {
 				if($currTime - $startUsage <= $n['show_after']) {
 					unset($notices[ $nKey ]);
@@ -218,7 +226,7 @@ class supsystic_promoGmp extends moduleGmp {
             'category' => array('label' => __('Topic', GMP_LANG_CODE), 'valid' => 'notEmpty', 'html' => 'selectbox', 'options' => array(
 				'plugins_options' => __('Plugin options', GMP_LANG_CODE),
 				'bug' => __('Report a bug', GMP_LANG_CODE),
-				'functionality_request' => __('Require a new functionallity', GMP_LANG_CODE),
+				'functionality_request' => __('Require a new functionality', GMP_LANG_CODE),
 				'other' => __('Other', GMP_LANG_CODE),
 			)),
 			'message' => array('label' => __('Message', GMP_LANG_CODE), 'valid' => 'notEmpty', 'html' => 'textarea', 'placeholder' => __('Hello Supsystic Team!', GMP_LANG_CODE)),

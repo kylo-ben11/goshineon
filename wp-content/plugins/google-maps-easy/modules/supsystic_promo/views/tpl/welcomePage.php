@@ -122,7 +122,7 @@ jQuery(document).ready(function(){
 				<h3><?php _e('Full Features List', GMP_LANG_CODE)?>:</h3>
 				<p><?php _e("There are so many features, so we can't post it here. Like", GMP_LANG_CODE)?>:</p>
 				<ul>
-					<li><?php _e('Capcha for admin login', GMP_LANG_CODE)?></li>
+					<li><?php _e('Captcha for admin login', GMP_LANG_CODE)?></li>
 					<li><?php _e('htaccess admin protect', GMP_LANG_CODE)?></li>
 					<li><?php _e('Hide directory files listing', GMP_LANG_CODE)?></li>
 					<li><?php _e('Check files and directories write permissions', GMP_LANG_CODE)?></li>

@@ -21,15 +21,15 @@ class Main {
 		if ( isset(WPO_WCPDF()->settings->debug_settings['enable_debug']) ) {
 			$this->enable_debug();
 		}
-		if ( isset(WPO_WCPDF()->settings->debug_settings['html_output']) ) {
-			add_filter( 'wpo_wcpdf_use_path', '__return_false' );
-		}
 
 		// include template specific custom functions
 		$template_path = WPO_WCPDF()->settings->get_template_path();
 		if ( file_exists( $template_path . '/template-functions.php' ) ) {
 			require_once( $template_path . '/template-functions.php' );
 		}
+
+		// test mode
+		add_filter( 'wpo_wcpdf_document_use_historical_settings', array( $this, 'test_mode_settings' ), 15, 2 );
 
 		// page numbers & currency filters
 		add_action( 'wpo_wcpdf_get_html', array($this, 'format_page_number_placeholders' ), 10, 2 );
@@ -222,6 +222,7 @@ class Main {
 				$output_format = WPO_WCPDF()->settings->get_output_format( $document_type );
 				switch ( $output_format ) {
 					case 'html':
+						add_filter( 'wpo_wcpdf_use_path', '__return_false' );
 						$document->output_html();
 						break;
 					case 'pdf':
@@ -443,6 +444,13 @@ class Main {
 		}
 
 		return $attach;
+	}
+
+	public function test_mode_settings( $use_historical_settings, $document ) {
+		if ( isset( WPO_WCPDF()->settings->general_settings['test_mode'] ) ) {
+			$use_historical_settings = false;
+		}
+		return $use_historical_settings;
 	}
 
 	/**

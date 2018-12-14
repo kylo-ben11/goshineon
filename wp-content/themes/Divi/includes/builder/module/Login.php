@@ -58,7 +58,7 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 					'label' => esc_html__( 'Button', 'et_builder' ),
 					'css' => array(
 						'main' => "{$this->main_css_element} .et_pb_newsletter_button.et_pb_button",
-						'plugin_main' => "{$this->main_css_element} .et_pb_newsletter_button.et_pb_button",
+						'limited_main' => "{$this->main_css_element} .et_pb_newsletter_button.et_pb_button",
 					),
 					'no_rel_attr' => true,
 					'box_shadow'  => array(
@@ -181,8 +181,9 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 					'label_prefix'    => esc_html__( 'Focus', 'et_builder' ),
 					'tab_slug'        => 'advanced',
 					'toggle_slug'     => 'fields',
-					'depends_on'      => array( 'use_focus_border_color' ),
-					'depends_show_if' => 'on',
+					'show_if'         => array(
+						'use_focus_border_color' => 'on',
+					),
 					'defaults'        => array(
 						'border_radii'  => 'on|3px|3px|3px|3px',
 						'border_styles' => array(
@@ -377,7 +378,7 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 				'declaration' => sprintf(
 					'background-color: %1$s%2$s;',
 					esc_html( $focus_background_color ),
-					et_is_builder_plugin_active() ? ' !important' : ''
+					et_builder_has_limitation( 'force_use_global_important' ) ? ' !important' : ''
 				),
 			) );
 		}
@@ -451,7 +452,7 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 				'declaration' => sprintf(
 					'background-color: %1$s%2$s;',
 					esc_html( $form_field_background_color ),
-					et_is_builder_plugin_active() ? ' !important' : ''
+					et_builder_has_limitation( 'force_use_global_important' ) ? ' !important' : ''
 				),
 			) );
 		}
@@ -620,7 +621,7 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 				</div>
 				%3$s
 			</div>',
-			( '' !== $title ? sprintf( '<%1$s class="et_pb_module_header">%2$s</%1$s>', et_pb_process_header_level( $header_level, 'h2' ), et_esc_previously( $title ) ) : '' ),
+			( '' !== $title ? sprintf( '<%1$s class="et_pb_module_header">%2$s</%1$s>', et_pb_process_header_level( $header_level, 'h2' ), et_core_esc_previously( $title ) ) : '' ),
 			( '' !== $content ? '<div class="et_pb_newsletter_description_content">' . $content . '</div>' : '' ),
 			$form,
 			$this->module_classname( $render_slug ),
@@ -628,8 +629,8 @@ class ET_Builder_Module_Login extends ET_Builder_Module {
 			$this->module_id(),
 			$video_background,
 			$parallax_image_background,
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover ) // #10
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover ) // #10
 		);
 
 		return $output;

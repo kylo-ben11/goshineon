@@ -4,12 +4,121 @@
 	$(function () {
 
 		/**
+         * Fix for stupids
+         *
+         */
+        jQuery( '.manage_stock_select' ).on( 'change' , function(){
+            
+            var id = jQuery( this ).data( 'item' );
+            var manage = jQuery( this ).val();
+            
+            if( manage == 'no' ){
+                
+                //jQuery( '.stock_status_' + id ).val( 'outofstock' );
+                jQuery( '.stock_status_' + id ).prop( 'disabled', false );
+                jQuery( '.backorders_' + id ).val( 'no' );
+                jQuery( '.backorders_' + id ).prop( 'disabled', 'disabled' );
+                jQuery( '.stock_' + id ).val( '0' );
+                jQuery( '.stock_' + id ).prop( 'disabled', 'disabled' );                
+
+            }else{
+
+                jQuery( '.stock_status_' + id ).prop( 'disabled', 'disabled' );
+                jQuery( '.backorders_' + id ).prop( 'disabled', false );
+                jQuery( '.stock_' + id ).prop( 'disabled', false );            
+
+                var data = {
+                    'action'  : 'wsm_get_product_data',
+                    'productid' : id
+                };
+
+                jQuery.post( ajaxurl, data, function( response ) {
+
+                    var result = jQuery.parseJSON( response );
+
+                    //console.log( result );
+
+                    if( result.stock_status ){
+                        jQuery( '.stock_status_' + result.productid ).val( result.stock_status );
+                    }
+                    if( result.backorders ){
+                        jQuery( '.backorders_' + result.productid ).val( result.backorders );
+                    }
+                    if( result.stock ){
+                        jQuery( '.stock_' + result.productid ).val( result.stock );
+                    }
+
+                });
+            
+            }
+
+        });
+
+        /**
+         * Fix for stupids 2
+         *
+         */
+        jQuery( '.backorders_select' ).on( 'change' , function(){
+            
+            var id = jQuery( this ).data( 'item' );
+            var backorders = jQuery( this ).val();
+            
+            if( backorders == 'no' ){
+                
+                var number = jQuery( '.stock_' + id ).val();
+
+                if( number ){
+                    if( number > 0 ){
+                        jQuery( '.stock_status_' + id ).val( 'instock' );
+                    }else{
+                        jQuery( '.stock_status_' + id ).val( 'outofstock' );
+                    }
+                }else{
+                    jQuery( '.stock_status_' + id ).val( 'outofstock' );
+                }
+                
+            }else{
+
+                jQuery( '.stock_status_' + id ).val( 'onbackorder' );                
+            
+            }
+
+        });
+
+        /**
+         * Fix for stupids 3
+         *
+         */
+        jQuery( '.stock_number' ).on( 'change' , function(){
+            
+            var id = jQuery( this ).data( 'item' );
+            var stock = jQuery( this ).val();
+            //console.log( stock );
+
+                if( stock ){
+                    if( stock > 0 ){
+                        jQuery( '.stock_status_' + id ).val( 'instock' );
+                    }else{
+                        var backorder = jQuery( '.backorders_' + id ).val();
+                        if( backorder == 'no' ){
+                            jQuery( '.stock_status_' + id ).val( 'outofstock' );
+                        }else{
+                            jQuery( '.stock_status_' + id ).val( 'onbackorder' );
+                        }
+                    }
+                }else{
+                    jQuery( '.stock_status_' + id ).val( 'outofstock' );
+                }            
+
+        });
+
+        /**
 		 * Save single product line in stock table
 		 *
 		 */              
-    jQuery('.save-product').on('click', function(){
-       jQuery('.lineloader').css('display','block');
-       var product = jQuery(this).data('product');
+        jQuery('.save-product').on('click', function(){
+        jQuery('.lineloader').css('display','block');
+        var product = jQuery(this).data('product');
        
        
        var sku            = jQuery('.sku_' + product).val();

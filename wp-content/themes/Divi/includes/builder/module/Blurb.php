@@ -89,7 +89,9 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 					'option_category'     => 'layout',
 					'tab_slug'            => 'advanced',
 					'toggle_slug'         => 'icon_settings',
-					'depends_show_if'     => 'off',
+					'show_if'             => array(
+						'use_icon' => 'off',
+					),
 					'css'                 => array(
 						'main' => '%%order_class%% .et_pb_main_blurb_image .et_pb_image_wrap',
 						'show_if_not' => array(
@@ -223,7 +225,6 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 				'affects'         => array(
 					'border_radii_image',
 					'border_styles_image',
-					'box_shadow_style_image',
 					'font_icon',
 					'image_max_width',
 					'use_icon_font_size',
@@ -571,17 +572,19 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 		if ( '' !== $title && '' !== $url ) {
 			$title = sprintf( '<a href="%1$s"%3$s>%2$s</a>',
 				esc_url( $url ),
-				et_esc_previously( $title ),
+				et_core_esc_previously( $title ),
 				( 'on' === $url_new_window ? ' target="_blank"' : '' )
 			);
+		} else {
+			// Allowing full html for backwards compatibility.
+			$title = $this->_esc_attr( 'title', 'full' );
 		}
 
 		if ( '' !== $title ) {
 			$title = sprintf(
 				'<%1$s class="et_pb_module_header">%2$s</%1$s>',
 				et_pb_process_header_level( $header_level, 'h4' ),
-				// Allowing full html for backwards compatibility.
-				$this->_esc_attr( 'title', 'full' )
+				et_core_esc_previously( $title )
 			);
 		}
 
@@ -594,7 +597,7 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 			$image = ( '' !== trim( $image ) ) ? sprintf(
 				'<img src="%1$s" alt="%2$s" class="et-waypoint%3$s" />',
 				esc_attr( $image ),
-				et_esc_previously( $alt ),
+				et_core_esc_previously( $alt ),
 				esc_attr( " et_pb_animation_{$animation}" )
 			) : '';
 		} else {
@@ -659,7 +662,7 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 			( '' !== $url
 				? sprintf(
 					'<a href="%1$s"%3$s>%2$s</a>',
-					esc_url( $url ),
+					esc_attr( $url ),
 					$image,
 					( 'on' === $url_new_window ? ' target="_blank"' : '' )
 				)
@@ -706,14 +709,14 @@ class ET_Builder_Module_Blurb extends ET_Builder_Module {
 				</div> <!-- .et_pb_blurb_content -->
 			</div> <!-- .et_pb_blurb -->',
 			$this->content,
-			$image,
-			et_esc_previously( $title ),
+			et_core_esc_previously( $image ),
+			et_core_esc_previously( $title ),
 			$this->module_classname( $render_slug ),
 			$this->module_id(), // #5
 			$video_background,
 			$parallax_image_background,
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover )
 		);
 
 		return $output;

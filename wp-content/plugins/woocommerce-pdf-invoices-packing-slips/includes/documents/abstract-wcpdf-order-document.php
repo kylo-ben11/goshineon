@@ -116,6 +116,7 @@ abstract class Order_Document {
 
 		// load settings
 		$this->settings = $this->get_settings();
+		$this->latest_settings = $this->get_settings( true );
 		$this->enabled = $this->get_setting( 'enabled', false );
 	}
 
@@ -123,26 +124,56 @@ abstract class Order_Document {
 		return;
 	}
 
-	public function get_settings() {
-		if ( empty( $this->order ) || !$this->exists() ) {
-			$common_settings = WPO_WCPDF()->settings->get_common_document_settings();
-			$document_settings = get_option( 'wpo_wcpdf_documents_settings_'.$this->get_type() );
-			$settings = (array) $document_settings + (array) $common_settings;
-		} else {
-			$settings = WCX_Order::get_meta( $this->order, "_wcpdf_{$this->slug}_settings" );
-			if ( empty( $settings ) ) {
-				$common_settings = WPO_WCPDF()->settings->get_common_document_settings();
-				$document_settings = get_option( 'wpo_wcpdf_documents_settings_'.$this->get_type() );
-				$settings = (array) $document_settings + (array) $common_settings;
-				WCX_Order::update_meta_data( $this->order, "_wcpdf_{$this->slug}_settings", $settings );
+	public function get_settings( $latest = false ) {
+		// get most current settings
+		$common_settings = WPO_WCPDF()->settings->get_common_document_settings();
+		$document_settings = get_option( 'wpo_wcpdf_documents_settings_'.$this->get_type() );
+		$settings = (array) $document_settings + (array) $common_settings;
+
+		// return only most current if forced
+		if ( $latest == true ) {
+			return $settings;
+		}
+
+		// get historical settings if enabled
+		if ( !empty( $this->order ) && $this->use_historical_settings() == true ) {
+			$order_settings = WCX_Order::get_meta( $this->order, "_wcpdf_{$this->slug}_settings" );
+			if (!empty($order_settings)) {
+				// not sure what happens if combining with current settings will have unwanted side effects
+				// like unchecked options being enabled because missing = unchecked in historical - disabled for now
+				// $settings = (array) $order_settings + (array) $settings;
+				$settings = $order_settings;
 			}
+		}
+		if ( empty( $order_settings ) && !empty( $this->order ) ) {
+			// this is either the first time the document is generated, or historical settings are disabled
+			// in both cases, we store the document settings
+			WCX_Order::update_meta_data( $this->order, "_wcpdf_{$this->slug}_settings", $settings );
 		}
 
 		return $settings;
 	}
 
+	public function use_historical_settings() {
+		return apply_filters( 'wpo_wcpdf_document_use_historical_settings', false, $this );
+	}
+
 	public function get_setting( $key, $default = '' ) {
-		$setting = isset( $this->settings[$key] ) ? $this->settings[$key] : $default;
+		$non_historical_settings = apply_filters( 'wpo_wcpdf_non_historical_settings', array(
+			'enabled',
+			'attach_to_email_ids',
+			'number_format', // this is stored in the number data already!
+			'my_account_buttons',
+			'my_account_restrict',
+			'invoice_number_column',
+			'paper_size',
+			'font_subsetting',
+		) );
+		if ( in_array( $key, $non_historical_settings ) && isset($this->latest_settings) ) {
+			$setting = isset( $this->latest_settings[$key] ) ? $this->latest_settings[$key] : $default;
+		} else {
+			$setting = isset( $this->settings[$key] ) ? $this->settings[$key] : $default;
+		}
 		return $setting;
 	}
 
@@ -248,7 +279,7 @@ abstract class Order_Document {
 	}
 
 	public function exists() {
-		return !empty( $this->data['number'] );
+		return !empty( $this->data['date'] );
 	}
 
 	/*
@@ -393,10 +424,10 @@ abstract class Order_Document {
 
 	public function get_number_settings() {
 		if (empty($this->settings)) {
-			$settings = $this->get_settings();
+			$settings = $this->get_settings( true ); // we always want the latest settings
 			$number_settings = isset($settings['number_format'])?$settings['number_format']:array();
 		} else {
-			$number_settings = isset($this->settings['number_format'])?$this->settings['number_format']:array();
+			$number_settings = $this->get_setting( 'number_format', array() );
 		}
 		return apply_filters( 'wpo_wcpdf_document_number_settings', $number_settings, $this );
 	}

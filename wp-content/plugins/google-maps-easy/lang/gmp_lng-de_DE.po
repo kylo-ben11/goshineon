@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Google Maps Easy\n"
 "POT-Creation-Date: 2017-07-10 12:24+0300\n"
-"PO-Revision-Date: 2018-04-28 14:59+0300\n"
+"PO-Revision-Date: 2018-11-14 10:27+0200\n"
 "Last-Translator: Cristina <info@kurzreise-barcelona.de>\n"
 "Language-Team: supsystic.com <supsystic.team@gmail.com>\n"
 "Language: en\n"
@@ -257,11 +257,11 @@ msgid "Description Of Marker"
 msgstr "Beschreibung des Markes"
 
 #: classes/tables/marker.php:10
-msgid "X coordinate of marker(lng)"
+msgid "X coordinate of marker (lng)"
 msgstr "X-Koordinate falls Markerierung vorhanden (lng)"
 
 #: classes/tables/marker.php:11
-msgid "Y coordinate of marker(lat)"
+msgid "Y coordinate of marker (lat)"
 msgstr "Y-Koordinate falls Markerierung vorhanden (lat)"
 
 #: classes/tables/marker.php:12
@@ -425,7 +425,7 @@ msgid "Find"
 msgstr "Finden"
 
 #: doc/google-maps-easy-pro/custom_controls/views/tpl/customMapControls.php:105
-msgid "Search area have no markers, please try to modify search criterias."
+msgid "Search area have no markers, please try to modify search criteria."
 msgstr "Das Suchfeld hat keine Marker, bitte ändern Sie Ihre Suchkriterien."
 
 #: doc/google-maps-easy-pro/directions/views/tpl/directionsBtn.php:1
@@ -567,12 +567,12 @@ msgstr "KML Daten laden"
 
 #: doc/google-maps-easy-pro/license/mod.php:30
 #, php-format
-msgid "Your license is expired. Once you extend your license - you will be able to Update PRO version. To extend PRO version license - follow <a href='%s' target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab anc click on 'Re-activate' button to re-activate your PRO version."
+msgid "Your license is expired. Once you extend your license - you will be able to Update PRO version. To extend PRO version license - follow <a href='%s' target='_blank'>this link</a>, then - go to <a href='%s'>License</a> tab and click on 'Re-activate' button to re-activate your PRO version."
 msgstr "Ihre Lizenz ist abgelaufen. Sobald Sie Ihre Lizenz verlängern, können Sie auf die PRO Version updaten. Um die Lizenz der PRO Version zu verlängern - folgen Sie <a href='%s' target='_blank'>diesem Link</a>, - gehen Sie dann auf den Reiter <a href='%s'>Lizenz</a> und klicken Sie auf die Schaltfläche 'Re-activate' , um Ihre PRO Version erneut zu aktivieren."
 
 #: doc/google-maps-easy-pro/license/mod.php:40
 #, php-format
-msgid "Your license for PRO version of %s plugin - expired. You can <a href='%s' target='_blank'>click here</a> to extend your license, then - go to <a href='%s'>License</a> tab anc click on 'Re-activate' button to re-activate your PRO version."
+msgid "Your license for PRO version of %s plugin - expired. You can <a href='%s' target='_blank'>click here</a> to extend your license, then - go to <a href='%s'>License</a> tab and click on 'Re-activate' button to re-activate your PRO version."
 msgstr "Ihre Lizenz für die PRO Version des Plugins %s ist abgelaufen. Sie können <a href='%s' target='_blank'>hier klicken</a>, um Ihre Lizenz zu verlängern, und dann auf den Reiter <a href='%s'>Lizenz</a>gehen und dort auf die Schaltfläche 'Re-activate' klicken, um Ihre PRO Version erneut zu aktivieren."
 
 #: doc/google-maps-easy-pro/license/mod.php:66
@@ -1055,7 +1055,7 @@ msgid "Px"
 msgstr "Px"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:85
-msgid "Percents"
+msgid "Percent"
 msgstr "Prozent"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:92
@@ -1082,7 +1082,7 @@ msgid "Map type control"
 msgstr "Steuerfeld Kartentyp"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:137
-msgid "Control view for map type - you can see it in right upper corner by default"
+msgid "Control view for map type - you can see it in left upper corner by default"
 msgstr "Steuerfeld Kartentyp - Sie sehen sie standardmäßig in der Ecke oben rechts"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:142
@@ -1147,7 +1147,7 @@ msgid "Street view control"
 msgstr "Streeview-Steuerung"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:198
-msgid "Street view control usually is located on left upper corner of your map"
+msgid "Street view control usually is located on right lower corner of your map"
 msgstr "Die Streeview-Steuerung befindet sich üblicherweise in der oberen linken Ecke auf Ihrer Karte"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:208
@@ -1276,7 +1276,7 @@ msgid "Markers List"
 msgstr "Markerliste"
 
 #: modules/gmap/views/tpl/gmapEditMap.php:440
-msgid "Display all map markers - as list bellow Your map. This will help your users get more info about your markers and find required marker more faster."
+msgid "Display all map markers - as list below Your map. This will help your users get more info about your markers and find required marker more faster."
 msgstr "Alle Kartenmarker zeigen - als Liste unter Ihrer Karte. Dies wird Ihren Nutzern helfen, mehr Informationen über Ihre Marker zu bekommen und die gewünschten Marker schneller zu finden."
 
 #: modules/gmap/views/tpl/gmapEditMap.php:447
@@ -2106,8 +2106,8 @@ msgstr "Kostenlose Version verbessern"
 
 #: modules/options/views/tpl/optionsAdminPage.php:33
 #, php-format
-msgid "Please be advised that this option is available only in <a target='_blank' href='%s'>PRO version</a>. You can <a target='_blank' href='%s' class='button'>Get PRO</a> today and get this and other PRO option for your PopUps!"
-msgstr "Bitte beachten Sie, dass diese Optoin nur in der <a target='_blank' href='%s'>PRO Version</a> verfügbar ist. Sie können noch heute die <a target='_blank' href='%s' class='button'> PRO Version bekommen</a> und diese sowie andere PRO Optionen für Ihre Pop-Ups bekommen!"
+msgid "Please be advised that this option is available only in <a target='_blank' href='%s'>PRO version</a>. You can <a target='_blank' href='%s' class='button'>Get PRO</a> today and get this and other PRO option for your Maps!"
+msgstr "Bitte beachten Sie, dass diese Optoin nur in der <a target='_blank' href='%s'>PRO Version</a> verfügbar ist. Sie können noch heute die <a target='_blank' href='%s' class='button'> PRO Version bekommen</a> und diese sowie andere PRO Optionen für Ihre Maps bekommen!"
 
 #: modules/options/views/tpl/optionsSettingsTabContent.php:3
 msgid "Save all options"
@@ -2159,7 +2159,7 @@ msgstr "Schon erledigt"
 
 #: modules/supsystic_promo/mod.php:60
 #, php-format
-msgid "<h3>More then eleven days with our %s plugin - Congratulations!</h3>"
+msgid "<h3>More than eleven days with our %s plugin - Congratulations!</h3>"
 msgstr "<h3>Mehr als elf Tage mit unserem Plugin %s - Herzlichen Glückwunsch!</h3>"
 
 #: modules/supsystic_promo/mod.php:61
@@ -2176,7 +2176,7 @@ msgstr "Überspringen"
 
 #: modules/supsystic_promo/mod.php:67
 #, php-format
-msgid "Check out <a href='%s' target='_blank' class='button button-primary' data-statistic-code='hide'>our other Plugins</a>! Years of experience in WordPress plugins developers made those list unbreakable!"
+msgid "Check out <a href='%s' target='_blank' class='button button-primary' data-statistic-code='hide'>our other Plugins</a>! Years of experience in WordPress plugins developers made that list unbreakable!"
 msgstr "Probiere unsere anderen Plugins <a href='%s' target='_blank' class='button button-primary' data-statistic-code='hide'> aus! Jahrelange Erfahrung mit Wordpress-Plugins macht diese Liste unentbehrlich. "
 
 #: modules/supsystic_promo/mod.php:116
@@ -2216,7 +2216,7 @@ msgid "Report a bug"
 msgstr "Einen Fehler melden"
 
 #: modules/supsystic_promo/mod.php:221
-msgid "Require a new functionallity"
+msgid "Require a new functionality"
 msgstr "Eine neue Funktion anfordern"
 
 #: modules/supsystic_promo/mod.php:222
@@ -2268,11 +2268,11 @@ msgid "You can add a map in popup window by inserting map shortcode in any popup
 msgstr "Sie können eine Karte in ein Pop-Up-Fenster durch Einfügen eines Karten-Shortcodes in ein Pop-Up-Feld hinzufügen. Mehr darüber erfahren Sie <a href='http://supsystic.com/add-map-into-site-content/'>hier</a>."
 
 #: modules/supsystic_promo/views/supsystic_promo.php:43
-msgid "How to zoom and center the initial map on markers ?"
+msgid "How to zoom and center the initial map on markers?"
 msgstr "Wie zoomt und zentriert man die Anfangskarte auf die Marker?"
 
 #: modules/supsystic_promo/views/supsystic_promo.php:44
-msgid "There is a few different ways to zoom and centralize map. The easiest one is to drag your map using mouse - 'Draggable' option must be enabled, or with pan controller help in live preview. <a href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'>Read more..</a>"
+msgid "There is a few different ways to zoom and centralize map. The easiest one is to drag your map using mouse - 'Draggable' option must be enabled, or with pan controller help in live preview. <a href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'>Read more...</a>"
 msgstr "Es gibt unterschiedliche Arten, eine Karte heranzuzoomen und zu zentrieren. Die einfachste ist, die Karte mit der Maus zu ziehen - Dazu muss die Option 'Draggable' aktiviert sein, oder mit der Schaltfläche zum Schwenken in der Live-Voransicht. <a href='http://supsystic.com/how-to-zoom-and-center-the-initial-map-on-markers/'>Weiterlesen..</a>"
 
 #: modules/supsystic_promo/views/supsystic_promo.php:45
@@ -2295,7 +2295,7 @@ msgstr "Alle vorhandenen Sprachen werden mit dem Supsystic Google Maps Plugin ge
 
 #: modules/supsystic_promo/views/supsystic_promo.php:62
 #, php-format
-msgid "There were some problem while trying to retrive our news, but you can always check all list <a target='_blank' href='%s'>here</a>."
+msgid "There was some problem while trying to retrieve our news, but you can always check all list <a target='_blank' href='%s'>here</a>."
 msgstr "Es gab Schwierigkeiten bei der Abfrage unsere News, aber Sie finden jederzeit die gesamte Liste <a target='_blank' href='%s'>hier</a>."
 
 #: modules/supsystic_promo/views/supsystic_promo.php:98
@@ -2536,7 +2536,7 @@ msgid "There are so many features, so we can't post it here. Like"
 msgstr "Es gibt so viele Funktionen, die wir hier gar nicht erwähnen können. Wie"
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:125
-msgid "Capcha for admin login"
+msgid "Captcha for admin login"
 msgstr "Captcha für die Admin-Anmeldung"
 
 #: modules/supsystic_promo/views/tpl/welcomePage.php:126

@@ -1,9 +1,18 @@
+var g_gmpLibJsLoaded = false;
+function gmpLoadGoogleLib() {
+	if(!g_gmpLibJsLoaded) {
+		jQuery('head').append('<script src="'+ GMP_DATA.gmapApiUrl+ '"></script>');
+		g_gmpLibJsLoaded = true;
+	}
+}
 // Maps
 function gmpGoogleMap(elementId, params, additionalData) {
 	if(typeof(google) === 'undefined') {
-		alert('Please check your Internet connection - we need it to load Google Maps Library from Google Server');
-		return false;
+		gmpLoadGoogleLib();
+		//alert('Please check your Internet connection - we need it to load Google Maps Library from Google Server');
+		//return false;
 	}
+	
 	params = params ? params : {};
 	additionalData = additionalData ? additionalData : {};
 	var defaults = {
@@ -568,7 +577,7 @@ gmpGoogleMap.prototype.applyZoomType = function() {
 };
 gmpGoogleMap.prototype.applyZoomTypeAdmin = function() {
 	if(GMP_DATA.isAdmin && this.getParam('zoom_type') == 'fit_bounds') {
-		// Call applyZoomTypeAdmin after refresh all map objects in admin area (markers, shapes, ets.)
+		// Call applyZoomTypeAdmin after refresh all map objects in admin area (markers, shapes, etc.)
 		this._getBoundsHandler();
 	}
 };
@@ -613,7 +622,7 @@ jQuery.fn.mapSearchAutocompleateGmp = function(params) {
 			params.msgEl.showLoaderGmp();
 			var self = this;
 
-			jQuery(this).autocomplete({
+			jQuery(this).autocomplete(jQuery.extend({}, params.autocompleteParams, {
 				source: function(request, response) {
 					var autocomleateData = typeof(params.additionalData) != 'undefined' ? gmpAutocomleateData(params.additionalData, request.term) : []
 					,	geocoder = gmpGetGeocoder()
@@ -656,7 +665,7 @@ jQuery.fn.mapSearchAutocompleateGmp = function(params) {
 						params.onSelect(ui.item, event, ui);
 					}
 				}
-			});
+			}));
 
 			// Force imidiate search right after creation
 			jQuery(this).autocomplete('search');

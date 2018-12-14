@@ -1,5 +1,5 @@
 <?php
-	$isPro = frameGmp::_()->getModule('supsystic_promo')->isPro();
+	//$isPro = frameGmp::_()->getModule('supsystic_promo')->isPro();
 	$promoData = frameGmp::_()->getModule('supsystic_promo')->addPromoMapTabs();
 	$addProElementAttrs = $this->isPro ? '' : ' title="'. esc_html(__("This option is available in <a target='_blank' href='%s'>PRO version</a> only, you can get it <a target='_blank' href='%s'>here.</a>", GMP_LANG_CODE)). '"';
 	$addProElementClass = $this->isPro ? '' : 'supsystic-tooltip gmpProOpt';
@@ -111,8 +111,9 @@
 									</th>
 									<td>
 										<div class="sup-col sup-w-25">
-											<?php echo htmlGmp::text('map_opts[width]', array(
+											<?php echo htmlGmp::input('map_opts[width]', array(
 												'value' => $this->editMap ? $this->map['html_options']['width'] : '100',
+												'type' => 'number',
 												'attrs' => 'style="width: 100%;" id="map_opts_width"'))?>
 										</div>
 										<div class="sup-col sup-w-75">
@@ -123,7 +124,7 @@
 											<label style="margin-right: 15px; position: relative; top: 7px;"><?php echo htmlGmp::radiobutton('map_opts[width_units]', array(
 												'value' => '%',
 												'checked' => $this->editMap ? htmlGmp::checkedOpt($this->map['params'], 'width_units', '%') : true,
-											))?>&nbsp;<?php _e('Percents', GMP_LANG_CODE)?></label>
+											))?>&nbsp;<?php _e('Percent', GMP_LANG_CODE)?></label>
 										</div>
 									</td>
 								</tr>
@@ -143,8 +144,9 @@
 									<td>
 										<div class="gmpMainHeightOpts sup-col sup-w-50 no-p">
 											<div class="sup-col sup-w-50" style="padding-right: 15px;">
-												<?php echo htmlGmp::text('map_opts[height]', array(
+												<?php echo htmlGmp::input('map_opts[height]', array(
 													'value' => $this->editMap ? $this->map['html_options']['height'] : '250',
+													'type' => 'number',
 													'attrs' => 'style="width: 100%;" id="map_opts_height"'))?>
 											</div>
 											<div class="sup-col sup-w-50 no-p">
@@ -175,7 +177,7 @@
 											<label for="map_opts_type_control">
 												<?php _e('Map type control', GMP_LANG_CODE)?>:
 											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Control view for map type - you can see it in right upper corner by default', GMP_LANG_CODE)?>"></i>
+											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Control view for map type - you can see it in left upper corner by default', GMP_LANG_CODE)?>"></i>
 										</th>
 										<td>
 											<div class="sup-col sup-w-50">
@@ -238,7 +240,7 @@
 											<label for="map_optsstreet_view_control_check">
 												<?php _e('Street view control', GMP_LANG_CODE)?>:
 											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Street view control usually is located on left upper corner of your map', GMP_LANG_CODE)?>"></i>
+											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Street view control usually is located on right lower corner of your map', GMP_LANG_CODE)?>"></i>
 										</th>
 										<td>
 											<div class="sup-col sup-w-50">
@@ -305,43 +307,64 @@
 										</td>
 									</tr>
 									<?php */ ?>
+									
 									<tr>
-										<th scope="row">
-											<label for="map_optsdraggable_check">
-												<?php _e('Draggable', GMP_LANG_CODE)?>:
-											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Enable or disable possibility to drag your map using mouse', GMP_LANG_CODE)?>"></i>
-										</th>
-										<td>
-											<?php echo htmlGmp::checkboxHiddenVal('map_opts[draggable]', array(
-												'value' => $this->editMap && isset($this->map['params']['draggable']) ? $this->map['params']['draggable'] : true,
-											))?>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row">
-											<label for="map_optsdbl_click_zoom_check">
-												<?php _e('Double click to zoom', GMP_LANG_CODE)?>:
-											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('By default double left click on map will zoom it in. But you can change this here.', GMP_LANG_CODE)?>"></i>
-										</th>
-										<td>
-											<?php echo htmlGmp::checkboxHiddenVal('map_opts[dbl_click_zoom]', array(
-												'value' => $this->editMap && isset($this->map['params']['dbl_click_zoom']) ? $this->map['params']['dbl_click_zoom'] : true,
-											))?>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row">
-											<label for="map_optsmouse_wheel_zoom_check">
-												<?php _e('Mouse wheel to zoom', GMP_LANG_CODE)?>:
-											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Sometimes you need to disable possibility to zoom your map using mouse wheel. This can be required for example - if you need to use your wheel for some other action, for example scroll your site even if mouse is over your map.', GMP_LANG_CODE)?>"></i>
-										</th>
-										<td>
-											<?php echo htmlGmp::checkboxHiddenVal('map_opts[mouse_wheel_zoom]', array(
-												'value' => $this->editMap && isset($this->map['params']['mouse_wheel_zoom']) ? $this->map['params']['mouse_wheel_zoom'] : true,
-											))?>
+										<td colspan="2" style="padding: 0;">
+											<table class="form-table">
+												<tr>
+													<th scope="row">
+														<label for="map_optsdraggable_check">
+															<?php _e('Draggable', GMP_LANG_CODE)?>:
+														</label>
+														<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Enable or disable possibility to drag your map using mouse', GMP_LANG_CODE)?>"></i>
+													</th>
+													<td>
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[draggable]', array(
+															'value' => $this->editMap && isset($this->map['params']['draggable']) ? $this->map['params']['draggable'] : true,
+														))?>
+													</td>
+													<th scope="row">
+														<label for="map_optsmouse_wheel_zoom_check">
+															<?php _e('Mouse wheel to zoom', GMP_LANG_CODE)?>:
+														</label>
+														<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Sometimes you need to disable possibility to zoom your map using mouse wheel. This can be required for example - if you need to use your wheel for some other action, for example scroll your site even if mouse is over your map.', GMP_LANG_CODE)?>"></i>
+													</th>
+													<td>
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[mouse_wheel_zoom]', array(
+															'value' => $this->editMap && isset($this->map['params']['mouse_wheel_zoom']) ? $this->map['params']['mouse_wheel_zoom'] : true,
+														))?>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="map_optsdbl_click_zoom_check">
+															<?php _e('Double click to zoom', GMP_LANG_CODE)?>:
+														</label>
+														<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('By default double left click on map will zoom it in. But you can change this here.', GMP_LANG_CODE)?>"></i>
+													</th>
+													<td>
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[dbl_click_zoom]', array(
+															'value' => $this->editMap && isset($this->map['params']['dbl_click_zoom']) ? $this->map['params']['dbl_click_zoom'] : true,
+														))?>
+													</td>
+													<th scope="row">
+														<label for="map_optsis_static_check">
+															<?php _e('Set Static', GMP_LANG_CODE)?>:
+														</label>
+														<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Show map as a Static image. This will allow you to make it cheeper according to new Google Maps API usage Rates. Be aware - not all options will work in this mode!', GMP_LANG_CODE)?>"></i>
+													</th>
+													<td>
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[is_static]', array(
+															'value' => $this->editMap && isset($this->map['params']['is_static']) ? $this->map['params']['is_static'] : false,
+															'attrs' => 'class="gmpProOpt"',
+														))?>
+														<?php $proLink = frameGmp::_()->getModule('supsystic_promo')->generateMainLink('utm_source=plugin&utm_medium=static_map&utm_campaign=googlemaps'); ?>
+														<?php if(!$this->isPro) { ?>
+															<span class="gmpProOptMiniLabel" style="padding-left: 20px;"><a target="_blank" href="<?php echo $proLink?>"><?php _e('PRO option', GMP_LANG_CODE)?></a></span>
+														<?php }?>
+													</td>
+												</tr>
+											</table>
 										</td>
 									</tr>
 									<tr>
@@ -385,13 +408,18 @@
 												<?php _e('Map Zoom', GMP_LANG_CODE)?>:
 											</label>
 											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Sets map zoom.<br /><br />
-<b>Preset Zoom</b> - sets zoom value for map. You can change this value just change zoom on the map preview.<br /><br />
-<b>Fit Bounds</b> - map zoom will be changed on frontend in a way that all markers and figures will be visible.<br /><br />
-<b>Min Zoom Level</b> - sets minimum zoom level (maximum estrangement), which can be applied for map.<br /><br />
-<b>Max Zoom Level</b> - sets maximum zoom level (maximum approximation), which can be applied for map.
-', GMP_LANG_CODE)?>"></i>
+											<b>Preset Zoom</b> - sets zoom value for map. You can change this value just change zoom on the map preview.<br /><br />
+											<b>Fit Bounds</b> - map zoom will be changed on frontend in a way that all markers and figures will be visible.<br /><br />
+											<b>Min Zoom Level</b> - sets minimum zoom level (maximum estrangement), which can be applied for map.<br /><br />
+											<b>Max Zoom Level</b> - sets maximum zoom level (maximum approximation), which can be applied for map.
+											', GMP_LANG_CODE)?>"></i>
 										</th>
 										<td>
+											<?php
+												$zoomMin = 1;
+												$zoomMax = 21;
+												$zoomRange = array_combine(range($zoomMin, $zoomMax), range($zoomMin, $zoomMax));
+											?>
 											<?php echo htmlGmp::selectbox('map_opts[zoom_type]', array(
 												'options' => array('zoom_level' => __('Preset Zoom', GMP_LANG_CODE), 'fit_bounds' => __('Fit Bounds', GMP_LANG_CODE)),
 												'value' => $this->editMap && isset($this->map['params']['zoom_type']) ? $this->map['params']['zoom_type'] : 'zoom_level',
@@ -403,7 +431,7 @@
 															<?php _e('Zoom Level', GMP_LANG_CODE)?>
 														</label>
 														<?php echo htmlGmp::selectbox('map_opts[zoom]', array(
-															'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11, 12 => 12, 13 => 13, 14 => 14, 15 => 15, 16 => 16, 17 => 17, 18 => 18, 19 => 19, 20 => 20, 21 => 21),
+															'options' => $zoomRange,
 															'value' => $this->editMap && isset($this->map['params']['zoom']) ? $this->map['params']['zoom'] : 8,
 															'attrs' => 'style="width: 100%;"'))?>
 														<?php //echo htmlGmp::hidden('map_opts[zoom]', array('value' => $this->editMap ? $this->map['params']['zoom'] : ''))?>
@@ -413,7 +441,7 @@
 															<?php _e('Mobile Zoom Level', GMP_LANG_CODE)?>
 														</label>
 														<?php echo htmlGmp::selectbox('map_opts[zoom_mobile]', array(
-															'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11, 12 => 12, 13 => 13, 14 => 14, 15 => 15, 16 => 16, 17 => 17, 18 => 18, 19 => 19, 20 => 20, 21 => 21),
+															'options' => $zoomRange,
 															'value' => $this->editMap && isset($this->map['params']['zoom_mobile']) ? $this->map['params']['zoom_mobile'] : 8,
 															'attrs' => 'style="width: 100%;"'))?>
 													</div>
@@ -424,8 +452,8 @@
 															<?php _e('Min Zoom Level', GMP_LANG_CODE)?>
 														</label>
 														<?php echo htmlGmp::selectbox('map_opts[zoom_min]', array(
-															'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11, 12 => 12, 13 => 13, 14 => 14, 15 => 15, 16 => 16, 17 => 17, 18 => 18, 19 => 19, 20 => 20, 21 => 21),
-															'value' => $this->editMap && isset($this->map['params']['zoom_min']) ? $this->map['params']['zoom_min'] : 1,
+															'options' => $zoomRange,
+															'value' => $this->editMap && isset($this->map['params']['zoom_min']) ? $this->map['params']['zoom_min'] : $zoomMin,
 															'attrs' => 'style="width: 100%;"'))?>
 													</div>
 													<div class="zoom_max_level sup-col sup-w-50" style="margin-top: 10px;">
@@ -433,8 +461,8 @@
 															<?php _e('Max Zoom Level', GMP_LANG_CODE)?>
 														</label>
 														<?php echo htmlGmp::selectbox('map_opts[zoom_max]', array(
-															'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11, 12 => 12, 13 => 13, 14 => 14, 15 => 15, 16 => 16, 17 => 17, 18 => 18, 19 => 19, 20 => 20, 21 => 21),
-															'value' => $this->editMap && isset($this->map['params']['zoom_max']) ? $this->map['params']['zoom_max'] : 21,
+															'options' => $zoomRange,
+															'value' => $this->editMap && isset($this->map['params']['zoom_max']) ? $this->map['params']['zoom_max'] : $zoomMax,
 															'attrs' => 'style="width: 100%;"'))?>
 													</div>
 												</div>
@@ -549,7 +577,7 @@
 											<label for="map_opts_markers_list_type">
 												<?php _e('Markers List', GMP_LANG_CODE)?>:
 											</label>
-											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Display all map markers - as list bellow Your map. This will help your users get more info about your markers and find required marker more faster.', GMP_LANG_CODE)?>"></i>
+											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Display all map markers - as list below Your map. This will help your users get more info about your markers and find required marker more faster.', GMP_LANG_CODE)?>"></i>
 											<?php if(!$this->isPro) { ?>
 												<?php $proLink = frameGmp::_()->getModule('supsystic_promo')->generateMainLink('utm_source=plugin&utm_medium=markers_list&utm_campaign=googlemaps'); ?>
 												<br /><span class="gmpProOptMiniLabel"><a target="_blank" href="<?php echo $proLink?>"><?php _e('PRO option', GMP_LANG_CODE)?></a></span>
@@ -630,7 +658,7 @@
 												<?php _e('Add KML layers', GMP_LANG_CODE)?>:
 											</label>
 											<i class="fa fa-question supsystic-tooltip" style="float: right;" title="<?php _e('Add KML files to display custom layers on the map. Additional options:' .
-												'<br /><br /><b>Enable KML layers filter</b> - add form to map for dynamically enable / disable KML layers and sublayers.', GMP_LANG_CODE);
+												'<br /><br /><b>Enable KML layers filter</b> - add form to map for dynamically enable / disable KML layers and sublayers. <br /><br />  <b>Load KML faster</b> - Use for large KML files. <b>Warning </b>-  filters will stop working!<br', GMP_LANG_CODE);
 												if(!$this->isPro){
 													echo esc_html('<a href="'. $proLink. '" target="_blank"><img src="'. $this->promoModPath. 'img/kml/kml.png" /></a>');
 												}?>"
@@ -641,6 +669,20 @@
 										</th>
 										<td>
 											<div style="margin-top: 10px;">
+												<label for="map_opts_enable_google_kml_api">
+													<?php echo htmlGmp::checkboxHiddenVal('map_opts[enable_google_kml_api]', array(
+														'value' => $this->editMap && isset($this->map['params']['enable_google_kml_api']) ? $this->map['params']['enable_google_kml_api'] : false,
+														'attrs' => 'class="gmpProOpt" id="map_opts_enable_google_kml_api"'))?>
+													<?php _e('Load kml faster', GMP_LANG_CODE)?>
+												</label>
+											</div>
+											<?php
+											$hiddenClass = '';
+											if(isset($this->map['params']['enable_google_kml_api']) && !empty($this->map['params']['enable_google_kml_api'])){
+												$hiddenClass = 'gmpHidden';
+											}
+											?>
+											<div style="margin-top: 10px;" class="<?php echo $hiddenClass;?>" >
 												<label for="map_opts_enable_kml_filter">
 													<?php echo htmlGmp::checkboxHiddenVal('map_opts[enable_kml_filter]', array(
 														'value' => $this->editMap && isset($this->map['params']['enable_kml_filter']) ? $this->map['params']['enable_kml_filter'] : false,
@@ -648,6 +690,7 @@
 													<?php _e('Enable KML layers filter', GMP_LANG_CODE)?>
 												</label>
 											</div>
+
 											<div id="gmpKmlFileRowExample" class="gmpKmlFileRow" style="display: none; margin-top: 10px;">
 												<div style="clear: both;"></div>
 												<label><?php _e('Enter KML file URL', GMP_LANG_CODE)?></label>
@@ -675,11 +718,8 @@
 													<?php _e('or Upload KML file', GMP_LANG_CODE)?>
 												</a><br />
 												<label class="gmpKmlImportToMarkerLbl">
-												<?php
-													echo '<span class="gmpKitmLblText">' . translate('Import markers from layer') . '</span>';
-												?>
+													<span class="gmpKitmLblText"><?php _e('Import markers from layer', GMP_LANG_CODE); ?></span>
 												</label>
-
 											</div>
 											<?php
 												if(!empty($this->map['params']['kml_import_to_marker'])
@@ -951,7 +991,7 @@
 												"<br /><br /><b>Max marker's count</b> - the maximum number of markers, which can be added over certain amount of time." .
 												"<br /><br /><b>For allotted time (minutes)</b> - the number of minutes, during which you can add the maximum number of markers." .
 												"<br /><br />For example, during three minutes you can add only two markers at the map. If you try to add a third marker - the form will not be saved and you will see the notice with amount of time you must wait. After the right amount of time will pass - you can add next two markers, etc." .
-												"<br /><br />Important! If map and form for add markers at this map are placed on one page - this page will be overload after marker adding.", GMP_LANG_CODE)?>"></i>
+												"<br /><br />You can add markers at the current map with the frontend using the form, which can be displayed using the shortcode. Please place this shortcode at the same page as it's map map. Please note that the page will be overloaded after adding marker.", GMP_LANG_CODE)?>"></i>
 											<?php if(!$this->isPro) { ?>
 												<?php $proLink = frameGmp::_()->getModule('supsystic_promo')->generateMainLink('utm_source=plugin&utm_medium=frontend_add_markers&utm_campaign=googlemaps'); ?>
 												<br /><span class="gmpProOptMiniLabel"><a target="_blank" href="<?php echo $proLink?>"><?php _e('PRO option', GMP_LANG_CODE)?></a></span>
@@ -1101,7 +1141,7 @@
 												'value' => $this->editMap && isset($this->map['params']['marker_filter_button_title']) ? $this->map['params']['marker_filter_button_title'] : 'Select all'))?>
 										</td>
 									</tr>
-									<tr>
+									<tr style="border-bottom: 1px solid #e3dbdb!important;">
 										<th scope="row">
 											<label class="label-big">
 												<?php _e('Info Window', GMP_LANG_CODE)?>:
@@ -1259,7 +1299,7 @@
 											</div>
 										</td>
 									</tr>
-									<tr>
+									<tr style="border-bottom: 1px solid #e3dbdb!important;">
 										<th scope="row">
 											<label for="map_opts_marker_desc_size">
 												<?php _e('Description Font Size', GMP_LANG_CODE)?>:
@@ -1638,7 +1678,7 @@
 						</form>
 					</div>
 					<div id="gmpShapeTab" class="gmpTabContent">
-						<?php if($isPro) {?>
+						<?php if($this->isPro) {?>
 							<form id="gmpShapeForm">
 								<table class="form-table">
 									<tr>
@@ -1810,7 +1850,7 @@
 						}?>
 					</div>
 					<div id="gmpHeatmapTab" class="gmpTabContent">
-					<?php if($isPro) {?>
+					<?php if($this->isPro) {?>
 						<form id="gmpHeatmapForm">
 							<table class="form-table">
 								<tr>

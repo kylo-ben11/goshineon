@@ -109,7 +109,9 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 					'option_category' => 'layout',
 					'tab_slug'        => 'advanced',
 					'toggle_slug'     => 'image',
-					'depends_show_if' => 'off',
+					'show_if'         => array(
+						'fullwidth' => 'off',
+					),
 					'css' => array(
 						'main'         => '%%order_class%% .et_pb_gallery_image',
 						'overlay' => 'inset',
@@ -216,10 +218,15 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 				'toggle_slug'      => 'main_content',
 			),
 			'gallery_orderby' => array(
-				'label' => esc_html__( 'Gallery Images', 'et_builder' ),
-				'type'  => 'hidden',
-				'class' => array( 'et-pb-gallery-ids-field' ),
-				'computed_affects'   => array(
+				'label'   => esc_html__( 'Order By', 'et_builder' ),
+				'type'    => $this->is_loading_bb_data() ? 'hidden' : 'select',
+				'options' => array(
+					''     => esc_html__( 'Default', 'et_builder' ),
+					'rand' => esc_html__( 'Random', 'et_builder' ),
+				),
+				'default' => 'off',
+				'class'   => array( 'et-pb-gallery-ids-field' ),
+				'computed_affects' => array(
 					'__gallery',
 				),
 				'toggle_slug' => 'main_content',
@@ -255,7 +262,6 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 					'show_title_and_caption',
 					'show_pagination',
 					'orientation',
-					'box_shadow_style_image',
 					'border_radii_image',
 					'border_styles_image',
 				),
@@ -538,8 +544,8 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 			$this->module_id(),
 			$this->module_classname( $render_slug ),
 			esc_attr( $posts_number ),
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover ) // #5
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover ) // #5
 		);
 
 		$output .= $video_background;

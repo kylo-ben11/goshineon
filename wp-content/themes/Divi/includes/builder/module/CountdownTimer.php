@@ -37,8 +37,7 @@ class ET_Builder_Module_Countdown_Timer extends ET_Builder_Module {
 				'numbers' => array(
 					'label'    => esc_html__( 'Numbers', 'et_builder' ),
 					'css'      => array(
-						'main'        => ".et_pb_column {$this->main_css_element} .section p.value",
-						'text_shadow' => ".et_pb_column {$this->main_css_element} .section p.value, .et_pb_column {$this->main_css_element} .section.sep p",
+						'main'        => ".et_pb_column {$this->main_css_element} .section p.value, .et_pb_column {$this->main_css_element} .section.sep p",
 						'important'   => 'all',
 					),
 					'line_height' => array(
@@ -167,7 +166,7 @@ class ET_Builder_Module_Countdown_Timer extends ET_Builder_Module {
 		if ( '' !== $title ) {
 			$title = sprintf(
 				'<%2$s class="title">%s</%2$s>',
-				et_esc_previously( $title ),
+				et_core_esc_previously( $title ),
 				et_pb_process_header_level( $header_level, 'h4' )
 			);
 		}
@@ -206,19 +205,19 @@ class ET_Builder_Module_Countdown_Timer extends ET_Builder_Module {
 					<div class="days section values" data-short="%13$s" data-full="%6$s">
 						<p class="value"></p>
 						<p class="label">%6$s</p>
-					</div>
-					<div class="sep section"><p>:</p></div>
-					<div class="hours section values" data-short="%8$s" data-full="%7$s">
+					</div><div class="sep section">
+						<p>:</p>
+					</div><div class="hours section values" data-short="%8$s" data-full="%7$s">
 						<p class="value"></p>
 						<p class="label">%7$s</p>
-					</div>
-					<div class="sep section"><p>:</p></div>
-					<div class="minutes section values" data-short="%10$s" data-full="%9$s">
+					</div><div class="sep section">
+						<p>:</p>
+					</div><div class="minutes section values" data-short="%10$s" data-full="%9$s">
 						<p class="value"></p>
 						<p class="label">%9$s</p>
-					</div>
-					<div class="sep section"><p>:</p></div>
-					<div class="seconds section values" data-short="%12$s" data-full="%11$s">
+					</div><div class="sep section">
+						<p>:</p>
+					</div><div class="seconds section values" data-short="%12$s" data-full="%11$s">
 						<p class="value"></p>
 						<p class="label">%11$s</p>
 					</div>
@@ -228,7 +227,7 @@ class ET_Builder_Module_Countdown_Timer extends ET_Builder_Module {
 			$this->module_classname( $render_slug ),
 			'',
 			esc_attr( strtotime( "{$end_date} {$gmt}" ) ),
-			et_esc_previously( $title ), // #5
+			et_core_esc_previously( $title ), // #5
 			esc_html__( 'Day(s)', 'et_builder' ),
 			esc_html__( 'Hour(s)', 'et_builder' ),
 			esc_attr__( 'Hrs', 'et_builder' ),
@@ -239,8 +238,8 @@ class ET_Builder_Module_Countdown_Timer extends ET_Builder_Module {
 			esc_attr__( 'Day', 'et_builder' ),
 			$video_background,
 			$parallax_image_background, // #15
-			et_esc_previously( $data_background_layout ),
-			et_esc_previously( $data_background_layout_hover )
+			et_core_esc_previously( $data_background_layout ),
+			et_core_esc_previously( $data_background_layout_hover )
 		);
 
 		return $output;

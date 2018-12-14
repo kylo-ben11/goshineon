@@ -23,6 +23,28 @@ jQuery(document).ready(function(){
 		}));
 		return false;
 	});
+	jQuery('#gmpCsvExportFiguresBtn').click(function(){
+		var delimiter = jQuery('#gmpCsvExportDelimiter').val() || ';';
+		toeRedirect(createAjaxLinkGmp({
+			page: 'csv'
+			,	action: 'exportFigures'
+			,	delimiter: delimiter
+			,	onSubmit: gmpCsvImportOnSubmit
+			,	onComplete: gmpCsvImportOnComplete
+		}));
+		return false;
+	});
+	jQuery('#gmpCsvExportHeatmapBtn').click(function(){
+		var delimiter = jQuery('#gmpCsvExportDelimiter').val() || ';';
+		toeRedirect(createAjaxLinkGmp({
+			page: 'csv'
+			,	action: 'exportHeatmap'
+			,	delimiter: delimiter
+			,	onSubmit: gmpCsvImportOnSubmit
+			,	onComplete: gmpCsvImportOnComplete
+		}));
+		return false;
+	});
 	jQuery('#gmpCsvSaveBtn').click(function () {
 		jQuery('#gmpCsvForm').submit();
 		return false;
