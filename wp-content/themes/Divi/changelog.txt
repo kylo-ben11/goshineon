@@ -1,3 +1,85 @@
+version 3.19 ( updated 12-20-2018 )
+- Fixed a case where 3rd party faulty code could prevent the Visual Builder from loading.
+- Fixed Landing Page plugin compatibility.
+- Added missing label for image field in Image module.
+- Fixed Help Video popup position in some cases.
+- Fixed a Visual Builder issue where undo-ing a recently added Module via shortcuts could lead to an error.
+- Fixed an error that could sometimes show up in console when adding a Pricing Table Module.
+- Fixed Visual Builder not loading when the menu included unclosed HTML tags.
+- Fixed Visual Builder not loading when page included scripts using 'document.write'.
+- Fixed a compatibility issue with DiviEstate theme.
+- Prevent themes styles affecting builder wireframe mode.
+- Fixed broken page list when Piklist plugin is activated and there is a page set as static page via 'Dashboard > Settings > Reading'.
+- Fixed issues with unwanted empty "p" tags inside Inline editor in Firefox.
+- Removed unwanted extra padding from TinyMCE's toolbar icons when using Classic Editor.
+- Fixed a jQuery error that could occur on window resize when using a customized header.
+	* core/ui/utils/frames.js
+	* includes/builder/class-et-builder-settings.php
+	* includes/builder/core.php
+	* includes/builder/feature/BlockEditorIntegration.php
+	* includes/builder/frontend-builder/assets/scripts/preboot.js
+	* includes/builder/frontend-builder/bundle.js
+	* includes/builder/frontend-builder/helpers.php
+	* includes/builder/frontend-builder/i18n/quick-actions.php
+	* includes/builder/frontend-builder/view.php
+	* includes/builder/functions.php
+	* includes/builder/module/Image.php
+	* includes/builder/plugin-compat/landing-pages.php
+	* includes/builder/styles/style.css
+	* js/custom.js
+
+version 3.18.9 ( updated 12-18-2018 )
+- Fixed Global preloader sometimes being visible when it should have not.
+- Fixed Inline Editor position when Vertical Menu is enabled.
+- Fixed a warning that could show up in console when using range controls in Settings Modal.
+- Fixed Contact Form id attribute rendering on front end.
+- Fixed a compatibility issue with the Toolbar Publish Button plugin.
+- Fixed very large layouts sometimes not being correctly loaded in the Visual Bulder.
+- Fixed some PHP Notices.
+- Fixed a possible PHP Warning: Use of undefined constant ET_SHORTCODES_DIR.
+- Fixed Code Integration HTML being sometimes altered or not included in the page.
+	* core/components/data/init.php
+	* core/ui/utils/frames.js
+	* epanel/core_functions.php
+	* epanel/custom_functions.php
+	* includes/builder/frontend-builder/bundle.js
+	* includes/builder/frontend-builder/helpers.php
+	* includes/builder/functions.php
+	* includes/builder/module/ContactForm.php
+	* includes/builder/plugin-compat/toolbar-publish-button.php
+
+version 3.18.8 ( updated 12-17-2018 )
+- Fixed Visual Builder not loading when mod_pagespeed was enabled.
+- Fixed Load Layout Modal width and position in some cases when Page Settings Bar is on the side or on the corner.
+- Fixed Google Maps preview not showing in Visual Builder.
+- Fixed incorrect true parallax location of first section when transparent nav is used.
+- Fixed dragging module to top/bottom edge of window on visual builder's desktop and wireframe mode doesn't trigger auto window scroll.
+- Fixed undefined version number placeholder @since ?? & @since {BFB_VERSION}.
+- Fixed Full Width Menu sometimes being hidden.
+- Fixed Post Custom Background not being visible in the Divi Builder.
+- Fixed issues with visual builder loading due to invalid html being introduced in widgets.
+- Fixed Visual Builder loading in some themes.
+- Fixed undefined version number placeholder @since ?? & @since {BFB_VERSION}.
+- Fixed builder load failure caused by unexpected HTML structure.
+- Fixed a issue where header has incorrect position for Slide In header style.
+	* core/components/data/Utils.php
+	* core/ui/utils/frames.js
+	* css/main-styles.css
+	* includes/builder/class-et-builder-element.php
+	* includes/builder/core.php
+	* includes/builder/feature/BlockEditorIntegration.php
+	* includes/builder/feature/ClassicEditor.php
+	* includes/builder/frontend-builder/assets/scripts/preboot.js
+	* includes/builder/frontend-builder/bundle.js
+	* includes/builder/frontend-builder/view.php
+	* includes/builder/functions.php
+	* includes/builder/plugin-compat/advanced-custom-fields.php
+	* includes/builder/scripts/builder.js
+	* includes/builder/scripts/frontend-builder-scripts.js
+	* includes/builder/styles/frontend-builder-style.less
+	* js/custom.js
+	* single.php
+
 version 3.18.7 ( updated 12-13-2018 )
 - Fixes Project categories and tags not showing up in Gutenberg's sidebar.
 - Fixed first section Divi Builder controls sometimes being hidden by the Navbar.
@@ -15,7 +97,7 @@ version 3.18.7 ( updated 12-13-2018 )
 	* js/custom.js
 
 version 3.18.6 ( updated 12-13-2018 )
-- Fixed a bug that caused the content areas of modules to crash in the Visual Builder in some situations. 
+- Fixed a bug that caused the content areas of modules to crash in the Visual Builder in some situations.
 
 version 3.18.5 ( updated 12-12-2018 )
 - Fixed Inline Editor closing issue when Settings Modal is opened in some cases.

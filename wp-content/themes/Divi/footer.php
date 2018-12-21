@@ -45,8 +45,9 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					}
 
 					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo et_core_fix_unclosed_html_tags( et_core_esc_previously( et_get_footer_credits() ) );
+					//echo et_core_fix_unclosed_html_tags( et_core_esc_previously( et_get_footer_credits() ) );
 					// phpcs:enable
+					echo ( '<p id="copyright">&copy; ' . date(Y) . ' Evan\'s Detailing & Polishing | <a href="https://goshineon.com/privacy-policy/">Privacy Policy</a></p>' )
 				?>
 					</div>	<!-- .container -->
 				</div>
@@ -56,7 +57,22 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>
 
 	</div> <!-- #page-container -->
+<?php 
+	if(is_page(43)){ 
+		echo ('<script>
+  		snowWorkerConfig = {
+    	wind: 1
+  		}
+		</script>
+		<script src="https://unpkg.com/snowworker@1.0.9/snow.js"></script>');
+	}
+?>
+
+
 
 	<?php wp_footer(); ?>
+
+
+
 </body>
 </html>

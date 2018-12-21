@@ -340,8 +340,10 @@
 					var $adjusted_element = $(this),
 						styling = $adjusted_element.data();
 
-					// Reapply previous styling
-					$adjusted_element.css( styling.fix_page_container_style );
+					if (styling && styling.fix_page_container_style) {
+						// Reapply previous styling
+						$adjusted_element.css( styling.fix_page_container_style );
+					}
 
 				});
 			}
@@ -788,6 +790,13 @@
 						'id' : 'et_fix_page_container_position',
 						'text' : '#page-container{ padding-top: 0 !important;}'
 					}).appendTo('head');
+				}
+
+				// If the first visible (visibility is significant for for cached split test) section has parallax background,
+				// trigger parallax height resize so the parallax location isn't correctly rendered due to addition of first
+				// section/module margin-top/padding-top which is needed for transparent primary nav
+				if ($('.et_pb_section:visible:first').hasClass('et_pb_section_parallax')) {
+					$(window).trigger('resize.etTrueParallaxBackground');
 				}
 
 			} else if( et_is_fixed_nav ) {

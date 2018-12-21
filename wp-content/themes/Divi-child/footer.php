@@ -1,4 +1,12 @@
-<?php if ( 'on' == et_get_option( 'divi_back_to_top', 'false' ) ) : ?>
+<?php
+/**
+ * Fires after the main content, before the footer is output.
+ *
+ * @since 3.10
+ */
+do_action( 'et_after_main_content' );
+
+if ( 'on' === et_get_option( 'divi_back_to_top', 'false' ) ) : ?>
 
 	<span class="et_pb_scroll_top et-pb-icon"></span>
 
@@ -35,6 +43,11 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					if ( false !== et_get_option( 'show_footer_social_icons', true ) ) {
 						get_template_part( 'includes/social_icons', 'footer' );
 					}
+
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+					//echo et_core_fix_unclosed_html_tags( et_core_esc_previously( et_get_footer_credits() ) );
+					// phpcs:enable
+					echo ( '<p id="copyright">&copy; ' . date(Y) . ' Evan\'s Detailing & Polishing | <a href="https://goshineon.com/privacy-policy/">Privacy Policy</a></p>' )
 				?>
 					</div>	<!-- .container -->
 				</div>
@@ -44,8 +57,22 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>
 
 	</div> <!-- #page-container -->
+<?php 
+	if(is_page(43)){ 
+		echo ('<script>
+  		snowWorkerConfig = {
+    	wind: 1
+  		}
+		</script>
+		<script src="https://unpkg.com/snowworker@1.0.9/snow.js"></script>');
+	}
+?>
+
+
 
 	<?php wp_footer(); ?>
+
+
 
 </body>
 </html>

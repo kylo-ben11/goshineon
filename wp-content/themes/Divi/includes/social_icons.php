@@ -8,14 +8,14 @@
 	</li>
 <?php endif; ?>
 <?php if ( 'on' === et_get_option( 'divi_show_twitter_icon', 'on' ) ) : ?>
-	<li class="et-social-icon et-social-twitter">
+	<li class="et-social-icon et-social-instagram">
 		<a href="<?php echo esc_url( et_get_option( 'divi_twitter_url', '#' ) ); ?>" class="icon">
 			<span><?php esc_html_e( 'Twitter', 'Divi' ); ?></span>
 		</a>
 	</li>
 <?php endif; ?>
 <?php if ( 'on' === et_get_option( 'divi_show_google_icon', 'on' ) ) : ?>
-	<li class="et-social-icon et-social-google-plus">
+	<li class="et-social-icon et-social-youtube">
 		<a href="<?php echo esc_url( et_get_option( 'divi_google_url', '#' ) ); ?>" class="icon">
 			<span><?php esc_html_e( 'Google', 'Divi' ); ?></span>
 		</a>

@@ -42,6 +42,12 @@ function et_fb_app_boot( $content ) {
 }
 add_filter( 'the_content', 'et_fb_app_boot', 1 );
 
+function et_fb_wp_nav_menu( $menu ) {
+	// Ensure we fix any unclosed HTML tags in menu since they would break the VB
+	return et_core_fix_unclosed_html_tags( $menu );
+}
+add_filter( 'wp_nav_menu', 'et_fb_wp_nav_menu' );
+
 function et_builder_maybe_include_bfb_template( $template ) {
 	if ( et_builder_bfb_enabled() && ! is_admin() ) {
 		return ET_BUILDER_DIR . 'frontend-builder/bfb-template.php';
@@ -50,6 +56,31 @@ function et_builder_maybe_include_bfb_template( $template ) {
 	return $template;
 }
 add_filter( 'template_include', 'et_builder_maybe_include_bfb_template', 99 );
+
+
+function et_fb_dynamic_sidebar_ob_start() {
+	global $et_fb_dynamic_sidebar_buffering;
+
+	if ( $et_fb_dynamic_sidebar_buffering ) {
+		echo force_balance_tags( ob_get_clean() );
+	}
+
+	$et_fb_dynamic_sidebar_buffering = true;
+
+	ob_start();
+}
+add_action( 'dynamic_sidebar', 'et_fb_dynamic_sidebar_ob_start' );
+
+function et_fb_dynamic_sidebar_after_ob_get_clean() {
+	global $et_fb_dynamic_sidebar_buffering;
+
+	if ( $et_fb_dynamic_sidebar_buffering ) {
+		echo force_balance_tags( ob_get_clean() );
+
+		$et_fb_dynamic_sidebar_buffering = false;
+	}
+}
+add_action( 'dynamic_sidebar_after', 'et_fb_dynamic_sidebar_after_ob_get_clean' );
 
 /**
  * Added frontend builder assets.
