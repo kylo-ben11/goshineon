@@ -101,13 +101,13 @@ class WCM_Table {
         self::table_head_parent_id();
 
         if(!empty( $display_option['tax_status'] ) && $display_option['tax_status'] == 'display' ){
-             echo '<th>'.__('Tax status','stock-manager').'</th>';
+             echo '<th>'.__('Tax status','woocommerce-stock-manager').'</th>';
         }
         if(!empty( $display_option['tax_class'] ) && $display_option['tax_class'] == 'display' ){
-             echo '<th>'.__('Tax class','stock-manager').'</th>';
+             echo '<th>'.__('Tax class','woocommerce-stock-manager').'</th>';
         }
         if(!empty( $display_option['shipping_class'] ) && $display_option['shipping_class'] == 'display' ){
-            echo '<th>'.__('Shipping class','stock-manager').'</th>';
+            echo '<th>'.__('Shipping class','woocommerce-stock-manager').'</th>';
         }
         if(!empty( $display_option['price'] ) && $display_option['price'] == 'display' ){
             self::table_head_price();
@@ -231,7 +231,7 @@ class WCM_Table {
      */           
     public static function table_head_thumbnail(){
         ?>
-        <th><?php _e('Thumbnail','stock-manager'); ?></th>
+        <th><?php _e('Thumbnail','woocommerce-stock-manager'); ?></th>
         <?php
     }
     /**
@@ -241,7 +241,7 @@ class WCM_Table {
      */           
     public static function table_head_sku(){
         ?>
-        <th style="width:100px;"><?php _e('SKU','stock-manager'); ?></th>
+        <th style="width:100px;"><?php _e('SKU','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -251,7 +251,7 @@ class WCM_Table {
      */           
     public static function table_head_id(){
         ?>
-        <th><?php _e('ID','stock-manager'); ?></th>
+        <th><?php _e('ID','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -261,7 +261,7 @@ class WCM_Table {
      */           
     public static function table_head_name(){
         ?>
-        <th><?php _e('Name','stock-manager'); ?></th>
+        <th><?php _e('Name','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -271,7 +271,7 @@ class WCM_Table {
      */           
     public static function table_head_product_type(){
         ?>
-        <th><?php _e('Product type','stock-manager'); ?></th>
+        <th><?php _e('Product type','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -281,7 +281,7 @@ class WCM_Table {
      */           
     public static function table_head_parent_id(){
         ?>
-        <th><?php _e('Parent ID','stock-manager'); ?></th>
+        <th><?php _e('Parent ID','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -291,7 +291,7 @@ class WCM_Table {
      */           
     public static function table_head_price(){
         ?>
-        <th><?php _e('Price','stock-manager'); ?></th>
+        <th><?php _e('Price','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -301,7 +301,7 @@ class WCM_Table {
      */           
     public static function table_head_sales_price(){
         ?>
-        <th><?php _e('Sale price','stock-manager'); ?></th>
+        <th><?php _e('Sale price','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -311,7 +311,7 @@ class WCM_Table {
      */           
     public static function table_head_weight(){
         ?>
-        <th><?php _e('Weight','stock-manager'); ?></th>
+        <th><?php _e('Weight','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -321,7 +321,7 @@ class WCM_Table {
      */           
     public static function table_head_manage_stock(){
         ?>
-        <th><?php _e('Manage stock','stock-manager'); ?></th>
+        <th><?php _e('Manage stock','woocommerce-stock-manager'); ?></th>
         <?php
     }
     /**
@@ -331,7 +331,7 @@ class WCM_Table {
      */           
     public static function table_head_stock_status(){
         ?>
-        <th style="width:80px;"><?php _e('Stock status','stock-manager'); ?></th>
+        <th style="width:80px;"><?php _e('Stock status','woocommerce-stock-manager'); ?></th>
         <?php
     }
     /**
@@ -341,7 +341,7 @@ class WCM_Table {
      */           
     public static function table_head_backorders(){
         ?>
-        <th><?php _e('Backorders','stock-manager'); ?></th>
+        <th><?php _e('Backorders','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -351,7 +351,7 @@ class WCM_Table {
      */           
     public static function table_head_stock(){
         ?>
-        <th style="width:50px;"><?php _e('Stock','stock-manager'); ?></th>
+        <th style="width:50px;"><?php _e('Stock','woocommerce-stock-manager'); ?></th>
         <?php
     } 
     /**
@@ -361,7 +361,7 @@ class WCM_Table {
      */           
     public static function table_head_save(){
         ?>
-        <th style="width:100px;"><?php _e('Save','stock-manager'); ?></th>
+        <th style="width:100px;"><?php _e('Save','woocommerce-stock-manager'); ?></th>
         <?php
     } 
 
@@ -409,8 +409,8 @@ class WCM_Table {
                 <span class="dashicons dashicons-edit" data-item="<?php echo $item; ?>"></span>
                 <div class="item-sku-wrap item-sku-wrap-<?php echo $item; ?>">
                     <input type="text" name="sku[<?php echo $item; ?>]" style="width:100%;" class="item-sku sku_<?php echo $item; ?>" value="<?php if(!empty($product_meta['_sku'][0])){ echo $product_meta['_sku'][0]; } ?>" />
-                    <span class="btn btn-info item-sku-button" data-item="<?php echo $item; ?>"><?php _e('Save', 'stock-manager'); ?></span>
-                    <span class="btn btn-danger item-sku-button-close"><?php _e('Close', 'stock-manager'); ?></span>
+                    <span class="btn btn-info item-sku-button" data-item="<?php echo $item; ?>"><?php _e('Save', 'woocommerce-stock-manager'); ?></span>
+                    <span class="btn btn-danger item-sku-button-close"><?php _e('Close', 'woocommerce-stock-manager'); ?></span>
                 </div>
         </td>
         <?php
@@ -441,8 +441,8 @@ class WCM_Table {
                 <span class="dashicons dashicons-edit" data-item="<?php echo $item; ?>"></span>
                 <div class="item-post-title-wrap item-post-title-wrap-<?php echo $item; ?>">
                     <input type="text" name="item-post-title" class="item-post-title item-post-title-<?php echo $item; ?>" value="<?php echo get_the_title( $item ); ?>" />
-                    <span class="btn btn-info item-post-title-button" data-item="<?php echo $item; ?>"><?php _e('Save', 'stock-manager'); ?></span>
-                    <span class="btn btn-danger item-post-title-button-close"><?php _e('Close', 'stock-manager'); ?></span>
+                    <span class="btn btn-info item-post-title-button" data-item="<?php echo $item; ?>"><?php _e('Save', 'woocommerce-stock-manager'); ?></span>
+                    <span class="btn btn-danger item-post-title-button-close"><?php _e('Close', 'woocommerce-stock-manager'); ?></span>
                 </div>
             </td>
             <?php
@@ -457,7 +457,7 @@ class WCM_Table {
   		?>
   		<td class="td_center">
             <?php if($product_type == 'variable'){
-              echo '<span class="btn btn-info btn-sm show-variable" data-variable="'.$item.'">'.__('Show variables','stock-manager').'</span>';
+              echo '<span class="btn btn-info btn-sm show-variable" data-variable="'.$item.'">'.__('Show variables','woocommerce-stock-manager').'</span>';
             }else{ 
               echo $product_type; 
             } ?>
@@ -477,9 +477,9 @@ class WCM_Table {
         if( $product_type == 'simple' || $product_type == 'variable' ){
             $value = $product->get_tax_status( 'edit' );
             $values = array(
-                        'taxable'    => __( 'Taxable', 'woocommerce' ),
-                        'shipping'   => __( 'Shipping only', 'woocommerce' ),
-                        'none'       => _x( 'None', 'Tax status', 'woocommerce' ),
+                        'taxable'    => __( 'Taxable', 'woocommerce-woocommerce' ),
+                        'shipping'   => __( 'Shipping only', 'woocommerce-woocommerce' ),
+                        'none'       => _x( 'None', 'Tax status', 'woocommerce-woocommerce' ),
                     );
         ?>
         <td>
@@ -535,9 +535,9 @@ class WCM_Table {
         $product = wc_get_product( $id );
 
         if( $product_type == 'variation' ){
-            $label = 'Same as parent';
+            $label = _e( 'Same as parent', 'woocommerce-stock-manager' );
         }else{
-            $label = 'No shipping class'; 
+            $label = _e( 'No shipping class', 'woocommerce-stock-manager' ); 
         }
      
             $args = array(
@@ -629,8 +629,8 @@ class WCM_Table {
         ?>
         <td>
             <select name="manage_stock[<?php echo $item; ?>]" class="manage_stock_<?php echo $item; ?> manage_stock_select" data-item="<?php echo $item; ?>">
-              <option value="yes" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','stock-manager'); ?></option>
-              <option value="no" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','stock-manager'); ?></option>
+              <option value="yes" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','woocommerce-stock-manager'); ?></option>
+              <option value="no" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','woocommerce-stock-manager'); ?></option>
             </select>
           </td>
         <?php
@@ -644,9 +644,9 @@ class WCM_Table {
         ?>
         <td>
             <select name="stock_status[<?php echo $item; ?>]" class="stock_status_<?php echo $item; ?> stock_status_select" data-item="<?php echo $item; ?>" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'yes'){ echo 'disabled'; } ?>>
-              <option value="instock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'instock'){ echo 'selected="selected"'; } ?>><?php _e('In stock','stock-manager'); ?></option>
-              <option value="outofstock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'outofstock'){ echo 'selected="selected"'; } ?>><?php _e('Out of stock','stock-manager'); ?></option>
-              <option value="onbackorder" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'onbackorder'){ echo 'selected="selected"'; } ?>><?php _e('On backorder','stock-manager'); ?></option>
+              <option value="instock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'instock'){ echo 'selected="selected"'; } ?>><?php _e('In stock','woocommerce-stock-manager'); ?></option>
+              <option value="outofstock" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'outofstock'){ echo 'selected="selected"'; } ?>><?php _e('Out of stock','woocommerce-stock-manager'); ?></option>
+              <option value="onbackorder" <?php if(!empty($product_meta['_stock_status'][0]) && $product_meta['_stock_status'][0] == 'onbackorder'){ echo 'selected="selected"'; } ?>><?php _e('On backorder','woocommerce-stock-manager'); ?></option>
             </select>
           </td>
         <?php
@@ -660,9 +660,9 @@ class WCM_Table {
         ?>
         <td>
             <select name="backorders[<?php echo $item; ?>]" class="backorders_<?php echo $item; ?> backorders_select" data-item="<?php echo $item; ?>" <?php if(!empty($product_meta['_manage_stock'][0]) && $product_meta['_manage_stock'][0] == 'no'){ echo 'disabled'; } ?>>
-              <option value="no" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','stock-manager'); ?></option>
-              <option value="notify" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'notify'){ echo 'selected="selected"'; } ?>><?php _e('Notify','stock-manager'); ?></option>
-              <option value="yes" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','stock-manager'); ?></option>
+              <option value="no" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'no'){ echo 'selected="selected"'; } ?>><?php _e('No','woocommerce-stock-manager'); ?></option>
+              <option value="notify" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'notify'){ echo 'selected="selected"'; } ?>><?php _e('Notify','woocommerce-stock-manager'); ?></option>
+              <option value="yes" <?php if(!empty($product_meta['_backorders'][0]) && $product_meta['_backorders'][0] == 'yes'){ echo 'selected="selected"'; } ?>><?php _e('Yes','woocommerce-stock-manager'); ?></option>
             </select>
           </td>
         <?php
@@ -736,7 +736,7 @@ class WCM_Table {
     public static function line_save_box( $item ){       
         ?>
         <td class="td_center">
-            <span class="btn btn-primary btn-sm save-product" data-product="<?php echo $item; ?>"><?php _e('Save','stock-manager'); ?></span>
+            <span class="btn btn-primary btn-sm save-product" data-product="<?php echo $item; ?>"><?php _e('Save','woocommerce-stock-manager'); ?></span>
         </td>
         <?php
     }  

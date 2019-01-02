@@ -16,7 +16,7 @@ class Stock_Manager {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '1.2.7';
+	const VERSION = '1.2.8';
 
 	/**
 	 * Plugin slug
@@ -223,7 +223,7 @@ class Stock_Manager {
 	 */
 	public function load_plugin_textdomain() {
 
-		$domain = $this->plugin_slug;
+		$domain = 'woocommerce-stock-manager';
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
 		//load_textdomain( $domain, STOCKDIR . 'languages/woocommerce-stock-manager-' . $locale . '.mo' );

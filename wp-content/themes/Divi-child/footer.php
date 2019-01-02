@@ -57,16 +57,7 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>
 
 	</div> <!-- #page-container -->
-<?php 
-	if(is_page(43)){ 
-		echo ('<script>
-  		snowWorkerConfig = {
-    	wind: 1
-  		}
-		</script>
-		<script src="https://unpkg.com/snowworker@1.0.9/snow.js"></script>');
-	}
-?>
+
 
 
 

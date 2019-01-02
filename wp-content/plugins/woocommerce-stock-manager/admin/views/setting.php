@@ -29,22 +29,22 @@ if( empty( $step ) ){ $step = '1'; }
 	<div class="t-col-6">
   		<div class="toret-box box-info">
     		<div class="box-header">
-      			<h3 class="box-title"><?php _e('Stock manager setting','stock-manager'); ?></h3>
+      			<h3 class="box-title"><?php _e('Stock manager setting','woocommerce-stock-manager'); ?></h3>
     		</div>
   			<div class="box-body">
   			<div class="clear"></div>
     			<form method="post" action="" style="position:relative;">
       				<table class="table-bordered">
       					<tr>
-      						<th><?php _e('Products limit','stock-manager'); ?></th>
+      						<th><?php _e('Products limit','woocommerce-stock-manager'); ?></th>
       						<td><input type="number" name="limit" value="<?php echo $limit; ?>" start="1" step="1" /></td>
       					</tr>
       					<tr>
-      						<th><?php _e('Allow stock for variable products','stock-manager'); ?></th>
+      						<th><?php _e('Allow stock for variable products','woocommerce-stock-manager'); ?></th>
       						<td><input type="checkbox" name="variable" value="ok" <?php if( $variable == 'ok' ){ echo 'checked="checked"'; } ?> /></td>
       					</tr>
       					<tr>
-      						<th><?php _e('Qty input step','stock-manager'); ?></th>
+      						<th><?php _e('Qty input step','woocommerce-stock-manager'); ?></th>
       						<td><input type="text" name="step" value="<?php echo $step; ?>" /></td>
       					</tr>
       				</table>

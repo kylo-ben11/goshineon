@@ -3,13 +3,14 @@
  * Plugin Name:       WooCommerce Stock Manager
  * Plugin URI:        http:/toret.cz
  * Description:       WooCommerce Stock Manager
- * Version:           1.2.7
+ * Version:           1.2.8
  * Author:            Vladislav Musílek
  * Author URI:        http://toret.cz
  * Text Domain:       stock-manager
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
+ * WC tested up to: 3.5.2
  */
 
 // If this file is called directly, abort.
@@ -309,7 +310,7 @@ add_action( 'wp_ajax_wsm_save_sku', 'stock_manager_wsm_save_sku' );
 
             $reponse = array(
                 'status'    => 'finish',
-                'text'      => __( 'All done! Close.', 'stock-manager' )
+                'text'      => __( 'All done! Close.', 'woocommerce-stock-manager' )
             );
             echo json_encode( $reponse );
             exit();

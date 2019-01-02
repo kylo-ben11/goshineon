@@ -41,7 +41,7 @@ if( isset( $_POST['page-filter-display'] ) ){
 <div class="t-col-12">
   <div class="toret-box box-info">
     <div class="box-header">
-      <h3 class="box-title"><?php _e('Stock manager','stock-manager'); ?></h3>
+      <h3 class="box-title"><?php _e('Stock manager','woocommerce-stock-manager'); ?></h3>
     </div>
   <div class="box-body">
       
@@ -76,7 +76,7 @@ if( isset( $_POST['page-filter-display'] ) ){
           <?php WCM_Table::name_box( $item->ID ); ?>
           <td class="td_center">
             <?php if($product_type == 'variable'){
-              echo '<span class="btn btn-info btn-sm show-variable" data-variable="'.$item->ID.'">'.__('Show variables','stock-manager').'</span>';
+              echo '<span class="btn btn-info btn-sm show-variable" data-variable="'.$item->ID.'">'.__('Show variables','woocommerce-stock-manager').'</span>';
             }else{ 
               echo $product_type; 
             } ?>
@@ -147,7 +147,8 @@ if( isset( $_POST['page-filter-display'] ) ){
        ?>
       
       </table>
-      <input type="submit" name="save-all" class="btn btn-danger" value="<?php _e('Save all','stock-manager') ?>" />
+      <div class="clear"></div>
+      <input type="submit" name="save-all" class="btn btn-danger" value="<?php _e('Save all','woocommerce-stock-manager') ?>" />
       </form>
       <div class="clear"></div>
       

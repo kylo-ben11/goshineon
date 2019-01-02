@@ -147,57 +147,58 @@ jQuery( document ).ready(function() {
 <div class="t-col-6">
   <div class="toret-box box-info">
     <div class="box-header">
-      <h3 class="box-title"><?php _e('Import','stock-manager'); ?></h3>
+      <h3 class="box-title"><?php _e('Import','woocommerce-stock-manager'); ?></h3>
     </div>
   <div class="box-body">
-    <h4><?php _e('You can upload csv file, with your stock data. ','stock-manager'); ?></h4>
-    <p><?php _e('CSV file must be in this format, or you can export file with exist data and edit them. ','stock-manager'); ?></p>
-    <p><?php _e('If you have a lot of products and export/import not working, increase memory limit.. ','stock-manager'); ?></p>
-    <h3><?php _e('File format. ','stock-manager'); ?></h3>
+    <h4><?php _e('You can upload csv file, with your stock data. ','woocommerce-stock-manager'); ?></h4>
+    <p><?php _e('CSV file must be in this format, or you can export file with exist data and edit them. ','woocommerce-stock-manager'); ?></p>
+    <p><?php _e('If you have a lot of products and export/import not working, increase memory limit.. ','woocommerce-stock-manager'); ?></p>
+    <h3><?php _e('File format. ','woocommerce-stock-manager'); ?></h3>
     <table class="table-bordered">
       <tr>
-        <td><?php _e('SKU','stock-manager'); ?></td>
-        <td><?php _e('Product name','stock-manager'); ?></td>
-        <td><?php _e('Manage stock','stock-manager'); ?></td>
-        <td><?php _e('Stock status','stock-manager'); ?></td>
-        <td><?php _e('Backorders','stock-manager'); ?></td>
-        <td><?php _e('Stock','stock-manager'); ?></td>
-        <td><?php _e('Product type','stock-manager'); ?></td>
-        <td><?php _e('Parent SKU','stock-manager'); ?></td>
+        <td><?php _e('SKU','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Product name','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Manage stock','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Stock status','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Backorders','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Stock','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Product type','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('Parent SKU','woocommerce-stock-manager'); ?></td>
       </tr>
       <tr>
-        <td><?php _e('111111','stock-manager'); ?></td>
-        <td><?php _e('T-shirt','stock-manager'); ?></td>
-        <td><?php _e('yes','stock-manager'); ?></td>
-        <td><?php _e('instock','stock-manager'); ?></td>
-        <td><?php _e('yes','stock-manager'); ?></td>
-        <td><?php _e('10','stock-manager'); ?></td>
-        <td><?php _e('simple','stock-manager'); ?></td>
+        <td><?php _e('111111','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('T-shirt','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('yes','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('instock','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('yes','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('10','woocommerce-stock-manager'); ?></td>
+        <td><?php _e('simple','woocommerce-stock-manager'); ?></td>
         <td></td>
       </tr>  
     </table>  
     
     <ul>
-      <li><strong><?php _e('SKU','stock-manager'); ?></strong> <?php _e('product unique identificator, required. Neccessary for import and export.','stock-manager'); ?></li>
-      <li><strong><?php _e('Manage stock','stock-manager'); ?></strong> <?php _e('values: "yes", "notify", "no". If is empty "no" will be save.','stock-manager'); ?></li>
-      <li><strong><?php _e('Stock status','stock-manager'); ?></strong> <?php _e('values: "instock", "outofstock". If is empty "outofstock" will be save.','stock-manager'); ?></li>
-      <li><strong><?php _e('Backorders','stock-manager'); ?></strong> <?php _e('values: "yes", "notify", "no". If is empty "no" will be save.','stock-manager'); ?></li>
-      <li><strong><?php _e('Stock','stock-manager'); ?></strong> <?php _e('quantity value. If is empty, 0 will be save.','stock-manager'); ?></li>
+      <li><strong><?php _e('SKU','woocommerce-stock-manager'); ?></strong> <?php _e('product unique identificator, required. Neccessary for import and export.','woocommerce-stock-manager'); ?></li>
+      <li><strong><?php _e('Manage stock','woocommerce-stock-manager'); ?></strong> <?php _e('values: "yes", "notify", "no". If is empty "no" will be save.','woocommerce-stock-manager'); ?></li>
+      <li><strong><?php _e('Stock status','woocommerce-stock-manager'); ?></strong> <?php _e('values: "instock", "outofstock". If is empty "outofstock" will be save.','woocommerce-stock-manager'); ?></li>
+      <li><strong><?php _e('Backorders','woocommerce-stock-manager'); ?></strong> <?php _e('values: "yes", "notify", "no". If is empty "no" will be save.','woocommerce-stock-manager'); ?></li>
+      <li><strong><?php _e('Stock','woocommerce-stock-manager'); ?></strong> <?php _e('quantity value. If is empty, 0 will be save.','woocommerce-stock-manager'); ?></li>
     </ul>
     
     
     <form method="post" action="" class="setting-form" enctype="multipart/form-data">	
         <table class="table-bordered">
           <tr>
-            <th><?php _e('Upload csv file', 'stock-manager'); ?></th>
+            <th><?php _e('Upload csv file', 'woocommerce-stock-manager'); ?></th>
             <td>
               <input type="file" name="uploadFile">
             </td>
           </tr>
     
         </table>
+        <div class="clear"></div>
       <input type="hidden" name="upload" value="ok" />
-      <input type="submit" class="btn btn-info" value="<?php _e('Upload', 'stock-manager'); ?>" />
+      <input type="submit" class="btn btn-info" value="<?php _e('Upload', 'woocommerce-stock-manager'); ?>" />
     </form>  
     <?php
     if(isset($_POST['upload'])){
@@ -208,7 +209,7 @@ jQuery( document ).ready(function() {
 
         if (move_uploaded_file($_FILES["uploadFile"]["tmp_name"], $target_dir)) {
   
-            echo __('The file '. basename( $_FILES['uploadFile']['name']). ' has been uploaded.','stock-manager');
+            echo __('The file '. basename( $_FILES['uploadFile']['name']). ' has been uploaded.','woocommerce-stock-manager');
     
             $row = 1;
             if (($handle = fopen($target_dir, "r")) !== FALSE) {
@@ -226,13 +227,17 @@ jQuery( document ).ready(function() {
                     if($row != 1){
                       
                         if( !empty( $product_id ) ){
+
+                            $values = array(
+                                'manage_stock' => $manage_stock,
+                                'backorders' => $stock_status,
+                                'stock_status' => $backorders,
+                                'stock' => $stock
+                            );
+
+                            WCM_Save::save_one_item( $data, $product_id );
                       
-                            update_post_meta( $product_id, '_manage_stock', $manage_stock );
-                            update_post_meta( $product_id, '_stock_status', $stock_status );
-                            update_post_meta( $product_id, '_backorders', $backorders );
-                            update_post_meta( $product_id, '_stock', $stock );
-    
-                            echo '<p>'.__('Product with ID: '.$product_id.' was updated.','stock-manager').'</p>';
+                            echo '<p>'.__('Product with ID: '.$product_id.' was updated.','woocommerce-stock-manager').'</p>';
     
                         }
                     }
@@ -243,7 +248,7 @@ jQuery( document ).ready(function() {
             }
       
         }else{
-            echo '<p>'.__('Sorry, there was an error uploading your file.','stock-manager').'</p>';
+            echo '<p>'.__('Sorry, there was an error uploading your file.','woocommerce-stock-manager').'</p>';
         }
   
     } 
@@ -257,11 +262,11 @@ jQuery( document ).ready(function() {
 <div class="t-col-6">
   <div class="toret-box box-info">
     <div class="box-header">
-      <h3 class="box-title"><?php _e('Export','stock-manager'); ?></h3>
+      <h3 class="box-title"><?php _e('Export','woocommerce-stock-manager'); ?></h3>
     </div>
   <div class="box-body">
-    <h4><?php _e('You can download csv file, with your stock data. ','stock-manager'); ?></h4>
-    <p><a href="#" class="btn btn-danger product-export"><?php _e('Create export file','stock-manager'); ?></a></p> 
+    <h4><?php _e('You can download csv file, with your stock data. ','woocommerce-stock-manager'); ?></h4>
+    <p><a href="#" class="btn btn-danger product-export"><?php _e('Create export file','woocommerce-stock-manager'); ?></a></p> 
     <div class="export-output" style="display:none;"></div>
     <div id="csv" style="display:none;"></div>
   </div>

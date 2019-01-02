@@ -3,7 +3,7 @@ Contributors: Musilda
 Donate link: 
 Tags: WooCommerce, stock manager
 Requires at least: 4.0
-Tested up to: 4.9
+Tested up to: 5.0.2
 Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -14,6 +14,8 @@ WooCommerce Stock Manager allows you manage stock for products and their variabl
 
 Plugin is compatible with WooCommerce 3.0+ and is tested on 3.3.1 version. 
 For older version WooCommerce use plugin 1.1.4 
+
+GDPR ready - plugin don't collect personal data
 
 A few notes about the plugin:
 
@@ -96,6 +98,11 @@ A: Be sure, that you have active stock manage.
 4. Show product variations
 
 == Changelog ==
+
+= 1.2.8 =
+* Rename language file to woocommerce-stock-manager for compatibility with WordPress translate system
+* Removed max width for table
+* Fixed button position Save all on big screen
 
 = 1.2.7 =
 * Changed loading text domain

@@ -108,7 +108,6 @@ cursor: default;
 /* Admin table */
 .table-bordered{
   width:100%;
-  max-width:1200px;
   border-collapse:collapse;
   margin-bottom:15px;
 }
