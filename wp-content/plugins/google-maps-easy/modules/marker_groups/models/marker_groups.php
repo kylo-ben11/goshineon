@@ -68,7 +68,11 @@ class marker_groupsModelGmp extends modelGmp {
 			if($data[$k]['parent'] === $data[$k]['id']){
 				$data[$k]['parent'] = 0;
 			}
-			if(!$this->searchForId($data[$k]['parent'], $data)){
+			//the first group should always be without a parent
+			if($data[$k]['sort_order'] == 1){
+				$data[$k]['parent'] = 0;
+			}
+			if(!$single && $this->searchForId($data[$k]['parent'], $data) === false){
 				$data[$k]['parent'] = 0;
 			}
 		}

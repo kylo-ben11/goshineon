@@ -227,6 +227,50 @@ function et_builder_get_default_post_types() {
  * @return array<string>
  */
 function et_builder_get_third_party_post_types() {
+	$third_party_post_types = array();
+
+	// WooCommerce (https://wordpress.org/plugins/woocommerce/):
+	if ( class_exists( 'WooCommerce' ) ) {
+		$third_party_post_types[] = 'product';
+	}
+
+	// The Events Calendar (https://wordpress.org/plugins/the-events-calendar/):
+	if ( class_exists( 'Tribe__Events__Main' ) ) {
+		$third_party_post_types[] = 'tribe_events';
+	}
+
+	// Popup Maker (https://wordpress.org/plugins/popup-maker/):
+	if ( class_exists( 'Popup_Maker' ) ) {
+		$third_party_post_types[] = 'popup';
+	}
+
+	// All-in-One Event Calendar (https://wordpress.org/plugins/all-in-one-event-calendar/):
+	if ( function_exists( 'ai1ec_initiate_constants' ) ) {
+		$third_party_post_types[] = 'ai1ec_event';
+	}
+
+	// Events Manager (https://wordpress.org/plugins/events-manager/):
+	if ( function_exists( 'em_plugins_loaded' ) ) {
+		$third_party_post_types[] = 'event';
+		$third_party_post_types[] = 'location';
+	}
+
+	// Portfolio Post Type (https://wordpress.org/plugins/portfolio-post-type/):
+	if ( function_exists( 'portfolio_post_type_init' ) ) {
+		$third_party_post_types[] = 'portfolio';
+	}
+
+	// LifterLMS (https://wordpress.org/plugins/lifterlms/):
+	if ( class_exists( 'LifterLMS' ) ) {
+		$third_party_post_types[] = 'course';
+	}
+
+	// LearnDash (https://www.learndash.com/wordpress-course-plugin-features/):
+	if ( class_exists( 'Semper_Fi_Module' ) ) {
+		$third_party_post_types[] = 'sfwd-courses';
+		$third_party_post_types[] = 'sfwd-lessons';
+	}
+
 	/**
 	 * Array of third-party registered post types that should have support enabled by default.
 	 *
@@ -234,33 +278,7 @@ function et_builder_get_third_party_post_types() {
 	 *
 	 * @param array<string>
 	 */
-	return apply_filters( 'et_builder_third_party_post_types', array(
-		// WooCommerce (https://wordpress.org/plugins/woocommerce/):
-		'product',
-
-		// The Events Calendar (https://wordpress.org/plugins/the-events-calendar/):
-		'tribe_events',
-
-		// Popup Maker (https://wordpress.org/plugins/popup-maker/):
-		'popup',
-
-		// All-in-One Event Calendar (https://wordpress.org/plugins/all-in-one-event-calendar/):
-		'ai1ec_event',
-
-		// Events Manager (https://wordpress.org/plugins/events-manager/):
-		'event',
-		'location',
-
-		// Portfolio Post Type (https://wordpress.org/plugins/portfolio-post-type/):
-		'portfolio',
-
-		// LifterLMS (https://wordpress.org/plugins/lifterlms/):
-		'course',
-
-		// LearnDash (https://www.learndash.com/wordpress-course-plugin-features/):
-		'sfwd-courses',
-		'sfwd-lessons',
-	) );
+	return apply_filters( 'et_builder_third_party_post_types', $third_party_post_types );
 }
 
 /**
@@ -397,7 +415,7 @@ function et_builder_get_enabled_builder_post_types() {
 	$filtered = array();
 
 	foreach ( $options as $post_type => $state ) {
-		if ( 'on' === $state && ! in_array( $post_type, et_builder_get_blacklisted_post_types() ) ) {
+		if ( 'on' === $state && in_array( $post_type, array_keys( et_get_registered_post_type_options() ) ) && ! in_array( $post_type, et_builder_get_blacklisted_post_types() ) ) {
 			$filtered[] = $post_type;
 		}
 	}
@@ -2360,7 +2378,7 @@ function et_pb_submit_subscribe_form() {
 		et_core_die( esc_html__( 'Please input a valid email address.', 'et_builder' ) );
 	}
 
-	if ( empty( $args['list_id'] ) ) {
+	if ( '' === (string) $args['list_id'] ) {
 		et_core_die( esc_html__( 'Configuration Error: No list has been selected for this form.', 'et_builder' ) );
 	}
 
@@ -2575,35 +2593,6 @@ if ( ! function_exists( 'et_is_yoast_seo_plugin_active' ) ) :
 		return class_exists( 'WPSEO_Options' );
 	}
 endif;
-
-/**
- * Ajax callback used by BB to render builder shortcode content for use by
- * Yoast to generate a preview description.
- *
- * @return void
- */
-function et_pb_yoast_execute_content_shortcodes() {
-	if ( ! wp_verify_nonce( $_POST['et_admin_load_nonce'], 'et_admin_load_nonce' ) ) {
-		die( -1 );
-	}
-
-	if ( ! current_user_can( 'edit_posts' ) ) {
-		die( -1 );
-	}
-
-	// this is only for yoast support
-	if ( et_is_yoast_seo_plugin_active() ) {
-		die( -1 );
-	}
-
-	$unprocessed_data = str_replace( '\\', '', $_POST['et_pb_unprocessed_data'] );
-
-	// Remove any non-builder shortcodes, since were just trying to generate a yoast preview description here. We just need Yoast to be able to pick up a few sentences.
-	$unprocessed_data = et_pb_enforce_builder_shortcode( $unprocessed_data );
-
-	die( et_core_intentionally_unescaped( do_shortcode( $unprocessed_data ), 'html' ) );
-}
-add_action( 'wp_ajax_et_pb_yoast_execute_content_shortcodes', 'et_pb_yoast_execute_content_shortcodes' );
 
 /**
  * Remove all non-builder shortcodes from builder built post content.
@@ -3728,7 +3717,7 @@ function et_fb_auto_activate_builder() {
 	) {
 		$set_content  = et_builder_set_content_activation( $post_id );
 		$post_url     = get_permalink( $post_id );
-		$redirect_url = $set_content ? add_query_arg( 'et_fb', '1', $post_url ) : $post_url;
+		$redirect_url = $set_content ? et_fb_get_vb_url( $post_url ) : $post_url;
 
 		wp_redirect( $redirect_url );
 		exit();
@@ -4169,7 +4158,7 @@ function et_fb_get_posts_list() {
 			'id'    => $post->ID,
 			'title' => $post->post_title,
 			'link'  => array(
-				'vb'  => add_query_arg( array( 'et_fb' => '1' ),  get_permalink( $post->ID ) ),
+				'vb'  => et_fb_get_vb_url( $post->ID ),
 				'bfb' => add_query_arg( array( 'post' => $post->ID, 'action' => 'edit', 'classic-editor' => '1' ),  admin_url( 'post.php' ) ),
 			),
 		);
@@ -4474,6 +4463,47 @@ function et_fb_prepare_ssl_link( $link ) {
 
  	return $link;
 }
+
+/**
+ * Create a VB/BFB url.
+ * @param string $url Post url.
+ * @param string $builder 'vb' or 'bfb'.
+ * @return string.
+ */
+if ( ! function_exists( 'et_fb_get_builder_url' ) ) :
+	function et_fb_get_builder_url( $url = false, $builder = 'vb' ) {
+		$args = array(
+			'et_fb'     => '1',
+			'et_bfb'    => 'bfb' === $builder ? '1' : false,
+			'PageSpeed' => 'off',
+		);
+
+		return add_query_arg( $args, et_fb_prepare_ssl_link( $url ? $url : get_the_permalink() ) );
+	}
+endif;
+
+/**
+ * Create a VB url.
+ * @param string $url Post url.
+ * @return string.
+ */
+if ( ! function_exists( 'et_fb_get_vb_url' ) ) :
+	function et_fb_get_vb_url( $url = false ) {
+		return et_fb_get_builder_url( $url );
+	}
+endif;
+
+/**
+ * Create a BFB url.
+ * @param string $url Post url.
+ * @return string.
+ */
+if ( ! function_exists( 'et_fb_get_bfb_url' ) ) :
+	function et_fb_get_bfb_url( $url = false ) {
+		return et_fb_get_builder_url( $url, 'bfb' );
+	}
+endif;
+
 
 /**
  * Filterable options for backend and visual builder. Designed to be filtered
@@ -4781,6 +4811,11 @@ if ( ! function_exists( 'et_builder_filter_show_bfb_optin_modal') ):
  */
 function et_builder_filter_show_bfb_optin_modal( $default ) {
 	global $shortname;
+
+	// Only admin users should see the modal
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
 
 	$shown = et_get_option( $shortname . '_bfb_optin_modal_shown', 'unset' );
 
@@ -5188,8 +5223,8 @@ function _et_pb_code_module_prep_content_regex_cb( $matches ) {
 }
 
 function et_pb_prep_code_module_for_wpautop( $content ) {
-	$content = preg_replace_callback('/\[et_pb_code.*?\](.*?)\[\/et_pb_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
-	$content = preg_replace_callback('/\[et_pb_fullwidth_code.*?\](.*?)\[\/et_pb_fullwidth_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
+	$content = preg_replace_callback('/\[et_pb_code(?:\s+[^\]]*)?\](.*?)\[\/et_pb_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
+	$content = preg_replace_callback('/\[et_pb_fullwidth_code(?:\s+[^\]]*)?\](.*?)\[\/et_pb_fullwidth_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
 
 	return $content;
 }

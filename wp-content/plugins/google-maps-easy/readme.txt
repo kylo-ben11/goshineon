@@ -4,8 +4,8 @@ Author URI: https://supsystic.com/
 Plugin URI: https://supsystic.com/plugins/google-maps-plugin
 Donate link: https://supsystic.com/plugins/google-maps-plugin
 Tags: google map, map, Google Maps, map markers, location
-Tested up to: 5.0.0
-Stable tag: 1.9.14
+Tested up to: 5.0.2
+Stable tag: 1.9.15
 
 Google Maps with markers, locations and clusterization. Any data on the google map: text, images, videos. Custom google map markers with map builder
 
@@ -198,19 +198,40 @@ Copy and paste the shortcode into your post or page and Google Maps Easy will au
 
 == Screenshots ==
 
-1. Google Map with Image Slider for markers. Choose the slider type for markers list and enjoy your map!
+1. Google Maps Easy demo
 
-2. [Google Maps Easy WordPress plugin](http://supsystic.com/plugins/google-maps-plugin?utm_source=wordpress&utm_medium=screenshots&utm_campaign=maps "Google Maps WordPress plugin") admin area. Provides directions, interactive maps, and satellite/aerial imagery.
+2. Google Map with Image Slider for markers. Choose the slider type for markers list and enjoy your map!
 
-3. Map with markers images slider - display all map markers - as list below your map. This will help your users get more info about your markers and find required marker more faster.
+3. Maps with figures and heatmap layer. 
 
-4. Google Maps Easy plugin admin area. Add marker to the google map.
+4. Markers lists. This will help your users get more info about your markers and find required marker more faster.
 
 5. Map Markers Clusterization. Grid-based clustering works by dividing the google map into squares of a certain size (the size changes at each zoom) and then grouping the map markers into each grid.
 
-6. Google Map Stylizations. Make your map unique with our Map Themes!
+Google Maps Easy plugin admin area. Add marker to the google map.
+
+6. KML layers and KML filter
+
+7. Traffic layers and Alternate routes with detailed steps.
+
+8. Add markers on frontend. Complete the Marker’s Form and add a marker to this map
+
+9. Maps with Social Share Buttons and Get direction feature.
+
+10. Google Map Stylizations. Make your map unique with our Map Themes!
+
+11. Google Maps Easy WordPress plugin admin area. Provides directions, interactive maps, and satellite/aerial imagery.
+
+12. Google Maps Easy WordPress plugin admin area. Create markers with description, links, images and galleries, videos and more.
+
 
 == Changelog ==
+
+= Google Map Plugin v1.9.15 / 09.01.2019 =
+ * Update readme.txt
+ * Update screenshots
+ * Fix position of the direction window for mobile
+ * Minor issues fix
 
 = Google Map Plugin v1.9.14 / 11.12.2018 =
  * Fixed marker category behavior

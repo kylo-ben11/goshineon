@@ -156,7 +156,7 @@ add_filter( 'admin_body_class', 'et_fb_add_admin_body_class' );
 
 /**
  * Remove visual builder preloader classname on BFB because BFB spins the preloader on parent level to avoid flash of unstyled elements
- * 
+ *
  * @param string builder preloader classname
  * @return string modified builder preloader classname
  */
@@ -178,11 +178,26 @@ function et_builder_inject_preboot_script() {
 		$is_BFB = 'true';
 	}
 
-	$preboot_path   = ET_BUILDER_DIR . 'frontend-builder/assets/scripts/preboot.js';
-	$preboot_script = file_get_contents( $preboot_path );
+	$preboot_path   = ET_BUILDER_DIR . 'frontend-builder/build/preboot.js';
+	if ( file_exists( $preboot_path ) ) {
+		$preboot_script = file_get_contents( $preboot_path );
+	} else {
+		// if the file doesn't exists, it means we're using `yarn hot`
+		$site_url = wp_parse_url( get_site_url() );
+		$hot      = "{$site_url['scheme']}://{$site_url['host']}:31495/preboot.js";
+		$curl     = curl_init();
+		curl_setopt_array(
+			$curl,
+			array(
+				CURLOPT_RETURNTRANSFER => 1,
+				CURLOPT_URL            => $hot,
+			)
+		);
+		$preboot_script = curl_exec( $curl );
+	}
 
 	echo "
-		<script>
+		<script id='et-builder-preboot'>
 			var et_fb_preboot = { debug: {$is_debug}, is_BFB: {$is_BFB} };
 
 			// Disable Google Tag Manager
