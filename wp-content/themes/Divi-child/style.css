@@ -3,11 +3,11 @@ Theme Name: Divi Child Theme
 Template: Divi
 Author: Ben Knier
 Version: 1.0
-Updated: December 21, 2018
+Updated: January 25, 2019
 */
 
 
-#top-header {
+/* #top-header {
 background-image: linear-gradient(97deg,#ff3030 0%,#5c1012 100%)!important;
 }
 
@@ -56,7 +56,7 @@ button.et_pb_contact_submit.et_pb_button:hover, .single_add_to_cart_button:hover
 	filter:opacity(.5);
 	transform:scale(1.1);
 	transition:0.25s;
-}
+} */
 
 
 

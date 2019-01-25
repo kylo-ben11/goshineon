@@ -20,6 +20,332 @@
 
 	<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />
 
+	
+	<link href="https://fonts.googleapis.com/css?family=Oswald|Rock+Salt|Ink+Free" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+	
+	
+<?php if (is_page(2670)): ?>
+		<style media="screen">
+/* ---------------------------------
+SCSS Variables & Mixins
+--------------------------------- */
+.settings, .et_pb_pricing li span:before {
+display: none;
+}
+
+.feature-carousel__list {
+background-color: rgba(0, 0, 0, 0.4) !important;
+border-radius: 10px;
+box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+color: #fff;
+text-shadow: 2px 2px 4px black;
+font-family: oswald;
+}
+
+
+/* ---------------------------------
+Default Styles
+--------------------------------- */
+input[type="number"],
+input[type="text"] {
+margin: 0;
+outline: 0;
+border-radius: 0;
+background: none;
+vertical-align: middle;
+-webkit-appearance: none;
+}
+
+button {
+background: none;
+border: none;
+outline: none;
+cursor: pointer;
+}
+
+/* ---------------------------------
+Settings
+--------------------------------- */
+/* ---------------------------------
+Preview Loading Animation
+--------------------------------- */
+.feature-wrap {
+position: relative;
+display: flex;
+}
+.feature-wrap.is-loading::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: #181818;
+opacity: 0.3;
+z-index: 3;
+}
+@media (max-width: 1024px) {
+.feature-wrap {
+  display: block;
+}
+}
+
+.bounce-loading {
+display: none;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 80px;
+z-index: 4;
+}
+.is-loading .bounce-loading {
+display: block;
+}
+
+.bounce-loading__dot {
+display: inline-block;
+width: 18px;
+height: 18px;
+border-radius: 50%;
+background: #ffffff;
+animation: loadingContent 1.4s ease-in-out 0s infinite both;
+}
+.bounce-loading__dot.bounce-loading__dot--1 {
+animation-delay: -0.32s;
+}
+.bounce-loading__dot.bounce-loading__dot--2 {
+animation-delay: -0.16s;
+}
+
+@keyframes loadingContent {
+0%, 80%, 100% {
+  transform: scale(0);
+}
+40% {
+  transform: scale(1);
+}
+}
+#jem_heading{
+  text-align:center;
+  font-family:ink free;
+  color:#fff;
+  text-shadow:2px 2px 4px black;
+  font-size:56px;
+  margin-bottom:40px;
+}
+/* ---------------------------------
+Feature Zoom
+--------------------------------- */
+.feature-zoom {
+width: 100%;
+height: 100vh;
+z-index: 1;
+}
+@media (max-width: 1024px) {
+.feature-zoom {
+  height: 80vh;
+}
+}
+@media (max-width: 550px) {
+.feature-zoom {
+  height: 50vh;
+}
+}
+
+.feature-zoom__img {
+position: relative;
+width: 100%;
+height: 100%;
+background-repeat: no-repeat;
+background-size: 100%;
+background-position: 50% 50%;
+transition: all 0.4s ease-in-out;
+}
+.feature-zoom__img::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: #e6e6e6;
+z-index: -1;
+}
+
+/* ---------------------------------
+Feature Carousel
+--------------------------------- */
+.feature-carousel {
+position: absolute;
+top: 30%;
+right: 5rem;
+max-width: 550px;
+width: 100%;
+transform: translatey(-50%);
+z-index: 2;
+}
+@media (max-width: 1024px) {
+.feature-carousel {
+  position: relative;
+  top: 0;
+  right: auto;
+  width: calc(100% - 5rem);
+  margin: -3.75rem auto 0;
+  transform: none;
+}
+}
+
+.feature-carousel__list {
+padding: 3.75rem 0;
+background: #ffffff;
+}
+
+.feature-carousel__item {
+padding: 0 3.75rem;
+}
+@media (max-width: 1024px) {
+.feature-carousel__item {
+  padding: 0 1.25rem;
+}
+}
+
+.feature-carousel__btn {
+position: relative;
+width: 3.25rem;
+height: 3.25rem;
+margin: 0;
+padding: 0;
+}
+.feature-carousel__btn::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: #ffffff;
+border-radius: 50%;
+transform: scale(0);
+transition: transform 0.4s;
+}
+.feature-carousel__btn:hover::before {
+transform: scale(1);
+}
+.feature-carousel__btn::after {
+content: "";
+display: block;
+width: 12px;
+height: 12px;
+margin: auto;
+border-top: 2px solid #181818;
+border-left: 2px solid #181818;
+transform: rotate(-45deg);
+}
+.feature-carousel__btn.feature-carousel__btn--prev, .feature-carousel__btn.feature-carousel__btn--next {
+position: absolute;
+top: -3.75rem;
+}
+@media (max-width: 1024px) {
+.feature-carousel__btn.feature-carousel__btn--prev, .feature-carousel__btn.feature-carousel__btn--next {
+  top: 50%;
+}
+}
+.feature-carousel__btn.feature-carousel__btn--prev {
+right: 5rem;
+}
+@media (max-width: 1024px) {
+.feature-carousel__btn.feature-carousel__btn--prev {
+  left: -2.5rem;
+  right: 0;
+}
+}
+.feature-carousel__btn.feature-carousel__btn--next {
+right: 0;
+}
+.feature-carousel__btn.feature-carousel__btn--next::after {
+transform: rotate(135deg);
+}
+@media (max-width: 1024px) {
+.feature-carousel__btn.feature-carousel__btn--next {
+  right: -2.5rem;
+}
+}
+.feature-carousel__btn.slick-disabled::before, .feature-carousel__btn.slick-disabled::after {
+opacity: 0.25;
+}
+@media (max-width: 550px) {
+.feature-carousel__btn {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+}
+
+.feature-carousel__label {
+display: flex;
+align-items: center;
+}
+
+.feature-carousel__label-line {
+display: inline-block;
+width: 3.625rem;
+height: 1px;
+margin: 0 0.625rem;
+background-color: #181818;
+transform: scaleX(0);
+transform-origin: 0 0;
+transition: transform 0.4s ease-out 0.3s;
+}
+.slick-active .feature-carousel__label-line {
+transform: scaleX(1);
+}
+@media (max-width: 550px) {
+.feature-carousel__label-line {
+  width: 3rem;
+}
+}
+
+.feature-carousel__label-text {
+font-size: 32px;
+font-weight: bold;
+color: #fff;
+font-family: ink free;
+text-shadow:2px 2px 4px black;
+}
+@media (max-width: 550px) {
+.feature-carousel__label-text {
+  font-size: 0.625rem;
+}
+}
+
+.feature-carousel__description {
+margin-top: 3.75rem;
+font-size: 1.5rem;
+line-height: 1.6;
+}
+@media (max-width: 1024px) {
+.feature-carousel__description {
+  font-size: 1.125rem;
+}
+}
+@media (max-width: 550px) {
+.feature-carousel__description {
+  font-size: inherit;
+}
+
+}
+.js-item-number {
+  display:none;
+}
+.product_container {
+  margin-bottom:40px;
+}
+</style>
+		
+<?php endif?>
+	
+
 	<script type="text/javascript">
 		document.documentElement.className = 'js';
 	</script>
