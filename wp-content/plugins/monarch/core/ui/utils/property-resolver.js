@@ -130,7 +130,7 @@ class PropertyResolver {
    */
   hasPredefinedFields = () => {
     const attrs            = get(this, 'source_object.props.attrs');
-    const provider         = get(attrs, 'provider');
+    const provider         = get(attrs, 'provider', get(this.property_definitions, 'provider.default'));
     const allow_dynamic    = get(this, 'property_definitions.use_custom_fields.allow_dynamic');
 
     if (provider) {
@@ -158,6 +158,15 @@ class PropertyResolver {
 
     return 'off';
   };
+
+  /**
+   * Return current page protocol.
+   *
+   * @since 3.19
+   *
+   * @return {string}
+   */
+  protocol = () => get(window.top, 'location.protocol', 'http:').split(':')[0];
 
   /**
    * Resolves a property value using the provided path.
@@ -194,7 +203,7 @@ class PropertyResolver {
     let value = get(source, `${this.path_prefix}${path}`);
 
     if (isUndefined(value)) {
-      value = get(this.property_definitions, [path, 'default']);
+      value = !isUndefined(scope) ? get(this.property_definitions, [scope, path, 'default']) : get(this.property_definitions, [path, 'default']);
     }
 
     return value;

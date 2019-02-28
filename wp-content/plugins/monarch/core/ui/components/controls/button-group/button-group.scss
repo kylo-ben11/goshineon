@@ -29,6 +29,18 @@
       }
     }
 
+    &--save-draft {
+      border-radius: $border-radius 0 0 $border-radius !important;
+    }
+
+    &--publish {
+      border-radius: $border-radius !important;
+    }
+
+    &--save-draft + .et-fb-button--publish {
+      border-radius: 0 $border-radius $border-radius 0 !important;
+    }
+
     &:only-child {
       border-radius: $border-radius;
     }

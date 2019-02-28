@@ -311,11 +311,14 @@ class Admin {
 
 		$meta_box_actions = array();
 		$documents = WPO_WCPDF()->documents->get_documents();
+		$order = WCX::get_order( $post->ID );
 		foreach ($documents as $document) {
+			$document->read_data( $order );
 			$meta_box_actions[$document->get_type()] = array(
 				'url'		=> wp_nonce_url( admin_url( "admin-ajax.php?action=generate_wpo_wcpdf&document_type={$document->get_type()}&order_ids=" . $post_id ), 'generate_wpo_wcpdf' ),
 				'alt'		=> esc_attr( "PDF " . $document->get_title() ),
 				'title'		=> "PDF " . $document->get_title(),
+				'exists'	=> $document->exists(),
 			);
 		}
 
@@ -325,7 +328,8 @@ class Admin {
 		<ul class="wpo_wcpdf-actions">
 			<?php
 			foreach ($meta_box_actions as $document_type => $data) {
-				printf('<li><a href="%1$s" class="button" target="_blank" alt="%2$s">%3$s</a></li>', $data['url'], $data['alt'],$data['title']);
+				$exists = ( isset( $data['exists'] ) && $data['exists'] == true ) ? 'exists' : '';
+				printf('<li><a href="%1$s" class="button %4$s" target="_blank" alt="%2$s">%3$s</a></li>', $data['url'], $data['alt'], $data['title'], $exists);
 			}
 			?>
 		</ul>
@@ -440,14 +444,24 @@ class Admin {
 					$date = $_POST['wcpdf_invoice_date'];
 					$hour = !empty( $_POST['wcpdf_invoice_date_hour'] ) ? $_POST['wcpdf_invoice_date_hour'] : '00';
 					$minute = !empty( $_POST['wcpdf_invoice_date_minute'] ) ? $_POST['wcpdf_invoice_date_minute'] : '00';
+
+					// clean & sanitize input
+					$date = date( 'Y-m-d', strtotime( $date ) );
+					$hour = sprintf('%02d', intval( $hour ));
+					$minute = sprintf('%02d', intval( $minute ) );
 					$invoice_date = "{$date} {$hour}:{$minute}:00";
+
+					// set date
 					$invoice->set_date( $invoice_date );
 				} elseif ( empty( $_POST['wcpdf_invoice_date'] ) && !empty( $_POST['_wcpdf_invoice_number'] ) ) {
 					$invoice->set_date( current_time( 'timestamp', true ) );
 				}
 
 				if ( isset( $_POST['_wcpdf_invoice_number'] ) ) {
-					$invoice->set_number( $_POST['_wcpdf_invoice_number'] );
+					// sanitize
+					$invoice_number = sanitize_text_field( $_POST['_wcpdf_invoice_number'] );
+					// set number
+					$invoice->set_number( $invoice_number );
 				}
 
 				$invoice->save();
@@ -568,6 +582,11 @@ class Admin {
 		if ( empty($_POST['order_id']) || empty($_POST['document']) ) {
 			wp_send_json_error( array(
 				'message' => 'incomplete request',
+			) );
+		}
+		if ( !current_user_can('manage_woocommerce') ) {
+			wp_send_json_error( array(
+				'message' => 'no permissions',
 			) );
 		}
 

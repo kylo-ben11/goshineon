@@ -4,8 +4,8 @@ Contributors: elfsight
 Donate link: https://elfsight.com/youtube-channel-plugin-yottie/?utm_source=markets&utm_medium=wordpress-org&utm_campaign=yottie-lite&utm_term=donate&utm_content=description
 Tags: youtube, youtube channel, youtube gallery
 Requires at least: 3.5.0
-Tested up to: 4.9
-Stable tag: 1.3.2
+Tested up to: 5.0
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,7 +28,7 @@ Maybe you have a personal channel? Then feel free to embed YouTube channel widge
 
 Our WordPress YouTube Video Gallery includes settings that will come in handy, no doubt. All these options you’ll get absolutely for free – just press DOWNLOAD and enjoy!
 
-* Set any YouTube channel and embed videos by arranging up to 2 custom groups with easy pagination
+* Set any YouTube channel and embed videos by arranging up to 2 custom groups with easy pagination 
 * Show/hide the header to get the most appropriate look of your YouTube Gallery
 * Add manually the number of columns in your YouTube video player
 * Use any of 2 animation controls (arrows, drag) and 2 animation effects (slide, fade)
@@ -37,7 +37,7 @@ Our WordPress YouTube Video Gallery includes settings that will come in handy, n
 * Each video opens in popup after clicking on it
 * Yottie Lite displays data of the chosen channel and shows video details
 * Mobile devices support and Retina Ready
-* Quick installation of your YouTube video widget on a html site owing to Code Generator
+* Quick installation of your YouTube video widget on a html site owing to Code Generator 
 
 = Advantages You Get While Using Our YouTube Gallery =
 
@@ -79,6 +79,8 @@ For more information about WP plugins and web development don’t forget to foll
 
 Here you will find constantly updated content about our products and their new features.
 
+See more cool [WordPress plugins](https://elfsight.com/wordpress-plugins/?utm_source=markets&utm_medium=wordpress-org&utm_campaign=yottie&utm_term=common&utm_content=description) by Elfsight for your website.
+
 
 == Installation ==
 
@@ -102,7 +104,7 @@ Let’s clarify how to add YouTube videos to WordPress so that you will be able 
 
 **How to Post YouTube Videos – Manual Installation**
 
-1. Download `yottie-lite.1.3.1.zip` from `wordpress.org` and unzip it
+1. Download `yottie-lite.1.3.2.zip` from `wordpress.org` and unzip it
 2. Upload the `yottie-lite` folder to `/wp-content/plugins/`
 3. Go to `Plugins > Installed Plugins` and activate the newest video playlist
 
@@ -330,6 +332,9 @@ Yottie Pro has so many parameters that it takes time to think out values of all 
 5. Copy-paste shortcode into any place of your website
 
 == Changelog ==
+
+= 1.3.3 =
+* WordPress 5.0 compability
 
 = 1.3.2 =
 * Links fix

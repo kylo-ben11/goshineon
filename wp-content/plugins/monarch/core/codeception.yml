@@ -4,6 +4,8 @@ paths:
     data: tests/_data
     support: tests/_support
     envs: tests/_envs
+params:
+    - env # load params from environment vars
 actor_suffix: Tester
 extensions:
     enabled:
@@ -16,5 +18,5 @@ extensions:
         - Codeception\Command\GenerateWPAjax
         - Codeception\Command\GenerateWPCanonical
         - Codeception\Command\GenerateWPXMLRPC
-        - Codeception\Command\DbSnapshot
-        - tad\Codeception\Command\SearchReplace
+        # - Codeception\Command\DbSnapshot
+        # - tad\Codeception\Command\SearchReplace

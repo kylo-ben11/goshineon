@@ -1,8 +1,10 @@
+// Check whether current page is inside (visual) builder or not
+var isBuilder = 'object' === typeof window.ET_Builder;
+
 /*! ET frontend-builder-scripts.js */
 (function($){
 	var $et_window = $(window);
-	var $et_top_window = window.top ? window.top.jQuery(window.top) : $(window);
-	var isBuilder = $('body').hasClass('et-fb');
+	var $et_top_window = isBuilder ? window.top.jQuery(window.top) : $(window);
 	var isBFB = $('body').hasClass('et-bfb');
 	var isVB = isBuilder && !isBFB;
 	var isScrollOnAppWindow = function() {
@@ -38,7 +40,6 @@
 	};
 
 	window.et_pb_init_modules = function() {
-		isBuilder = $( 'body' ).hasClass( 'et-fb' );
 		isBFB     = $( 'body' ).hasClass( 'et-bfb' );
 		isVB      = isBuilder && !isBFB;
 
@@ -567,26 +568,35 @@
 			et_hash_module_param_seperator = '|';
 
 		function process_et_hashchange( hash ) {
-			if ( ( hash.indexOf( et_hash_module_seperator, 0 ) ) !== -1 ) {
-				modules = hash.split( et_hash_module_seperator );
-				for ( var i = 0; i < modules.length; i++ ) {
-					var module_params = modules[i].split( et_hash_module_param_seperator );
-					var element = module_params[0];
+			// Bail early when hash is empty
+			if (! hash.length) {
+				return;
+			}
+
+			var modules;
+			var module_params;
+			var element;
+
+			if ((hash.indexOf(et_hash_module_seperator, 0)) !== - 1) {
+				modules = hash.split(et_hash_module_seperator);
+				for (var i = 0; i < modules.length; i ++) {
+					module_params = modules[i].split(et_hash_module_param_seperator);
+					element = module_params[0];
 					module_params.shift();
-					if ( $('#' + element ).length ) {
-						$('#' + element ).trigger({
-							type: "et_hashchange",
+					if (element.length && $('#' + element).length) {
+						$('#' + element).trigger({
+							type:   "et_hashchange",
 							params: module_params
 						});
 					}
 				}
 			} else {
-				module_params = hash.split( et_hash_module_param_seperator );
-				var element = module_params[0];
+				module_params = hash.split(et_hash_module_param_seperator);
+				element = module_params[0];
 				module_params.shift();
-				if ( $('#' + element ).length ) {
-					$('#' + element ).trigger({
-						type: "et_hashchange",
+				if (element.length && $('#' + element).length) {
+					$('#' + element).trigger({
+						type:   "et_hashchange",
 						params: module_params
 					});
 				}
@@ -700,25 +710,21 @@
 			}
 
 			function set_carousel_columns( $the_carousel ) {
-				var columns,
-					$carousel_parent = $the_carousel.parents('.et_pb_column'),
-					carousel_items_width = $carousel_items.width(),
-					carousel_item_count = $the_carousel_items.length;
+				var columns = 3;
+				var $carousel_parent = $the_carousel.parents('.et_pb_column:not(".et_pb_specialty_column")');
 
-				if ( $carousel_parent.hasClass('et_pb_column_4_4') || $carousel_parent.hasClass('et_pb_column_3_4') || $carousel_parent.hasClass('et_pb_column_2_3') ) {
-					if ( $et_window.width() < 768 ) {
-						columns = 3;
-					} else {
+				if ($carousel_parent.hasClass('et_pb_column_4_4') || $carousel_parent.hasClass('et_pb_column_3_4') || $carousel_parent.hasClass('et_pb_column_2_3')) {
+					if ($et_window.width() >= 768) {
 						columns = 4;
 					}
-				} else if ( $carousel_parent.hasClass('et_pb_column_1_2') || $carousel_parent.hasClass('et_pb_column_3_8') || $carousel_parent.hasClass('et_pb_column_1_3') ) {
-					columns = 3;
-				} else if ( $carousel_parent.hasClass('et_pb_column_1_4') ) {
-					if ( $et_window.width() > 480 && $et_window.width() < 980 ) {
-						columns = 3;
-					} else {
+				} else if ($carousel_parent.hasClass('et_pb_column_1_4')) {
+					if ($et_window.width() <= 480 && $et_window.width() >= 980) {
 						columns = 2;
 					}
+				} else if ($carousel_parent.hasClass('et_pb_column_3_5')) {
+					columns = 4;
+				} else if ($carousel_parent.hasClass('et_pb_column_1_5') || $carousel_parent.hasClass('et_pb_column_1_6')) {
+					columns = 2;
 				}
 
 				if ( columns === $carousel_items.data('portfolio-columns') ) {
@@ -2708,7 +2714,7 @@
 
 			window.et_parallax_set_height = function() {
 				var $this = $(this);
-				var isFullscreen = window.top && $this.parent('.et_pb_fullscreen').length;
+				var isFullscreen = isBuilder && $this.parent('.et_pb_fullscreen').length;
 				var parallaxHeight = isFullscreen && $et_top_window.height() > $this.innerHeight() ? $et_top_window.height() : $this.innerHeight();
 				var bg_height = ( $et_top_window.height() * 0.3 + parallaxHeight );
 
@@ -2746,7 +2752,7 @@
 					return;
 				}
 
-				var topWindow = window.top || window;
+				var topWindow = isBuilder ? window.top : window;
 				var backgroundOffset = isBFB ? topWindow.jQuery('#et_pb_layout .inside').offset().top : 0;
 				var heightMultiplier = isBuilderModeZoom() ? 2 : 1;
 				var parentOffset = $this_parent.offset();
@@ -4786,7 +4792,7 @@
 
 			window.et_calc_fullscreen_section = function(event, section) {
 				var isResizing = typeof event === 'object' && event.type === 'resize',
-					topWindow = window.top || window,
+					topWindow = isBuilder ? window.top : window,
 					$et_window = $(topWindow),
 					$appWindow = $(window),
 					$this_section = section || $(this),
@@ -5004,7 +5010,7 @@
 
 			window.et_pb_parallax_init = function($this_parallax) {
 				var $this_parent = $this_parallax.parent();
-				var topWindow = window.top || window;
+				var topWindow = isBuilder ? window.top : window;
 
 				if ($this_parallax.hasClass('et_pb_parallax_css')) {
 					// Register faux CSS Parallax effect for builder modes with top window scroll

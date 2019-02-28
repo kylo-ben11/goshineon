@@ -41,167 +41,6 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				<?php endif; ?>
 
 					<div class="entry-content">
-						<h1 id="jem_heading">The JEM Wheel Machine</h1>
-            <div class="product_container">
-               <!-- Settings Menu -->
-               <section class="settings">
-                  <div class="settings__panel">
-                     <div class="settings__panel-wrap">
-                        <div class="settings__btn-holder settings__btn-holder--right">
-                           <button class="settings__add-btn" title="Add new slide">
-                              <i class="icon-plus"></i>
-                           </button>
-                        </div>
-
-                        <ul class="settings__list">
-                           <li class="settings__item settings__item--header">
-                              <span class="settings__column--header">NO</span>
-                              <span class="settings__column--header">X-axis %</span>
-                              <span class="settings__column--header">Y-axis %</span>
-                              <span class="settings__column--header">Zoom</span>
-                              <span class="settings__column--header">Carousel Title</span>
-                              <span class="settings__column--header">Carousel Description</span>
-                           </li>
-
-                           <li class="settings__item js-item" id="setting-0">
-                              <span class="settings__column js-no">#1</span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-x" min="0" max="100" value="50">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-y" min="0" max="100" value="50">
-                              </span>
-                              <span class="settings__column">
-                                 <select name="zoom" id="select-zoom" class="settings__select js-select">
-                                    <option value="100" selected>1</option>
-                                    <option value="150">1.5</option>
-                                    <option value="200">2</option>
-                                    <option value="250">2.5</option>
-                                    <option value="300">3</option>
-                                 </select>
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-title" value="The Evolution Of The Legendary" size="30">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="It's combine fresh style and sporty personality with cutting-edge technology.">
-                              </span>
-                              <span class="settings__column">
-                                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
-                              </span>
-                           </li>
-                           <li class="settings__item js-item" id="setting-1">
-                              <span class="settings__column js-no">#2</span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-x" min="0" max="100" value="65">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-y" min="0" max="100" value="5">
-                              </span>
-                              <span class="settings__column">
-                                 <select name="zoom" id="select-zoom" class="settings__select js-select">
-                                    <option value="100">1</option>
-                                    <option value="150">1.5</option>
-                                    <option value="200">2</option>
-                                    <option value="250">2.5</option>
-                                    <option value="300" selected>3</option>
-                                 </select>
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-title" value="Genuine Parts Are Better" size="30">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="Simple and easy to use mechanical antitheft system which locks the handlebar to the vehicle with a fastener system fixed to the body.">
-                              </span>
-                              <span class="settings__column">
-                                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
-                              </span>
-                           </li>
-                           <li class="settings__item js-item" id="setting-2">
-                              <span class="settings__column js-no">#3</span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-x" min="0" max="100" value="10">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-y" min="0" max="100" value="85">
-                              </span>
-                              <span class="settings__column">
-                                 <select name="zoom" id="select-zoom" class="settings__select js-select">
-                                    <option value="100">1</option>
-                                    <option value="150">1.5</option>
-                                    <option value="200">2</option>
-                                    <option value="250" selected>2.5</option>
-                                    <option value="300">3</option>
-                                 </select>
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-title" value="Highest Performing Engine" size="30">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="With its single engine capacity, is definitely the long range touring.">
-                              </span>
-                              <span class="settings__column">
-                                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
-                              </span>
-                           </li>
-                           <li class="settings__item js-item" id="setting-3">
-                              <span class="settings__column js-no">#4</span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-x" min="0" max="100" value="100">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="number" class="settings__number js-input-y" min="0" max="100" value="100">
-                              </span>
-                              <span class="settings__column">
-                                 <select name="zoom" id="select-zoom" class="settings__select js-select">
-                                    <option value="100">1</option>
-                                    <option value="150">1.5</option>
-                                    <option value="200" selected>2</option>
-                                    <option value="250">2.5</option>
-                                    <option value="300">3</option>
-                                 </select>
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-title" value="Safty First" size="30">
-                              </span>
-                              <span class="settings__column">
-                                 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="The sensor system installed on the front wheel is able to prevent locking and guarantee stability & effective braking.">
-                              </span>
-                              <span class="settings__column">
-                                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
-                              </span>
-                           </li>
-                        </ul>
-
-                        <div class="settings__btn-holder">
-                           <button class="settings__submit-btn">See the Magic</button>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="settings__btn-holder">
-                     <button class="settings__edit-btn">SETTINGS</button>
-                  </div>
-               </section>
-
-               <section class="feature-wrap">
-                  <!--  Bounce Loading Animation -->
-                  <div class="bounce-loading">
-                     <div class="bounce-loading__dot bounce-loading__dot--1"></div>
-                     <div class="bounce-loading__dot bounce-loading__dot--2"></div>
-                     <div class="bounce-loading__dot bounce-loading__dot--3"></div>
-                  </div>
-
-                  <!--  Zooming Box -->
-                  <div class="feature-zoom">
-                     <div class="feature-zoom__img" style="background-image: url('https://trello-attachments.s3.amazonaws.com/5bd5353da03a0729178427fb/5c49dcfa37508824fb3a3a8d/b357f5c64abc6e6e440d736647a9db9e/jem-1.jpg');"></div>
-                  </div>
-
-                  <!--  Carousel -->
-                  <div class="feature-carousel">
-                     <div class="feature-carousel__list"></div>
-                  </div>
-               </section>
-            </div>
 
 
 
@@ -233,6 +72,170 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 	</div> <!-- .container -->
 
 <?php endif; ?>
+
+<h1 id="jem_heading">Product Highlights</h1>
+<div class="product_container">
+	 <!-- Settings Menu -->
+	 <section class="settings">
+			<div class="settings__panel">
+				 <div class="settings__panel-wrap">
+						<div class="settings__btn-holder settings__btn-holder--right">
+							 <button class="settings__add-btn" title="Add new slide">
+									<i class="icon-plus"></i>
+							 </button>
+						</div>
+
+						<ul class="settings__list">
+							 <li class="settings__item settings__item--header">
+									<span class="settings__column--header">NO</span>
+									<span class="settings__column--header">X-axis %</span>
+									<span class="settings__column--header">Y-axis %</span>
+									<span class="settings__column--header">Zoom</span>
+									<span class="settings__column--header">Carousel Title</span>
+									<span class="settings__column--header">Carousel Description</span>
+							 </li>
+
+							 <li class="settings__item js-item" id="setting-0">
+									<span class="settings__column js-no">#1</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-x" min="0" max="100" value="50">
+									</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-y" min="0" max="100" value="50">
+									</span>
+									<span class="settings__column">
+										 <select name="zoom" id="select-zoom" class="settings__select js-select">
+												<option value="100" selected>1</option>
+												<option value="150">1.5</option>
+												<option value="200">2</option>
+												<option value="250">2.5</option>
+												<option value="300">3</option>
+										 </select>
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-title" value="The Evolution Of The Legendary" size="30">
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="It's combine fresh style and sporty personality with cutting-edge technology.">
+									</span>
+									<span class="settings__column">
+										 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
+									</span>
+							 </li>
+							 <li class="settings__item js-item" id="setting-1">
+									<span class="settings__column js-no">#2</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-x" min="0" max="100" value="65">
+									</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-y" min="0" max="100" value="5">
+									</span>
+									<span class="settings__column">
+										 <select name="zoom" id="select-zoom" class="settings__select js-select">
+												<option value="100">1</option>
+												<option value="150">1.5</option>
+												<option value="200">2</option>
+												<option value="250">2.5</option>
+												<option value="300" selected>3</option>
+										 </select>
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-title" value="Genuine Parts Are Better" size="30">
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="Simple and easy to use mechanical antitheft system which locks the handlebar to the vehicle with a fastener system fixed to the body.">
+									</span>
+									<span class="settings__column">
+										 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
+									</span>
+							 </li>
+							 <li class="settings__item js-item" id="setting-2">
+									<span class="settings__column js-no">#3</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-x" min="0" max="100" value="10">
+									</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-y" min="0" max="100" value="85">
+									</span>
+									<span class="settings__column">
+										 <select name="zoom" id="select-zoom" class="settings__select js-select">
+												<option value="100">1</option>
+												<option value="150">1.5</option>
+												<option value="200">2</option>
+												<option value="250" selected>2.5</option>
+												<option value="300">3</option>
+										 </select>
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-title" value="Highest Performing Engine" size="30">
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="With its single engine capacity, is definitely the long range touring.">
+									</span>
+									<span class="settings__column">
+										 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
+									</span>
+							 </li>
+							 <li class="settings__item js-item" id="setting-3">
+									<span class="settings__column js-no">#4</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-x" min="0" max="100" value="100">
+									</span>
+									<span class="settings__column">
+										 <input type="number" class="settings__number js-input-y" min="0" max="100" value="100">
+									</span>
+									<span class="settings__column">
+										 <select name="zoom" id="select-zoom" class="settings__select js-select">
+												<option value="100">1</option>
+												<option value="150">1.5</option>
+												<option value="200" selected>2</option>
+												<option value="250">2.5</option>
+												<option value="300">3</option>
+										 </select>
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-title" value="Safty First" size="30">
+									</span>
+									<span class="settings__column">
+										 <input type="text" class="settings__text js-input-description" size="30" maxlength="100" value="The sensor system installed on the front wheel is able to prevent locking and guarantee stability & effective braking.">
+									</span>
+									<span class="settings__column">
+										 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/829617/delete_icon.png" alt="" class="settings__delete-icon js-delete-btn">
+									</span>
+							 </li>
+						</ul>
+
+						<div class="settings__btn-holder">
+							 <button class="settings__submit-btn">See the Magic</button>
+						</div>
+				 </div>
+			</div>
+			<div class="settings__btn-holder">
+				 <button class="settings__edit-btn">SETTINGS</button>
+			</div>
+	 </section>
+
+	 <section class="feature-wrap">
+			<!--  Bounce Loading Animation -->
+			<div class="bounce-loading">
+				 <div class="bounce-loading__dot bounce-loading__dot--1"></div>
+				 <div class="bounce-loading__dot bounce-loading__dot--2"></div>
+				 <div class="bounce-loading__dot bounce-loading__dot--3"></div>
+			</div>
+
+			<!--  Zooming Box -->
+			<div class="feature-zoom">
+				 <div class="feature-zoom__img" style="background-image: url('https://trello-attachments.s3.amazonaws.com/5bd5353da03a0729178427fb/5c49dcfa37508824fb3a3a8d/b357f5c64abc6e6e440d736647a9db9e/jem-1.jpg');"></div>
+			</div>
+
+			<!--  Carousel -->
+			<div class="feature-carousel">
+				 <div class="feature-carousel__list"></div>
+			</div>
+	 </section>
+</div>
+
+
 
 </div> <!-- #main-content -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

@@ -47,8 +47,4 @@ class ETDragDropContextWrapper extends Component {
   }
 }
 
-export {
-  ETDragDropContextWrapper,
-}
-
-export default DragDropContext(HTML5Backend);
+export default ETDragDropContextWrapper;

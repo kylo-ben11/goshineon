@@ -282,6 +282,34 @@ function et_builder_get_third_party_post_types() {
 }
 
 /**
+ * Look for builder's registered third party post type that isn't publicly queryable
+ *
+ * @since 3.19.9
+ *
+ * @return array
+ */
+function et_builder_get_third_party_unqueryable_post_types() {
+	// Save the value in static variable so if post type's publicly_queryable is modified due to current
+	// request is BFB request, this function still return correct value
+	static $unqueryable_post_types = array();
+
+	if ( empty( $unqueryable_post_types ) ) {
+		// Get third party's unqueryable post types only as default post types have been handled properly
+		$valid_third_party_post_types = array_diff(
+			et_builder_get_builder_post_types(),
+			et_builder_get_default_post_types()
+		);
+
+		$unqueryable_post_types = array_intersect(
+			$valid_third_party_post_types,
+			get_post_types( array('publicly_queryable' => false ) )
+		);
+	}
+
+	return apply_filters( 'et_builder_get_third_party_unqueryable_post_types', $unqueryable_post_types );
+}
+
+/**
  * Get the list of registered Post Types options.
  *
  * @since 3.18
@@ -289,22 +317,27 @@ function et_builder_get_third_party_post_types() {
  * @return array
  */
 function et_get_registered_post_type_options( $usort = false ) {
-	$blacklist      = et_builder_get_blacklisted_post_types();
+	static $post_type_options = null;
 
-	// Extra and Library layouts shouldn't appear in Theme Options as configurable post types.
-	$blacklist      = array_merge( $blacklist, array( 'et_pb_layout', 'layout' ) );
-	$raw_post_types = get_post_types( array(
-		'show_ui' => true,
-	), 'objects' );
+	if ( ! is_null( $post_type_options ) ) {
+		return $post_type_options;
+	}
+
+	$blacklist      = et_builder_get_blacklisted_post_types();
+	$whitelist      = et_builder_get_third_party_post_types();
+	$raw_post_types = get_post_types( array( 'show_ui' => true ), 'objects' );
 	$post_types     = array();
 
-	foreach ( $raw_post_types as $post_type ) {
-		$is_explicitly_supported = in_array( $post_type->name, et_builder_get_third_party_post_types() );
-		$is_blacklisted          = in_array( $post_type->name, $blacklist );
-		$supports_editor         = post_type_supports( $post_type->name, 'editor' );
-		$is_public               = et_builder_is_post_type_public( $post_type->name );
+	// Extra and Library layouts shouldn't appear in Theme Options as configurable post types.
+	$blacklist = array_merge( $blacklist, array( 'et_pb_layout', 'layout' ) );
 
-		if ( ! $is_explicitly_supported && ( $is_blacklisted || ! $supports_editor || ! $is_public ) ) {
+	foreach ( $raw_post_types as $post_type ) {
+		$is_whitelisted  = in_array( $post_type->name, $whitelist );
+		$is_blacklisted  = in_array( $post_type->name, $blacklist );
+		$supports_editor = post_type_supports( $post_type->name, 'editor' );
+		$is_public       = et_builder_is_post_type_public( $post_type->name );
+
+		if ( ! $is_whitelisted && ( $is_blacklisted || ! $supports_editor || ! $is_public ) ) {
 			continue;
 		}
 
@@ -1766,6 +1799,12 @@ function et_pb_autosave_builder_settings( $post_id, $builder_settings ) {
 	// Builder settings autosave
 	if ( !empty( $builder_settings ) ) {
 
+		// Data is coming from `wp_ajax_heartbeat` which ran `wp_unslash` on it,
+		// `update_post_meta` will do the same, resulting in legit slashes being removed
+		// from page settings.
+		// The solution is to add those slashes back before updating metas.
+		$builder_settings = wp_slash( $builder_settings );
+
 		// Pseudo activate AB Testing for VB draft/builder-sync interface
 		if ( isset( $builder_settings['et_pb_use_ab_testing'] ) ) {
 			// Save autosave/draft AB Testing status
@@ -2134,6 +2173,7 @@ function et_builder_email_get_fields_from_post_data( $provider_slug ) {
 
 	$fields = ET_Core_API_Email_Providers::instance()->account_fields( $provider_slug );
 	$result = array();
+	$protocol = is_ssl() ? 'https' : 'http';
 
 	if ( ! $fields ) {
 		// If there are no fields to check then the check passes.
@@ -2143,8 +2183,17 @@ function et_builder_email_get_fields_from_post_data( $provider_slug ) {
 	foreach ( $fields as $field_name => $field_info ) {
 		$key = "et_{$provider_slug}_{$field_name}";
 
-		if ( empty( $_POST[$key] ) && ! isset( $field_info['not_required'] ) ) {
-			return false;
+		if ( empty( $_POST[$key] ) ) {
+			$required = true;
+
+			if ( isset( $field_info['required'] ) ) {
+				// Field can be required only when https or http
+				$required = $field_info['required'] === $protocol;
+			}
+
+			if ( $required && ! isset( $field_info['not_required'] ) ) {
+				return false;
+			}
 		}
 
 		$result[ $field_name ] = sanitize_text_field( $_POST[ $key ] );
@@ -3672,6 +3721,12 @@ function et_fb_is_enabled( $post_id = false ) {
 		$post_id = isset( $post->ID ) ? $post->ID : false;
 	}
 
+	$check = apply_filters( 'et_fb_is_enabled', null, $post_id );
+
+	if ( null !== $check ) {
+		return $check;
+	}
+
 	if ( is_admin() ) {
 		return false;
 	}
@@ -3701,6 +3756,29 @@ function et_fb_is_enabled( $post_id = false ) {
 	}
 
 	return true;
+}
+endif;
+
+if ( ! function_exists( 'et_fb_is_builder_ajax' ) ) :
+/**
+ * Returns whether current request is a builder AJAX call.
+ *
+ * @return bool
+ */
+function et_fb_is_builder_ajax() {
+	// phpcs:disable WordPress.Security.NonceVerification.NoNonceVerification
+	if ( ! wp_doing_ajax() || empty( $_REQUEST['action'] ) ) {
+		return false;
+	}
+	// phpcs:enable
+
+	return in_array(
+		$_REQUEST['action'],
+		array(
+			'et_fb_update_builder_assets',
+			'et_fb_retrieve_builder_data',
+		)
+	);
 }
 endif;
 
@@ -4158,7 +4236,7 @@ function et_fb_get_posts_list() {
 			'id'    => $post->ID,
 			'title' => $post->post_title,
 			'link'  => array(
-				'vb'  => et_fb_get_vb_url( $post->ID ),
+				'vb'  => et_fb_get_vb_url( get_permalink( $post->ID ) ),
 				'bfb' => add_query_arg( array( 'post' => $post->ID, 'action' => 'edit', 'classic-editor' => '1' ),  admin_url( 'post.php' ) ),
 			),
 		);
@@ -4477,6 +4555,33 @@ if ( ! function_exists( 'et_fb_get_builder_url' ) ) :
 			'et_bfb'    => 'bfb' === $builder ? '1' : false,
 			'PageSpeed' => 'off',
 		);
+
+		// Additional info need to be appended via query strings if current request is used to get
+		// BFB URL and the given page's custom post type has its publicly_queryable setting is set
+		// to false. These additional information is be used to deterimined whether the BFB page
+		// request needs to modify its global $query and rewrite_rule configuration so correct BFB
+		// page can be rendered for valid user
+		if ( 'bfb' === $builder && ! $url ) {
+			$post_id   = get_the_ID();
+			$post_type = get_post_type();
+
+			// 'page' and 'et_pb_layout' are not queryable so post type needs to be checked against
+			// third party post types first to avoid false positive for these default post types
+			$is_third_party_post_type = in_array( $post_type, et_builder_get_third_party_post_types() );
+			$is_unqueryable           = $is_third_party_post_type && in_array(
+				$post_type,
+				get_post_types( array( 'publicly_queryable' => false ) )
+			);
+
+			// These post id & post type query strings should only be added if current post type
+			// has false publicly_queryable setting
+			if ( $post_id && $post_type && is_user_logged_in() && $is_unqueryable  ) {
+				$args['et_post_id']         = $post_id;
+				$args['et_post_id_nonce']   = wp_create_nonce( 'et_post_id_' . $post_id );
+				$args['et_post_type']       = $post_type;
+				$args['et_post_type_nonce'] = wp_create_nonce( 'et_post_type_' . $post_type );
+			}
+		}
 
 		return add_query_arg( $args, et_fb_prepare_ssl_link( $url ? $url : get_the_permalink() ) );
 	}
@@ -5223,8 +5328,8 @@ function _et_pb_code_module_prep_content_regex_cb( $matches ) {
 }
 
 function et_pb_prep_code_module_for_wpautop( $content ) {
-	$content = preg_replace_callback('/\[et_pb_code(?:\s+[^\]]*)?\](.*?)\[\/et_pb_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
-	$content = preg_replace_callback('/\[et_pb_fullwidth_code(?:\s+[^\]]*)?\](.*?)\[\/et_pb_fullwidth_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
+	$content = preg_replace_callback('/\[et_pb_code(?:(?![^\]]*\/\])[^\]]*)\](.*?)\[\/et_pb_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
+	$content = preg_replace_callback('/\[et_pb_fullwidth_code(?:(?![^\]]*\/\])[^\]]*)\](.*?)\[\/et_pb_fullwidth_code\]/mis', '_et_pb_code_module_prep_content_regex_cb', $content );
 
 	return $content;
 }
@@ -5244,17 +5349,25 @@ function et_fb_dynamic_asset_exists( $prefix, $post_type = false ) {
 
 	$uploads = wp_upload_dir();
 	$prefix  = esc_attr( $prefix );
-	$files   = glob( sprintf( '%s/%s-%s-*.js', ET_Core_PageResource::get_cache_directory(), $prefix, $post_type ) );
+	$cache   = sprintf( '%s/%s', ET_Core_PageResource::get_cache_directory(), get_locale() );
+	$files   = glob( sprintf( '%s/%s-%s-*.js', $cache, $prefix, $post_type ) );
 
 	return is_array( $files ) && count( $files ) > 0;
 }
 
 if ( ! function_exists( 'et_fb_delete_builder_assets' ) ):
 function et_fb_delete_builder_assets() {
-	if ( $files = glob( sprintf( '%s/*.js', ET_Core_PageResource::get_cache_directory() ) ) ) {
-		foreach ( $files as $file ) {
-			@unlink( $file );
-		}
+	$cache = ET_Core_PageResource::get_cache_directory();
+
+	// Old cache location, make sure we clean that one too
+	$old_files = glob( sprintf( '%s/*.js', $cache ) );
+	$old_files = is_array( $old_files ) ? $old_files : array();
+	// New, per language location
+	$new_files = glob( sprintf( '%s/*/*.js', $cache ) );
+	$new_files = is_array( $new_files ) ? $new_files : array();
+
+	foreach ( array_merge( $old_files, $new_files ) as $file ) {
+		@unlink( $file );
 	}
 }
 endif;

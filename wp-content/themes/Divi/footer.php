@@ -45,9 +45,8 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					}
 
 					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-					//echo et_core_fix_unclosed_html_tags( et_core_esc_previously( et_get_footer_credits() ) );
+					echo et_core_fix_unclosed_html_tags( et_core_esc_previously( et_get_footer_credits() ) );
 					// phpcs:enable
-					echo ( '<p id="copyright">&copy; ' . date(Y) . ' Evan\'s Detailing & Polishing | <a href="https://goshineon.com/privacy-policy/">Privacy Policy</a></p>' )
 				?>
 					</div>	<!-- .container -->
 				</div>

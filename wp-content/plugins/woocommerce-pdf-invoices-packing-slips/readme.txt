@@ -3,9 +3,9 @@ Contributors: pomegranate
 Donate link: https://wpovernight.com/downloads/woocommerce-pdf-invoices-packing-slips-bundle/
 Tags: woocommerce, pdf, invoices, packing slips, print, delivery notes, invoice, packing slip, export, email, bulk, automatic
 Requires at least: 3.5
-Tested up to: 4.9
+Tested up to: 5.1
 Requires PHP: 5.3
-Stable tag: 2.2.5
+Stable tag: 2.2.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,6 +102,26 @@ There's a setting on the Status tab of the settings page that allows you to togg
 6. Set shop name, address, header logo, etc.
 
 == Changelog ==
+
+= 2.2.8 =
+* Tested up to WP5.1
+* Tweak: Re-use attachment file if not older than 60 seconds (tentative fix for parallel read & write issues)
+* Dev: Added URL overrides to switch between output mode (`&output=html`) and debug (`&debug=true`)
+
+= 2.2.7 =
+* Fix: Hardened permissions & security checks on several admin actions (audit by pluginvulnerabilities.com)
+* Feature: Show checkmarks for existing documents on order details page buttons too
+* Tweak: Product Bundles compatibility, hide items by default, following bundle settings (Simple Template)
+* Tweak: Fallback to billing address on packing slip for orders without shipping address
+
+= 2.2.6 =
+* Fix: ship to different address check for empty shipping addresses
+* Fix: Fix notice when using invoice number by plugin
+* Fix: Underline position
+* Fix: PHP 7.3 compatibility
+* Tweak: Updated dompdf to 0.8.3
+* Tweak: move admin menu item to the end of WooCommerce menu
+* Tweak: pass document object to paper format & orientation filters
 
 = 2.2.5 =
 * Feature: Check marks to indicate whether a document exists

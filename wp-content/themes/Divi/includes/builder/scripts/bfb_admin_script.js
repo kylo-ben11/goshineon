@@ -129,7 +129,7 @@
 			return;
 		} else {
 			$use_builder_custom_field.val('on');
-			
+
 			if ('' !== content) {
 				// Save content as old content on post meta
 				$et_pb_old_content.val(content);
@@ -165,6 +165,11 @@
 	});
 
 	function et_maybe_toggle_bfb($save_button) {
+		// Some plugins set title to required which prevents saving the page when the field is empty
+		if ($('#title').prop('required')) {
+			$('#title').removeProp('required');
+		}
+
 		// make sure save button clickable
 		if ($save_button.hasClass('disabled')) {
 			// wait for 1 second and try again

@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: child, theme, child theme, child themes, custom styles, customize styles, customize theme, css, responsive, css editor, child theme editor, child theme generator, child theme creator, style, stylesheet, customizer, childtheme, childthemes
 Requires at least: 4.0
 Requires PHP: 5.6.36
-Tested up to: 5.0.3
-Stable tag: 2.4.1
+Tested up to: 5.1
+Stable tag: 2.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,15 +72,17 @@ IntelliWidget is a versatile widget manager that does the work of multiple plugi
 
 https://www.youtube.com/watch?v=Ttw1xIZ2b-g
 
-Learn more at http://www.lilaeamedia.com/plugins/intelliwidget
+Learn more at https://www.lilaeamedia.com/plugins/intelliwidget
 
-= IntelliWidget Responsive Menu =
+= Hook Highlighter =
 
-Break free from your theme's built-in responsive menu options and take control over the mobile user experience with our premium menu plugin.
+Hook Highlighter provides Administrators insight into the internal program flow of WordPress when activated on any front-facing page of a website.
 
-https://www.youtube.com/watch?v=JDbxvaEt7VE
+Display action and filter hooks, program files and backtrace information inline for the current page.
 
-Learn more at http://www.lilaeamedia.com/plugins/intelliwidget-responsive-menu
+https://www.youtube.com/watch?v=fyeroaJK_xw
+
+Learn more at https://www.lilaeamedia.com/product/hook-highlighter
 
 == Installation ==
 
@@ -296,6 +298,14 @@ https://www.youtube.com/watch?v=iBiiAgsK4G4
 7. Files tab
 
 == Changelog ==
+= 2.4.3 =
+* Fixed a serious regression bug created by version 2.4.2.
+= 2.4.2 =
+* Added call to customizer.php to initialize theme mods prior to analyzing child theme
+* Deferred copy_theme_mods until after child theme analysis. This allows hooks in Preview to initialize custom theme mods
+* Added mpriority (max priority) to CSS object to accommodate multiple irregular stylesheet hooks
+* Restored original (pre 2.4.1) version filter hook style_loader_src to child theme stylesheets to prevent caching
+* Strip closing php tag from functions.php to prevent premature response header
 = 2.4.1 =
 * Fixed localization issues (thanks @alexclassroom for identifying these)
 * Modified style_loader_src hook to only add timestamp under certain conditions to prevent loading delay for most requests. (thanks @anthony750)
@@ -562,8 +572,9 @@ https://www.youtube.com/watch?v=iBiiAgsK4G4
 * Initial release.
 
 == Upgrade Notice ==
-2.3.0.x Several bug fixes and functionality improvements. See changelog for details.
- 
+
+2.4.3 Fixed a serious regression bug created by version 2.4.2. Please update immediately.
+
 == Query/Selector Tab ==
 
 There are two ways to identify and customize baseline (parent) styles. Child Theme Configurator lets you search styles by CSS selector and by property. If you wish to customize a specific CSS selector (e.g., h1), use the "Query/Selector" tab. If you have a specific CSS value you wish to customize site-wide (e.g., the color of the type), use the "Property/Value" tab.

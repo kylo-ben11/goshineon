@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ET_BUILDER_PRODUCT_VERSION' ) ) {
 	// Note, this will be updated automatically during grunt release task.
-	define( 'ET_BUILDER_PRODUCT_VERSION', '3.19.7' );
+	define( 'ET_BUILDER_PRODUCT_VERSION', '3.19.18' );
 }
 
 if ( ! defined( 'ET_BUILDER_VERSION' ) ) {
@@ -20,6 +20,18 @@ if ( ! defined( 'ET_BUILDER_DIR_RESOLVED_PATH' ) ) {
 // When set to true, the builder will use the new loading method
 if ( ! defined( 'ET_BUILDER_CACHE_ASSETS' ) ) {
 	define( 'ET_BUILDER_CACHE_ASSETS', ! isset( $_REQUEST['nocache'] ) );
+}
+
+if ( ! defined( 'ET_BUILDER_JSON_ENCODE_OPTIONS' ) ) {
+	define( 'ET_BUILDER_JSON_ENCODE_OPTIONS', 0 );
+}
+
+if ( ! defined( 'ET_BUILDER_KEEP_OLDEST_CACHED_ASSETS' ) ) {
+	define( 'ET_BUILDER_KEEP_OLDEST_CACHED_ASSETS', false );
+}
+
+if ( ! defined( 'ET_BUILDER_PURGE_OLD_CACHED_ASSETS' ) ) {
+	define( 'ET_BUILDER_PURGE_OLD_CACHED_ASSETS', true );
 }
 
 $et_fonts_queue = array();
@@ -744,7 +756,7 @@ function et_fb_conditional_tag_params() {
 		'is_wrapped_styles'           => et_builder_has_limitation( 'use_wrapped_styles' ),
 		'is_gutenberg'                => et_core_is_gutenberg_active(),
 		'is_custom_post_type'         => et_builder_is_post_type_custom( $post_type ),
-		'is_rich_editor'              => 'false' === apply_filters( 'user_can_richedit', get_user_option( 'rich_editing' ) ) ? 'no' : 'yes',
+		'is_rich_editor'              => 'true' === apply_filters( 'user_can_richedit', get_user_option( 'rich_editing' ) ) ? 'yes' : 'no',
 	);
 
 	return apply_filters( 'et_fb_conditional_tag_params', $conditional_tags );
@@ -930,7 +942,13 @@ function et_fb_unsynced_preferences() {
 
 function et_fb_app_preferences() {
 	$app_preferences = et_fb_app_preferences_settings();
-	$limited_prefix = et_builder_is_limited_mode() ? 'limited_' : '';
+	if (et_is_builder_plugin_active()) {
+		// Since Divi Builder Plugin is always 'limited', need to use a different
+		// condition to prefix the options when BFB is used.
+		$limited_prefix = et_builder_bfb_enabled() ? 'limited_' : '';
+	} else {
+		$limited_prefix = et_builder_is_limited_mode() ? 'limited_' : '';
+	}
 
 	foreach ( $app_preferences as $preference_key => $preference ) {
 		$option_name = 'et_fb_pref_' . $preference_key;
@@ -1015,6 +1033,7 @@ function et_fb_current_page_params() {
 		'commentsCount'            => esc_html( $comment_count ),
 		'paged'                    => is_front_page() ? $et_paged : $paged,
 		'post_modified'            => isset( $post->ID ) ? esc_attr( $post->post_modified ) : '',
+		'lang'                     => get_locale(),
 	);
 
 	return apply_filters( 'et_fb_current_page_params', $current_page );
@@ -1408,17 +1427,17 @@ function et_fb_ajax_save() {
 
 	if ( ! isset( $_POST['skip_post_update'] ) ) {
 		$shortcode_data = json_decode( stripslashes( $_POST['modules'] ), true );
-	
+
 		if ( ! $built_for_type = get_post_meta( $post_id, '_et_pb_built_for_post_type', true ) ) {
 			update_post_meta( $post_id, '_et_pb_built_for_post_type', 'page' );
 		}
-	
+
 		$post_content = et_fb_process_to_shortcode( $shortcode_data, $_POST['options'], $layout_type );
-	
+
 		// Store a copy of the sanitized post content in case wpkses alters it since that
 		// would cause our check at the end of this function to fail.
 		$sanitized_content = sanitize_post_field( 'post_content', $post_content, $post_id, 'db' );
-	
+
 		$update = wp_update_post( array(
 			'ID'           => $post_id,
 			'post_content' => $post_content,
@@ -2606,8 +2625,15 @@ function et_builder_override_meta_boxes_order( $value ) {
 function et_builder_prioritize_meta_box() {
 	global $wp_meta_boxes;
 
+	$screen = get_current_screen();
+
+	// Only prioritize Divi Builder metabox if current post type has Divi Builder enabled
+	if ( ! in_array( $screen->post_type, et_builder_get_enabled_builder_post_types() ) ) {
+		return;
+	}
+
 	// Get custom order
-	$page        = get_current_screen()->id;
+	$page        = $screen->id;
 	$option_name = "meta-box-order_$page";
 	$custom      = get_user_option( $option_name );
 
@@ -2677,7 +2703,9 @@ function et_builder_maybe_ensure_heartbeat_script() {
 
 	if ( ! $heartbeat_okay ) {
 		$heartbeat_src = "/wp-includes/js/heartbeat{$suffix}.js";
-		wp_enqueue_script( 'heartbeat', $heartbeat_src, array( 'jquery' ), false, true );
+		// wp-hooks was introduced in WP 5.0
+		$deps = wp_script_is( 'wp-hooks', 'registered' ) ? array( 'jquery', 'wp-hooks' ) : array( 'jquery' );
+		wp_enqueue_script( 'heartbeat', $heartbeat_src, $deps, false, true );
 		wp_localize_script( 'heartbeat', 'heartbeatSettings', apply_filters( 'heartbeat_settings', array() ) );
 	}
 
@@ -2908,7 +2936,7 @@ function et_pb_before_main_editor( $post ) {
 		);
 
 		// add in the visual builder button only on appropriate post types
-		if ( et_pb_is_allowed( 'use_visual_builder' ) && ! et_is_extra_library_layout( $post->ID ) ) {
+		if ( et_builder_fb_enabled_for_post( $post->ID ) && et_pb_is_allowed( 'use_visual_builder' ) && ! et_is_extra_library_layout( $post->ID ) ) {
 			$buttons .= sprintf('<a href="%1$s" id="et_pb_fb_cta" class="button button-primary button-large%3$s%4$s">%2$s</a>',
 				esc_url( et_fb_get_vb_url() ),
 				esc_html__( 'Build On The Front End', 'et_builder' ),
@@ -3328,6 +3356,9 @@ function et_bfb_enqueue_scripts() {
 
 	// Load timepicker script on admin page in case of BFB to make it work with modals loaded on WP admin DOM
 	wp_enqueue_script( 'et_bfb_admin_date_addon_js', ET_BUILDER_URI . '/scripts/ext/jquery-ui-timepicker-addon.js', array( $jQuery_ui ), ET_BUILDER_PRODUCT_VERSION, true );
+
+	// Load google maps script on admin page in case of BFB to make it work with modals loaded on WP admin DOM
+	wp_enqueue_script( 'et_bfb_google_maps_api', esc_url( add_query_arg( array( 'key' => et_pb_get_google_api_key(), 'callback' => 'initMap' ), is_ssl() ? 'https://maps.googleapis.com/maps/api/js' : 'http://maps.googleapis.com/maps/api/js' ) ), array(), '3', true );
 
 	wp_enqueue_script( 'et_pb_media_library', ET_BUILDER_URI . '/scripts/ext/media-library.js', array( 'media-editor' ), ET_BUILDER_PRODUCT_VERSION, true );
 	wp_enqueue_script( 'et_bfb_admin_js', ET_BUILDER_URI . '/scripts/bfb_admin_script.js', array( 'jquery', 'et_pb_media_library' ), ET_BUILDER_PRODUCT_VERSION, true );
@@ -3938,6 +3969,7 @@ if ( ! function_exists( 'et_pb_load_global_module' ) ) {
 
 				if ( '' !== $row_type && 'et_pb_row_inner' === $row_type ) {
 					$global_shortcode = str_replace( 'et_pb_row', 'et_pb_row_inner', $global_shortcode );
+					$global_shortcode = str_replace( 'et_pb_column', 'et_pb_column_inner', $global_shortcode );
 				}
 			}
 		}
@@ -3985,14 +4017,20 @@ if ( ! function_exists( 'et_pb_remove_shortcode_content' ) ) {
 }
 
 if ( ! function_exists( 'et_pb_get_global_module_content' ) ) {
-	function et_pb_get_global_module_content( $content, $shortcode_name ) {
+	function et_pb_get_global_module_content( $content, $shortcode_name, $for_inner_row = false ) {
 		// Do not apply autop to code modules.
 		if (in_array( $shortcode_name, array( 'et_pb_code', 'et_pb_fullwidth_code' ) ) ) {
 			return et_pb_extract_shortcode_content( $content, $shortcode_name );
 		}
-		
+
 		$original_code_modules = array();
 		$shortcode_content = et_pb_extract_shortcode_content( $content, $shortcode_name );
+
+		// Getting content for Global row when it's turned to inner row in specialty section
+		// Need to make sure it wrapped in et_pb_column_inner, not et_pb_column
+		if ( $for_inner_row && false === strpos( $shortcode_content, '[et_pb_column_inner' ) ) {
+			$shortcode_content = str_replace( 'et_pb_column', 'et_pb_column_inner', $shortcode_content );
+		}
 
 		// Get all the code and fullwidth code modules from content
 		preg_match_all('/(\[et_pb(_fullwidth_code|_code).+?\[\/et_pb(_fullwidth_code|_code)\])/s', $shortcode_content, $original_code_modules);
@@ -4002,7 +4040,7 @@ if ( ! function_exists( 'et_pb_get_global_module_content' ) ) {
 		// Replace content modified by wpautop for code and fullwidth code modules with original content.
 		if ( ! empty( $original_code_modules ) ) {
 			global $et_pb_global_code_replacements;
-			
+
 			$et_pb_global_code_replacements = $original_code_modules[0];
 			$global_content = preg_replace_callback( '/(\[et_pb(_fullwidth_code|_code).+?\[\/et_pb(_fullwidth_code|_code)\])/s', 'et_builder_get_global_code_replacement', $global_content );
 		}
@@ -4461,7 +4499,7 @@ function et_pb_pagebuilder_meta_box() {
 
 		$is_switch_to_classic_allowed = et_pb_is_allowed( 'divi_builder_control' ) && current_user_can( 'manage_options' );
 		$additional_bfb_class = ! $is_switch_to_classic_allowed ? ' et_divi_builder_bottom_margin' : '';
-		
+
 		echo "
 			<div class='et_divi_builder et-bfb-page-preloading{$additional_bfb_class}'>
 				<script>
@@ -8610,11 +8648,24 @@ function et_fb_retrieve_builder_data() {
 }
 add_action( 'wp_ajax_et_fb_retrieve_builder_data', 'et_fb_retrieve_builder_data' );
 
+// Replaces site_url in a json string with its protocol-less version
+function et_fb_remove_site_url_protocol( $json ) {
+	$no_proto = str_replace( '/', '\/', preg_replace( '#^\w+:#', '', get_site_url() ) );
+	return strtr(
+		$json,
+		array(
+			"https:$no_proto" => $no_proto,
+			"http:$no_proto"  => $no_proto,
+		)
+	);
+}
+
 // Used to update the content of the cached definitions js file.
 function et_fb_get_asset_definitions( $content, $post_type ) {
+	$definitions = et_fb_get_builder_definitions( $post_type );
 	return sprintf(
 		'window.ETBuilderBackend = jQuery.extend(true, %s, window.ETBuilderBackend)',
-		json_encode( et_fb_get_builder_definitions( $post_type ) )
+		et_fb_remove_site_url_protocol( wp_json_encode( $definitions, ET_BUILDER_JSON_ENCODE_OPTIONS ) )
 	);
 }
 add_filter( 'et_fb_get_asset_definitions', 'et_fb_get_asset_definitions', 10, 2 );
@@ -8799,7 +8850,7 @@ function et_fb_get_product_tour_text( $post_id ) {
  *  - It tracks the inner `index` / `_i` of each child shortcode to the passed content, which is used in the address creation as well
  *  - It uses and passes `$address` & `$parent_address`, which are used by FB app
  */
-function et_fb_process_shortcode( $content, $parent_address = '', $global_parent = '', $global_parent_type = '' ) {
+function et_fb_process_shortcode( $content, $parent_address = '', $global_parent = '', $global_parent_type = '', $parent_type = '' ) {
 	global $shortcode_tags, $fb_processing_counter;
 
 	if ( false === strpos( $content, '[' ) ) {
@@ -8868,7 +8919,7 @@ function et_fb_process_shortcode( $content, $parent_address = '', $global_parent
 		$GLOBALS['et_fb_processing_shortcode_object'] = true;
 
 		if ( isset( $match[5] ) ) {
-			$output = call_user_func( $shortcode_tags[$tag], $attr, $match[5], $tag, $parent_address, $global_parent, $global_parent_type );
+			$output = call_user_func( $shortcode_tags[$tag], $attr, $match[5], $tag, $parent_address, $global_parent, $global_parent_type, $parent_type );
 		} else {
 			// self-closing tag
 			$output = call_user_func( $shortcode_tags[$tag], $attr, null, $tag );
@@ -9064,26 +9115,55 @@ function et_fb_reset_shortcode_object_processing() {
 add_action( 'et_fb_enqueue_assets', 'et_fb_backend_helpers' );
 
 if ( ! function_exists( 'et_builder_maybe_flush_rewrite_rules' ) ) :
-function et_builder_maybe_flush_rewrite_rules( $setting_name ) {
-	if ( et_get_option( $setting_name ) ) {
+function et_builder_maybe_flush_rewrite_rules( $setting_name, $value = 'done' ) {
+	$string_value = (string) $value;
+	$saved_value = et_get_option( $setting_name );
+
+	if ( $saved_value && $saved_value === $string_value ) {
 		return;
 	}
 
 	flush_rewrite_rules();
 
-	et_update_option( $setting_name, 'done' );
+	et_update_option( $setting_name, $string_value );
 }
 endif;
 
 /**
- * Flush rewrite rules to fix the issue Layouts, not being visible on front-end,
+ * Flush rewrite rules to fix the issue Layouts, not being visible on front-end and visual builder,
  * if pretty permalinks were enabled
  * @return void
  */
-function et_pb_maybe_flush_3_0_rewrite_rules() {
-	et_builder_maybe_flush_rewrite_rules( '3_0_flush_rewrite_rules_' . ET_BUILDER_PRODUCT_VERSION );
+function et_pb_maybe_flush_rewrite_rules_library() {
+	// Run flush rewrite only when et_pb_layout post type registered.
+	if ( post_type_exists( 'et_pb_layout' ) ) {
+		et_builder_maybe_flush_rewrite_rules( 'et_flush_rewrite_rules_library', ET_BUILDER_PRODUCT_VERSION );
+	}
 }
-add_action( 'init', 'et_pb_maybe_flush_3_0_rewrite_rules', 9 );
+add_action( 'init', 'et_pb_maybe_flush_rewrite_rules_library', 9 );
+
+/**
+ * Remove et_builder_maybe_flush_rewrite_rules flag if flush_rewrite_rules() is called while
+ * `et_pb_layout` post type hasn't been registered
+ *
+ * @since 3.19.18
+ *
+ * @param string|array $old_value
+ * @param string|array $value
+ * @param string       $option
+ */
+function et_pb_maybe_remove_flush_rewrite_rules_library_flag( $old_value, $value, $option ) {
+	// rewrite rules for CPT that are rebuilt by flush_rewrite_rules() are based on
+	// get_post_types( array( '_builtin' => false ) ) value; Hence if flush_rewrite_rules() is
+	// executed while `et_pb_layout` CPT hasn't been registered (usually by third party plugin)
+	// et_pb_maybe_flush_rewrite_rules_library() flag has to be removed to trigger flush_rewrite_rules()
+	// via et_pb_maybe_flush_rewrite_rules_library() which contains `et_pb_layout` rewrite rules
+	// because et_pb_maybe_flush_rewrite_rules_library() checks for `et_pb_layout` first.
+	if ( '' === $value && ! post_type_exists( 'et_pb_layout' ) ) {
+		et_update_option( 'et_flush_rewrite_rules_library', '' );
+	}
+}
+add_action( 'update_option_rewrite_rules', 'et_pb_maybe_remove_flush_rewrite_rules_library_flag', 10, 3 );
 
 /**
  * Get list of shortcut available on BB and FB

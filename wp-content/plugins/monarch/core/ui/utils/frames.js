@@ -6,48 +6,22 @@ import {
   includes,
   forEach,
   some,
+  compact,
+  uniq,
 } from 'lodash';
+import { isScriptExcluded, isScriptTopOnly } from './utils';
 import $ from 'jquery';
 
 // Internal Dependencies
 
-
-let documentWrites = []
-window._et_document_write = content => documentWrites.push(content);
-
-const maybeFixInlineScript = (element) => {
-  if ('SCRIPT' !== element.nodeName) {
-    return element;
-  }
-
-  let textContent = get(element, 'textContent', '');
-
-  if (isEmpty(textContent)) {
-    return element;
-  }
-
-  if (includes(textContent, 'document.write')) {
-    // If the script uses document.write, use our wrapper
-    element.textContent = textContent = textContent.split('document.write').join('window.top._et_document_write');
-  }
-
-  if (includes(textContent, 'jQuery')) {
-    // If the script uses jQuery, make sure it's defined
-    element.textContent = `window.jQuery = window.jQuery || window.top && window.top.jQuery;${textContent}`;
-  }
-
-  return element;
-}
-
 const IS_YARN_START = 'development' === process.env.NODE_ENV && ! process.env.DEV_SERVER;
-
 
 class ETCoreFrames {
 
   /**
    * Instances of this class.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {Object.<string, ETCoreFrames>}
    */
@@ -56,7 +30,7 @@ class ETCoreFrames {
   /**
    * jQuery object for the base window.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {function(string, string=): jQuery}
    */
@@ -65,7 +39,7 @@ class ETCoreFrames {
   /**
    * jQuery object for the target window.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {function(string, string=): jQuery}
    */
@@ -74,7 +48,7 @@ class ETCoreFrames {
   /**
    * Frames that are currently in use.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {Object.<string, jQuery>}
    */
@@ -83,16 +57,16 @@ class ETCoreFrames {
   /**
    * Regex instances that match scripts that should not be put into frames.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {RegExp}
    */
-  exclude_scripts = /document\.location *=|apex\.live|(hotjar|googletagmanager|maps\.googleapis)\.com/i;
+  exclude_scripts = /document\.location *=|apex\.live|(crm\.zoho|hotjar|googletagmanager|maps\.googleapis)\.com/i;
 
   /**
    * Cached frames available for use.
    *
-   * @since ??
+   * @since 3.18
    *
    * @type {jQuery[]}
    */
@@ -101,7 +75,7 @@ class ETCoreFrames {
   /**
    * ETCoreFrames constructor
    *
-   * @since ??
+   * @since 3.18
    *
    * @param {string}  [base_window]   Path to get Window from which to get styles and scripts.
    * @param {string}  [target_window] Path to get Window into which the frame should be inserted.
@@ -111,6 +85,14 @@ class ETCoreFrames {
     this.target_window = get(window, target_window);
     this.$base         = this.base_window.jQuery;
     this.$target       = this.target_window.jQuery;
+  }
+
+  _appendChildSafely(parent, child) {
+    try {
+      parent.appendChild(child);
+    } catch(err) {
+      console.error(err);
+    }
   }
 
   _copyResourcesToFrame = $iframe => {
@@ -146,46 +128,30 @@ class ETCoreFrames {
   };
 
   _createElement = (base_element, target_document) => {
-    const resources = [];
-
     this._filterElementContent(base_element);
 
-    // Handle resources nested below the top level
-    $(base_element).find('link', 'script', 'style').each((i, node) => {
-      resources.push(this._createResourceElement(node, target_document));
-      node.parentNode.remove(node);
+    const element    = target_document.importNode(base_element, true);
+    const $resources = $(element).find('link, script, style');
+
+    $(element).find('#et-fb-app-frame, #et-bfb-app-frame, #wpadminbar').remove();
+
+    // Browsers will not load a resource node when it's imported from another document
+    // because it was loaded already. Thus, we need to create new nodes for any resources
+    // found nested inside this element.
+    $resources.each((i, node) => {
+      const $node    = $(node);
+      const $parent  = $node.parent();
+      const new_node = this._createResourceElement(node, target_document);
+
+      $node.remove();
+      new_node && this._appendChildSafely($parent[0], new_node);
     });
-
-    const element = target_document.importNode(base_element, true);
-
-    $(element).find('iframe').remove();
-
-    forEach(resources, resource => element.appendChild(resource));
 
     return element;
   };
 
   _createFrame = (id, move_dom = false, parent = 'body') => {
-    const is_chrome = /chrome/i.test(window.navigator.userAgent);
-    const is_safari = /safari/i.test(window.navigator.userAgent);
-    const $iframe   = this.$target('<iframe>', {
-      src: `javascript:'<!DOCTYPE html><html><body></body></html>'`,
-    });
-
-    let load_count = 0;
-
-    $iframe.on('load', () => {
-      if (0 === load_count++ && (is_chrome || is_safari)) {
-        // Chrome & Safari fire two load events, we want the second one.
-        return;
-      }
-
-      if (move_dom) {
-        this._moveDOMToFrame($iframe);
-      } else {
-        this._copyResourcesToFrame($iframe);
-      }
-    });
+    const $iframe = this.$target('<iframe>');
 
     $iframe
       .addClass('et-core-frame')
@@ -199,29 +165,41 @@ class ETCoreFrames {
       .parentsUntil('body')
       .addClass('et-fb-iframe-ancestor');
 
+    // We do the following after the iframe is in the DOM to avoid double load event that can occur
+    // with Chrome and Safari in some cases
+    $iframe.on('load', () => {
+      if (move_dom) {
+        this._moveDOMToFrame($iframe);
+      } else {
+        this._copyResourcesToFrame($iframe);
+      }
+    });
+
+    $iframe[0].src = `javascript:'<!DOCTYPE html><html><body></body></html>'`;
+
     return $iframe;
   };
 
   _createResourceElement = (base_element, target_document) => {
-    const { id, nodeName: name, href, src, rel } = base_element;
+    const { id, nodeName: name, href, src, rel, type } = base_element;
 
-    const attrs = ['id', 'src', 'href', 'type', 'rel', 'innerHTML', 'media', 'screen', 'crossorigin'];
+    const attrs = ['id', 'className', 'src', 'href', 'type', 'rel', 'innerHTML', 'media', 'screen', 'crossorigin', 'data-et-type'];
 
     if ('et-fb-top-window-css' === id) {
-      return; // continue
+      return;
     }
 
     if ('et-frontend-builder-css' === id && IS_YARN_START) {
-      return; // continue
+      return;
     }
 
-    if ('SCRIPT' === name && this._isScriptExcluded(base_element)) {
-      return; // continue
+    if (isScriptExcluded(base_element) || isScriptTopOnly(base_element)) {
+      return;
     }
 
     const element = target_document.createElement(name);
 
-    if ((src || href) && ('LINK' !== name || 'stylesheet' === rel)) {
+    if ((src || (href && type !== 'text/less')) && ('LINK' !== name || 'stylesheet' === rel)) {
       this.loading.push(this._resourceLoadAsPromise(element));
     }
 
@@ -229,13 +207,19 @@ class ETCoreFrames {
       element.async = element.defer = false;
     }
 
-    forEach(attrs, attr => base_element[attr] ? element[attr] = base_element[attr] : '');
+    forEach(attrs, attr => {
+      if (base_element[attr]) {
+        element[attr] = base_element[attr];
+        return;
+      }
+
+      if (base_element.getAttribute(attr)) {
+        element.setAttribute(attr, base_element.getAttribute(attr));
+        return;
+      }
+    });
 
     return element;
-  };
-
-  _isScriptExcluded = node => {
-    return this.exclude_scripts.test(node.innerHTML) || (node.src && this.exclude_scripts.test(node.src));
   };
 
   _maybeCreateFrame = () => {
@@ -267,8 +251,6 @@ class ETCoreFrames {
     const resource_nodes  = ['LINK', 'SCRIPT', 'STYLE'];
     const loading         = [];
 
-    documentWrites = [];
-
     this.loading = [];
 
     forEach(base_head.childNodes, child => {
@@ -287,7 +269,7 @@ class ETCoreFrames {
         element = this._createElement(child, target_document);
       }
 
-      target_head.appendChild(maybeFixInlineScript(element));
+      this._appendChildSafely(target_head, element);
     });
 
     target_body.className = this.base_window.ET_Builder.Misc.original_body_class;
@@ -303,11 +285,15 @@ class ETCoreFrames {
         return; // continue
       }
 
-      target_body.appendChild(maybeFixInlineScript(element));
+      this._appendChildSafely(target_body, element);
     });
 
+    const documentWrites = uniq(get(window, 'ET_Builder.Preboot.writes', []));
     if (documentWrites.length > 0) {
-      jQuery(target_body).append(documentWrites.join(';'));
+      // The only `document.write`s we care about are the ones used to load scripts
+      // like WP polyfills, anything else will just break the builder or show content
+      // in the wrong place, hence we wrap them in an hidden container.
+      jQuery(target_body).append(`<div style="display: none">${documentWrites.join(' ')}</div>`);
     }
 
     Promise.all(this.loading).then(() => {
@@ -329,7 +315,7 @@ class ETCoreFrames {
         dom_content_event = new Event('DOMContentLoaded');
         load_event        = new Event('load');
       }
-      
+
       // Add small delay before firiing the events to give some Extra time to attach event handlers
       // Otherwise it may fire to early and event handlers attachment will fail.
       setTimeout(() => {
@@ -349,7 +335,7 @@ class ETCoreFrames {
   /**
    * Gets a frame if it exists, creates a new one otherwise.
    *
-   * @since ??
+   * @since 3.18
    *
    * @param {Object}  options                    Options
    * @param {string}  options.id                 Unique identifier for the frame.
