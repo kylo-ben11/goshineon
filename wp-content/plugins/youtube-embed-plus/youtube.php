@@ -3,14 +3,14 @@
   Plugin Name: YouTube
   Plugin URI: https://www.embedplus.com/dashboard/pro-easy-video-analytics.aspx?ref=plugin
   Description: YouTube Embed and YouTube Gallery WordPress Plugin. Embed a responsive video, YouTube channel, playlist gallery, or live stream
-  Version: 13.0.1
+  Version: 13.1
   Author: EmbedPlus Team
   Author URI: https://www.embedplus.com
  */
 
 /*
   YouTube
-  Copyright (C) 2018 EmbedPlus.com
+  Copyright (C) 2019 EmbedPlus.com
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class YouTubePrefs
 
     public static $folder_name = 'youtube-embed-plus';
     public static $curltimeout = 30;
-    public static $version = '13.0.1';
+    public static $version = '13.1';
     public static $opt_version = 'version';
     public static $optembedwidth = null;
     public static $optembedheight = null;
@@ -70,6 +70,7 @@ class YouTubePrefs
     public static $opt_acctitle = 'acctitle';
     public static $opt_pro = 'pro';
     public static $opt_oldspacing = 'oldspacing';
+    public static $opt_frontend_only = 'frontend_only';
     public static $opt_responsive = 'responsive';
     public static $opt_responsive_all = 'responsive_all';
     public static $opt_origin = 'origin';
@@ -127,6 +128,7 @@ class YouTubePrefs
     public static $dft_gdpr_consent_message = '<p><strong>Please accept YouTube cookies to play this video.</strong> By accepting you will be accessing content from YouTube, a service provided by an external third party.</p><p><a href="https://policies.google.com/privacy" target="_blank">YouTube privacy policy</a></p><p>If you accept this notice, your choice will be saved and the page will refresh.</p>';
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static $vi_last_category_update_interval = '1 hour';
     public static $vi_script_tag_done = false;
     public static $vi_dft_js_settings = array(
         //"adUnitType" => "NATIVE_VIDEO_UNIT",
@@ -152,6 +154,7 @@ class YouTubePrefs
     public static $opt_vi_endpoints = 'vi_endpoints';
     public static $opt_vi_token = 'vi_token';
     public static $opt_vi_last_login = 'vi_last_login';
+    public static $opt_vi_last_category_update = 'vi_last_category_update';
     public static $opt_vi_adstxt = 'vi_adstxt';
     public static $opt_vi_js_settings = 'vi_js_settings';
     public static $opt_vi_js_script = 'vi_js_script';
@@ -225,7 +228,7 @@ class YouTubePrefs
         self::do_ytprefs();
         add_action('admin_menu', array(get_class(), 'ytprefs_plugin_menu'));
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array(get_class(), 'my_plugin_action_links'));
-            
+
         if (!is_admin())
         {
             if (self::$alloptions[self::$opt_old_script_method] == 1)
@@ -236,9 +239,9 @@ class YouTubePrefs
 
             add_action('wp_enqueue_scripts', array(get_class(), 'ytprefsscript'), 100);
             add_action('wp_enqueue_scripts', array(get_class(), 'fitvids'), 101);
-
-            add_filter('ytprefs_gdpr_consent_message', array(get_class(), 'filter_gdpr_consent_message'));
         }
+
+        add_filter('ytprefs_gdpr_consent_message', array(get_class(), 'filter_gdpr_consent_message'));
 
         add_action("wp_ajax_my_embedplus_onboarding_save_ajax", array(get_class(), 'onboarding_save_ajax'));
         add_action("wp_ajax_my_embedplus_onboarding_save_apikey_ajax", array(get_class(), 'onboarding_save_apikey_ajax'));
@@ -642,14 +645,15 @@ class YouTubePrefs
 
 
 
+            $step1_api_error_msg = ' Please confirm that the link works in your browser, and that <em>the owner of the video allowed embed sharing permissions (otherwise, contact the owner of the video to allow embedding)</em>. Then copy that full link in your address bar to paste here. If you are sure your link is correct, then (1) your API key may be too restrictive (<a target="_blank" href="https://console.developers.google.com/apis/credentials">check here</a>) or (2) you have reached your Google quota (<a href="https://console.developers.google.com/apis/dashboard" target="_blank">check here</a>). You can apply to Google for a <a href="https://services.google.com/fb/forms/ytapiquotarequest/" target="_blank">quota increase here</a>.';
             $step1_video_errors = '';
             $step1_video_error_invalid = 'Sorry, that does not seem to be a link to an existing video. Please confirm that the link works in your browser, and that <em>the owner of the video allowed embed sharing permissions (otherwise, contact the owner of the video to allow embedding)</em>. Then copy that full link in your address bar to paste here.';
             $step1_playlist_errors = '';
             $step1_playlist_error_invalid = 'Sorry, that does not seem to be a link to an existing playlist. Please confirm that the link works in your browser, and that <em>the owner of the playlist allowed embed sharing permissions (otherwise, contact the owner of the video to allow embedding)</em>. Then copy that full link in your address bar to paste here.';
             $step1_channel_errors = '';
-            $step1_channel_error_invalid = 'Sorry, that does not seem to be a link to an existing video. Please confirm that the link works in your browser, and that <em>the owner of the video allowed embed sharing permissions (otherwise, contact the owner of the video to allow embedding)</em>. Then copy that full link in your address bar to paste here. If you are sure your link is correct, then your API key may be too restrictive (<a target="_blank" href="https://console.developers.google.com/apis/credentials">https://console.developers.google.com/apis/credentials</a>).';
+            $step1_channel_error_invalid = 'Sorry, that does not seem to be a link to an existing video. ' . $step1_api_error_msg;
             $step1_live_errors = '';
-            $step1_live_error_invalid = 'Sorry, that does not seem to be a valid link to an existing video or channel. Please confirm that the link works in your browser, and that <em>the owner of the video allowed embed sharing permissions (otherwise, contact the owner of the video to allow embedding)</em>. Then copy that full link in your address bar to paste here. If you are sure your link is correct, then your API key may be too restrictive (<a target="_blank" href="https://console.developers.google.com/apis/credentials">https://console.developers.google.com/apis/credentials</a>).';
+            $step1_live_error_invalid = 'Sorry, that does not seem to be a valid link to an existing live video. ' . $step1_api_error_msg;
             $if_live_preview = false;
 
             $theytid = null;
@@ -965,84 +969,62 @@ class YouTubePrefs
 
                         try
                         {
-                            $thechannel = false;
-                            $chanmatch = array();
-                            preg_match('@/channel/(.+)@', $search, $chanmatch);
-                            if (!empty($chanmatch))
+                            $theytid = null;
+                            try
                             {
-                                $thechannel = self::get_channel_snippet($chanmatch[1]);
+                                $theytid = self::try_get_ytid($search);
                             }
-                            else
+                            catch (Exception $ex)
                             {
-                                $theytid = null;
-                                try
-                                {
-                                    $theytid = self::try_get_ytid($search);
-                                }
-                                catch (Exception $ex)
-                                {
-                                    
-                                }
-                                $chanvid = self::get_video_snippet($theytid);
-                                if ($chanvid)
-                                {
-                                    $thechannel = self::get_channel_snippet($chanvid->snippet->channelId);
-                                }
+                                
                             }
-                            if ($thechannel)
+                            $live_attempt = self::get_video_snippet($theytid);
+                            if ($live_attempt)
                             {
-                                $live_attempt = self::get_live_snippet($thechannel->id);
-                                if ($live_attempt)
-                                {
-                                    $if_live_preview = $live_attempt->id->videoId;
-                                }
-                                $rel = 'https://www.youtube.com/embed?live=1&channel=' . (esc_attr($thechannel->id));
-                                ?>
+                                $if_live_preview = $live_attempt->id;
+                                $final_title = sanitize_text_field($live_attempt->snippet->title);
+                                $final_title_prefix = 'Live Stream';
+                            }
+                            $rel = 'https://www.youtube.com/watch?v=' . (esc_attr($theytid)) . '&live=1';
+                            $doing_live = true;
+                            ?>
+                            <div id="step2_live" class="center">
 
-                                <div id="step2_channel" class="center">
-
-                                    <h2>
-                                        <?php
-                                        echo 'Live Stream From Channel: ' . sanitize_text_field($thechannel->snippet->title);
-                                        ?>
-                                    </h2>
-                                    <p class="center">
-                                        <a class="ui-button ui-widget ui-corner-all inserttopost" rel="[embedyt] <?php echo $rel; ?>[/embedyt]"><span class="ui-icon ui-icon-arrowthickstop-1-s"></span> Insert Into Editor</a>
-                                        &nbsp; <a class="ui-button ui-widget ui-corner-all" href="<?php echo $get_pro_link; ?>" target="_blank"><span class="ui-icon ui-icon-gear"></span> Customize (PRO)</a>
-                                    </p>
-                                    <p>
-                                        Or Copy Code:
-                                    </p>
-                                    <p>
-                                        <span class="copycode">[embedyt] <?php echo $rel; ?>[/embedyt]</span>
-                                    </p>
-                                    <div class="clearboth" style="height: 10px;">
-                                    </div>
+                                <h2>
                                     <?php
-                                    if ($if_live_preview)
-                                    {
-                                        ?>
-                                        <div class="center relative">
-                                            <iframe src="https://www.youtube.com/embed/<?php echo esc_attr($if_live_preview) ?>?rel=0" allowfullscreen="" width="854" height="480" frameborder="0"></iframe>
-                                        </div>
-                                        <?php
-                                    }
+                                    echo 'Live Stream: ' . sanitize_text_field($live_attempt->snippet->title);
                                     ?>
-                                    <p>
-                                        <strong>Is your live stream not working?</strong>  According to Google/YouTube rules, there must be an active AdSense account that's connected to the live 
-                                        stream's channel (for monetization) in order embed the stream. If you own the channel, we suggest that you attach an AdSense account. Otherwise, you will 
-                                        likely just see a blank screen when you embed your stream, even if it is visible on YouTube.com.
-                                        Read more here: <a href="https://support.google.com/youtube/answer/2474026?hl=en" target="_blank">https://support.google.com/youtube/answer/2474026?hl=en</a>
-                                    </p>
+                                </h2>
+                                <p class="center">
+                                    <a class="ui-button ui-widget ui-corner-all inserttopost" rel="[embedyt] <?php echo $rel; ?>[/embedyt]"><span class="ui-icon ui-icon-arrowthickstop-1-s"></span> Insert Into Editor</a>
+                                    &nbsp; <a class="ui-button ui-widget ui-corner-all" href="<?php echo $get_pro_link; ?>" target="_blank"><span class="ui-icon ui-icon-gear"></span> Customize (PRO)</a>
+                                </p>
+                                <p>
+                                    Or Copy Code:
+                                </p>
+                                <p>
+                                    <span class="copycode">[embedyt] <?php echo $rel; ?>[/embedyt]</span>
+                                </p>
+                                <div class="clearboth" style="height: 10px;">
                                 </div>
                                 <?php
-                            }
-                            else
-                            {
-                                $form_valid = false;
-                                $step1_live_errors = $step1_live_error_invalid;
-                                $acc_expand = 'h3_live';
-                            }
+                                if ($if_live_preview)
+                                {
+                                    ?>
+                                    <div class="center relative">
+                                        <iframe src="https://www.youtube.com/embed/<?php echo esc_attr($if_live_preview) ?>?rel=0" allowfullscreen="" width="854" height="480" frameborder="0"></iframe>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                                <p>
+                                    <strong>Is your live stream not working?</strong>  According to Google/YouTube rules, there must be an active AdSense account that's connected to the live 
+                                    stream's channel (for monetization) in order embed the stream. If you own the channel, we suggest that you attach an AdSense account. Otherwise, you will 
+                                    likely just see a blank screen when you embed your stream, even if it is visible on YouTube.com.
+                                    Read more here: <a href="https://support.google.com/youtube/answer/2474026?hl=en" target="_blank">https://support.google.com/youtube/answer/2474026?hl=en</a>
+                                </p>
+                            </div>
+                            <?php
                         }
                         catch (Exception $ex)
                         {
@@ -1174,7 +1156,7 @@ class YouTubePrefs
                     </div>
                     <h3 id="h3_live"> <a href="#">Embed a live stream. </a></h3>
                     <div>
-                        <h4 class="center">Live stream directions (<a href="https://www.youtube.com/watch?v=dEQMTUke48E" target="_blank">Video tutorial here &raquo;</a>)</h4>
+                        <h4 class="center">Live stream directions</h4>
                         <?php
                         if (!self::has_api_key())
                         {
@@ -1183,14 +1165,20 @@ class YouTubePrefs
                         else
                         {
                             ?>
+                            <p>
+                                Important: You can embed any public livestreams from any channel that YouTube/Google has approved to be <strong>Eligible</strong> and <strong>Enabled</strong>.
+                                If you're trying to embed a livestream from your own channel, you can check make sure it is <strong>Eligible</strong> and <strong>Enabled</strong> by <a href="https://www.youtube.com/features" target="_blank">visiting here.</a>
+                                You are verified if you see the word "Enabled" at the bottom of the box that is labeled "Embed live streams." Note that verification can only be done directly through YouTube/Google with the link above, and this plugin cannot automatically do that.
+                            </p>
+                            <p>
+                                Once you have the link for a live stream, follow the steps below.
+                            </p>
                             <ol>
-                                <li>Enter in the URL of the channel that the live feed belongs to.
-                                    <ul class="ul-disc">
-                                        <li><small>Example: https://www.youtube.com/<strong>channel</strong>/UCnM5iMGiKsZg-iOlIO2ZkdQ </small></li>
-                                        <li><small>(If you do not know the exact channel URL, enter in the URL to any single video that belongs to that channel, to automatically retrieve the channel URL. Example: https://www.youtube.com/watch?v=fIW8Vvfbojc )</small></li>
-                                    </ul>
+                                <li>
+                                    Paste in the direct URL of the live stream below and click Submit. Example: https://www.youtube.com/watch?v=<strong>hHW1oY26kxQ</strong>
                                 </li>
-                                <li>On the YouTube plugin admin settings page, enter in the "Default Not Live Content" field what content should display while your channel is <em>not</em> currently streaming.
+                                <li>
+                                    On the next screen, customize or insert your video.
                                 </li>
                             </ol>
                             <form name="wizform_live" method="post" action="" class="wizform" id="wizform_live">
@@ -1208,7 +1196,7 @@ class YouTubePrefs
                     if (current_user_can('manage_options') && !self::vi_logged_in() && !(bool) (self::$alloptions[self::$opt_vi_hide_monetize_tab]))
                     {
                         ?>
-                        <h3 id="h3_vi_monetize"> <a href="#"> Explore monetization. <sup class="orange">new</sup> </a></h3>
+                        <h3 id="h3_vi_monetize"> <a href="#"> Earn money embedding videos. <sup class="orange">new</sup> </a></h3>
                         <div class="h3_vi_monetize-content">
                             <div class="vi-registration-box">
                                 <?php
@@ -1703,6 +1691,7 @@ class YouTubePrefs
         $_migrate_embedplusvideo = 0;
         $_controls = 2;
         $_oldspacing = 1;
+        $_frontend_only = 1;
         $_responsive = 0;
         $_responsive_all = 1;
         $_widgetfit = 1;
@@ -1749,6 +1738,7 @@ class YouTubePrefs
         $_vi_endpoints = '';
         $_vi_token = '';
         $_vi_last_login = date('Y-m-d H:i:s', strtotime('2000-01-01'));
+        $_vi_last_category_update = date('Y-m-d H:i:s', strtotime('2000-01-01'));
         $_vi_adstxt = '';
         $_vi_js_settings = self::$vi_dft_js_settings;
         $_vi_js_script = '';
@@ -1792,6 +1782,7 @@ class YouTubePrefs
             $_migrate_embedplusvideo = self::tryget($arroptions, self::$opt_migrate_embedplusvideo, 0);
             $_controls = self::tryget($arroptions, self::$opt_controls, 2);
             $_oldspacing = self::tryget($arroptions, self::$opt_oldspacing, 1);
+            $_frontend_only = self::tryget($arroptions, self::$opt_frontend_only, $_frontend_only);
             $_responsive = self::tryget($arroptions, self::$opt_responsive, 0);
             $_responsive_all = self::tryget($arroptions, self::$opt_responsive_all, 1);
             $_widgetfit = self::tryget($arroptions, self::$opt_widgetfit, 1);
@@ -1825,13 +1816,14 @@ class YouTubePrefs
             $_gallery_customprev = self::tryget($arroptions, self::$opt_gallery_customprev, $_gallery_customprev);
             $_not_live_content = self::tryget($arroptions, self::$opt_not_live_content, $_not_live_content);
             $_admin_off_scripts = self::tryget($arroptions, self::$opt_admin_off_scripts, $_admin_off_scripts);
-            $_onboarded = self::tryget($arroptions, self::$opt_onboarded, $_onboarded);
+            $_onboarded = 0; // self::tryget($arroptions, self::$opt_onboarded, $_onboarded);
 
             $_vi_active = self::tryget($arroptions, self::$opt_vi_active, $_vi_active);
             $_vi_hide_monetize_tab = self::tryget($arroptions, self::$opt_vi_hide_monetize_tab, $_vi_hide_monetize_tab);
             $_vi_endpoints = self::tryget($arroptions, self::$opt_vi_endpoints, $_vi_endpoints);
             $_vi_token = self::tryget($arroptions, self::$opt_vi_token, $_vi_token);
             $_vi_last_login = self::tryget($arroptions, self::$opt_vi_last_login, $_vi_last_login);
+            $_vi_last_category_update = self::tryget($arroptions, self::$opt_vi_last_category_update, $_vi_last_category_update);
             $_vi_adstxt = self::tryget($arroptions, self::$opt_vi_adstxt, $_vi_adstxt);
             $_vi_js_settings = self::tryget($arroptions, self::$opt_vi_js_settings, self::$vi_dft_js_settings);
             $_vi_js_script = self::tryget($arroptions, self::$opt_vi_js_script, $_vi_js_script);
@@ -1876,6 +1868,7 @@ class YouTubePrefs
             self::$opt_migrate_embedplusvideo => $_migrate_embedplusvideo,
             self::$opt_controls => $_controls,
             self::$opt_oldspacing => $_oldspacing,
+            self::$opt_frontend_only => $_frontend_only,
             self::$opt_responsive => $_responsive,
             self::$opt_responsive_all => $_responsive_all,
             self::$opt_widgetfit => $_widgetfit,
@@ -1917,6 +1910,7 @@ class YouTubePrefs
             self::$opt_vi_endpoints => $_vi_endpoints,
             self::$opt_vi_token => $_vi_token,
             self::$opt_vi_last_login => $_vi_last_login,
+            self::$opt_vi_last_category_update => $_vi_last_category_update,
             self::$opt_vi_adstxt => $_vi_adstxt,
             self::$opt_vi_js_settings => $_vi_js_settings,
             self::$opt_vi_js_script => $_vi_js_script,
@@ -1949,7 +1943,7 @@ class YouTubePrefs
     public static function do_ytprefs()
     {
         //add_filter('autoptimize_filter_js_exclude', array(get_class(), 'ao_override_jsexclude'), 10, 1);
-        if (!is_admin())
+        if (!is_admin() || (self::$alloptions[self::$opt_frontend_only] != 1))
         {
             add_filter('the_content', array(get_class(), 'apply_prefs_content'), 1);
             add_filter('widget_text', array(get_class(), 'apply_prefs_widget'), 1);
@@ -2318,36 +2312,75 @@ class YouTubePrefs
             $linkparams['v'] = array_pop($vtemp);
         }
 
-        if (isset($linkparams['channel']) && isset($linkparams['live']) && $linkparams['live'] == '1')
+        if (isset($linkparams['live']) && $linkparams['live'] == '1')
         {
             $live_error_msg = ' To embed live videos, please make sure you performed the <a href="https://www.youtube.com/watch?v=6gD0X76-v_g" target="_blank">steps in this video</a> to create and save a proper server API key.';
             if (isset(self::$alloptions[self::$opt_apikey]))
             {
-
-                try
+                if (isset($linkparams['channel']))
                 {
-                    $ytapilink_live = 'https://www.googleapis.com/youtube/v3/search?order=date&maxResults=1&type=video&eventType=live&safeSearch=none&videoEmbeddable=true&channelId=' . $linkparams['channel'] . '&part=snippet&key=' . self::$alloptions[self::$opt_apikey];
-                    $apidata_live = wp_remote_get($ytapilink_live, array('timeout' => self::$curltimeout));
-                    if (!is_wp_error($apidata_live))
+                    try
                     {
-                        $raw = wp_remote_retrieve_body($apidata_live);
-                        if (!empty($raw))
+                        $ytapilink_live = 'https://www.googleapis.com/youtube/v3/search?order=date&maxResults=1&type=video&eventType=live&safeSearch=none&videoEmbeddable=true&channelId=' . $linkparams['channel'] . '&part=snippet&key=' . self::$alloptions[self::$opt_apikey];
+                        $apidata_live = wp_remote_get($ytapilink_live, array('timeout' => self::$curltimeout));
+                        if (!is_wp_error($apidata_live))
                         {
-                            $json = json_decode($raw, true);
-                            if (!isset($json['error']) && is_array($json) && count($json['items']))
+                            $raw = wp_remote_retrieve_body($apidata_live);
+                            if (!empty($raw))
                             {
-                                $linkparams['v'] = $json['items'][0]['id']['videoId'];
-                            }
-                            else if (isset($json['error']))
-                            {
-                                return $live_error_msg;
+                                $json = json_decode($raw, true);
+                                if (!isset($json['error']) && is_array($json) && count($json['items']))
+                                {
+                                    $linkparams['v'] = $json['items'][0]['id']['videoId'];
+                                }
+                                else if (isset($json['error']))
+                                {
+                                    return $live_error_msg; // . ' <em>(Error code ' . $json['error']->code . ': ' . $json['error']->message . ')</em>';
+                                }
                             }
                         }
                     }
+                    catch (Exception $ex)
+                    {
+                        return $live_error_msg;
+                    }
                 }
-                catch (Exception $ex)
+                else if (isset($linkparams['v']))
                 {
-                    return $live_error_msg;
+                    ////////////////////// process single video live stream
+                    try
+                    {
+                        // if not_live_content isn't being used, just process as a normal single video. otherwise: if not currently live (nor upcoming?), unset $linkparams['v']
+                        $not_live_content = trim(htmlspecialchars_decode(wp_strip_all_tags(self::$alloptions[self::$opt_not_live_content], true)));
+                        if (!empty($not_live_content))
+                        {
+                            $ytapilink_live = 'https://www.googleapis.com/youtube/v3/videos?id=' . $linkparams['v'] . '&part=snippet&key=' . self::$alloptions[self::$opt_apikey];
+                            $apidata_live = wp_remote_get($ytapilink_live, array('timeout' => self::$curltimeout));
+                            if (!is_wp_error($apidata_live))
+                            {
+                                $raw = wp_remote_retrieve_body($apidata_live);
+                                if (!empty($raw))
+                                {
+                                    $json = json_decode($raw, true);
+                                    if (!isset($json['error']) && is_array($json) && count($json['items']))
+                                    {
+                                        if (isset($json['items'][0]['snippet']['liveBroadcastContent']) && $json['items'][0]['snippet']['liveBroadcastContent'] != 'live')
+                                        {
+                                            unset($linkparams['v']);
+                                        }
+                                    }
+                                    else if (isset($json['error']))
+                                    {
+                                        return $live_error_msg; // . ' <em>(Error code ' . $json['error']->code . ': ' . $json['error']->message . ')</em>';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception $ex)
+                    {
+                        return $live_error_msg;
+                    }
                 }
             }
             else
@@ -2364,6 +2397,7 @@ class YouTubePrefs
         $youtubebaseurl = 'youtube';
         $voloutput = '';
         $acctitle = '';
+        $relstop = '';
 
         $finalparams = $linkparams + self::$alloptions;
 
@@ -2377,6 +2411,11 @@ class YouTubePrefs
         if (self::$alloptions[self::$opt_defaultvol] == 1)
         {
             $voloutput = ' data-vol="' . self::$alloptions[self::$opt_vol] . '" ';
+        }
+
+        if (is_numeric(self::$alloptions[self::$opt_rel]) && intval(self::$alloptions[self::$opt_rel]) === -1)
+        {
+            $relstop = ' data-relstop="1" ';
         }
 
         if (self::$alloptions[self::$opt_dohl] == 1)
@@ -2501,8 +2540,13 @@ class YouTubePrefs
             $finalparams['autoplay'] = 0;
         }
 
+        if (!empty($relstop) && isset($finalparams['rel']) && intval($finalparams['rel']) === -1)
+        {
+            $finalparams['rel'] = 0;
+        }
+
         $code1 = '<iframe ' . $centercode . ' id="_ytid_' . rand(10000, 99999) . '" width="' . self::$defaultwidth . '" height="' . self::$defaultheight . '" ' .
-                ' data-origwidth="' . self::$defaultwidth . '" data-origheight="' . self::$defaultheight . '" ' .
+                ' data-origwidth="' . self::$defaultwidth . '" data-origheight="' . self::$defaultheight . '" ' . $relstop .
                 ' src="https://www.' . $youtubebaseurl . '.com/embed/' . $videoidoutput . '?';
         $code2 = '" class="__youtube_prefs__' . ($iscontent ? '' : ' __youtube_prefs_widget__') .
                 '"' . $voloutput . $acctitle . $galleryid_ifm_data . ' allow="autoplay; encrypted-media" allowfullscreen data-no-lazy="1" data-skipgform_ajax_framebjll=""></iframe>';
@@ -2705,6 +2749,10 @@ class YouTubePrefs
 
     public static function get_oembed($url, $height, $width)
     {
+        if (stripos($url, 'listType=playlist') !== false && stripos($url, '/embed') !== false)
+        {
+            $url = str_replace('/embed', '/playlist', $url);
+        }
         require_once(ABSPATH . WPINC . '/class-oembed.php');
         $oembed = _wp_oembed_get_object();
         $args = array();
@@ -2860,15 +2908,15 @@ class YouTubePrefs
         $new_pointer_content = '<h3>' . __('New Update') . '</h3>'; // ooopointer
 
         $new_pointer_content .= '<p>'; // ooopointer
-        
-        $new_pointer_content .= "This version provides clearer instructions for many options across the plugin&apos;s settings and wizard pages in both Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>";
-        //$new_pointer_content .= "This version fixes a couple gallery bugs and improves ads.txt management for the monetization feature. <a rel=\"#jumpmonetize\" class=\"epyt-jumptab\" href=\"" . admin_url('admin.php?page=youtube-my-preferences#jumpmonetize') . "\">Login here to see &raquo;</a></li></ul>";
-        
+        //$new_pointer_content .= "This version provides clearer instructions for many options across the plugin&apos;s settings and wizard pages in both Free and <a target=_blank href=" . self::$epbase . '/dashboard/pro-easy-video-analytics.aspx?ref=frompointer' . ">Pro versions &raquo;</a>";
+        $new_pointer_content .= "This version brings back the ability to hide related/suggested videos that show up at the end of YouTube embeds. It also allows monetized sites that are embedding video intelligence (vi) ads to select multiple IAB categories to get more content variety. "
+                . (self::vi_logged_in() ? "<a href=\"" . admin_url('admin.php?page=youtube-ep-vi') . "\">Login here to see &raquo;</a>" : "<a rel=\"#jumpmonetize\" class=\"epyt-jumptab\" href=\"" . admin_url('admin.php?page=youtube-my-preferences#jumpmonetize') . "\">Login here to see &raquo;</a>");
+
         if (!empty(self::$alloptions[self::$opt_pro]) && strlen(trim(self::$alloptions[self::$opt_pro])) > 0)
         {
             $new_pointer_content .= ' <strong>Important message to YouTube Pro users</strong>: From version 11.7 onward, you must <a href="https://www.embedplus.com/youtube-pro/download/?prokey=' . esc_attr(self::$alloptions[self::$opt_pro]) . '" target="_blank">download the separate plugin here</a> to regain your Pro features. All your settings will automatically migrate after installing the separate Pro download. Thank you for your support and patience during this transition.';
         }
-        
+
         $new_pointer_content .= '</p>';
 
         return array(
@@ -2894,7 +2942,7 @@ class YouTubePrefs
         <h3 class="nav-tab-wrapper">
             <a class="nav-tab nav-tab-active" href="#jumpdefaults">Defaults</a>
             <a class="nav-tab" href="#jumpapikey">API Key</a>
-            <a class="nav-tab" href="#jumpwiz">Wizard <sup class="orange">new</sup></a>
+            <a class="nav-tab" href="#jumpwiz">Wizard</a>
             <a class="nav-tab" href="#jumpgallery">Galleries</a>
             <a class="nav-tab href-link" style="background-color: #daebf1;" rel="#jumpupgrade" target="_blank" href="<?php echo self::$epbase . "/dashboard/pro-easy-video-analytics.aspx?ref=protab" ?>">Upgrade?</a>
             <?php
@@ -2958,7 +3006,7 @@ class YouTubePrefs
             $new_options[self::$opt_iv_load_policy] = self::postchecked(self::$opt_iv_load_policy) ? 1 : 3;
             $new_options[self::$opt_loop] = self::postchecked(self::$opt_loop) ? 1 : 0;
             $new_options[self::$opt_modestbranding] = self::postchecked(self::$opt_modestbranding) ? 1 : 0;
-            $new_options[self::$opt_rel] = self::postchecked(self::$opt_rel) ? 1 : 0;
+            //$new_options[self::$opt_rel] = self::postchecked(self::$opt_rel) ? 1 : 0;
             $new_options[self::$opt_showinfo] = self::postchecked(self::$opt_showinfo) ? 1 : 0;
             $new_options[self::$opt_fs] = self::postchecked(self::$opt_fs) ? 1 : 0;
             $new_options[self::$opt_playsinline] = self::postchecked(self::$opt_playsinline) ? 1 : 0;
@@ -2973,6 +3021,7 @@ class YouTubePrefs
             $new_options[self::$opt_migrate_youtube] = self::postchecked(self::$opt_migrate_youtube) ? 1 : 0;
             $new_options[self::$opt_migrate_embedplusvideo] = self::postchecked(self::$opt_migrate_embedplusvideo) ? 1 : 0;
             $new_options[self::$opt_oldspacing] = self::postchecked(self::$opt_oldspacing) ? 1 : 0;
+            $new_options[self::$opt_frontend_only] = self::postchecked(self::$opt_frontend_only) ? 1 : 0;
             $new_options[self::$opt_responsive] = self::postchecked(self::$opt_responsive) ? 1 : 0;
             $new_options[self::$opt_widgetfit] = self::postchecked(self::$opt_widgetfit) ? 1 : 0;
             $new_options[self::$opt_evselector_light] = self::postchecked(self::$opt_evselector_light) ? 1 : 0;
@@ -2992,6 +3041,17 @@ class YouTubePrefs
             $new_options[self::$opt_gallery_customarrows] = self::postchecked(self::$opt_gallery_customarrows) ? 1 : 0;
             $new_options[self::$opt_gallery_collapse_grid] = self::postchecked(self::$opt_gallery_collapse_grid) ? 1 : 0;
             $new_options[self::$opt_vi_hide_monetize_tab] = self::postchecked(self::$opt_vi_hide_monetize_tab) ? 1 : 0;
+
+            $_rel = 0;
+            try
+            {
+                $_rel = is_numeric(trim($_POST[self::$opt_rel])) ? intval(trim($_POST[self::$opt_rel])) : $_rel;
+            }
+            catch (Exception $ex)
+            {
+                
+            }
+            $new_options[self::$opt_rel] = $_rel;
 
 
             $_gdpr_consent_message = '';
@@ -3467,12 +3527,17 @@ class YouTubePrefs
                                 <label for="<?php echo self::$opt_modestbranding; ?>"><?php _e('<b class="chktitle">Modest Branding:</b> No YouTube logo will be shown on the control bar.  Instead, as required by YouTube, the logo will only show as a watermark when the video is paused/stopped.') ?></label>
                             </p>
                             <p>
-                                <input name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>" <?php checked($all[self::$opt_rel], 1); ?> type="checkbox" class="checkbox">
-                                <label for="<?php echo self::$opt_rel; ?>">
+                                <label>
                                     <b class="chktitle">Related Videos:</b>
-                                    <strong>Google/YouTube no longer allows tools to control this feature. Learn more about the <a target="_blank" href="https://developers.google.com/youtube/player_parameters#Revision_History">deprecation of this feature here</a>.</strong>
-                                    <span class="epyt-deprecated">Show related and recommended videos during pause and at the end of playback.</span>
+                                    Show or hide related and recommended videos at the end of playback.
+                                    <br>
                                 </label>
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>-1" value="-1" <?php checked($all[self::$opt_rel], -1); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>-1">Hide related videos at the end of playback <sup class="orange">new</sup></label> &nbsp;&nbsp;
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>0" value="0" <?php checked($all[self::$opt_rel], 0); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>0">Show related videos only from the video's channel</label> &nbsp;&nbsp;
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>1" value="1" <?php checked($all[self::$opt_rel], 1); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>1">Show related videos</label> &nbsp;&nbsp;
                             </p>
                             <p>
                                 <input name="<?php echo self::$opt_showinfo; ?>" id="<?php echo self::$opt_showinfo; ?>" <?php checked($all[self::$opt_showinfo], 1); ?> type="checkbox" class="checkbox">
@@ -3572,20 +3637,30 @@ class YouTubePrefs
                             </p>
                             <p class="<?php echo self::vi_logged_in() || !empty($all[self::$opt_vi_active]) ? 'hidden' : '' ?>">
                                 <input name="<?php echo self::$opt_vi_hide_monetize_tab; ?>" id="<?php echo self::$opt_vi_hide_monetize_tab; ?>" <?php checked($all[self::$opt_vi_hide_monetize_tab], 1); ?> type="checkbox" class="checkbox">
-                                <label for="<?php echo self::$opt_vi_hide_monetize_tab; ?>"><b class="chktitle">Hide "Monetize" Feature:</b> Hide the tab(s) that allow you to sign up with vi.ai (after saving this option, please refresh this page again).</label>
+                                <label for="<?php echo self::$opt_vi_hide_monetize_tab; ?>"><b class="chktitle">Hide "Monetize" Feature:</b> Hide the tab(s) that allow you earn money embedding videos from video intelligence (after saving this option, please refresh this page again).</label>
                             </p>
-                            <p>
+                            <p id="not_live_content_scroll">
                                 <label for="<?php echo self::$opt_not_live_content; ?>">
                                     <b class="chktitle">Default "Not Live" Content:</b>
-                                    When your channel is not streaming live, the YouTube live player will be inactive.  Instead of showing that player, you can display something else in that space for your visitors to actually see until your channel begins to live stream.  The plugin will automatically switch to your channel's live stream once it’s active.  Below, enter what you would like to appear until then.
+                                    When your channel is not streaming live, the YouTube live player will be inactive.
+                                    Instead of showing that player, you can display some "coming soon" content in that space for your visitors to see until your channel begins to live stream. 
+                                    The plugin will automatically switch to your channel's live stream once it's active.
+                                    Below, enter what you would like to appear until then. <strong><span class="orange">NOTE:</span> Do not put another live stream embed below.</strong>
                                     <?php
                                     if (self::vi_logged_in())
                                     {
                                         ?>
-                                        One new option is to embed a quality video advertisement so that you can get gain revenue during times when your live stream is not active.  Simply click the "$ Video Ad" button below to enter the proper shortcode and the plugin with manage the rest.
+                                        One new option is to embed a quality video advertisement so that you can get gain revenue during times when your live stream is not active.  Simply click the "$ Video Ad" button below to enter the proper shortcode and the plugin will manage the rest.
+                                        <?php
+                                    }
+                                    else
+                                    {
+                                        ?>
+                                        One new option is to earn money from that inactive space by embedding a quality video advertisement containing content that matches your site's topics. <a href="#jumpmonetize" class="epyt-jumptab">Learn more and activate it here &raquo;</a>
                                         <?php
                                     }
                                     ?>
+                                    If you just want to show the standard countdown player that YouTube provides, just leave the below empty and save.
                                 </label>
                                 <?php
                                 wp_editor(wp_kses_post($all[self::$opt_not_live_content]), self::$opt_not_live_content, array('textarea_rows' => 7));
@@ -3911,6 +3986,13 @@ class YouTubePrefs
                                 </label>
                             </p>
                             <p>
+                                <input name="<?php echo self::$opt_frontend_only; ?>" id="<?php echo self::$opt_frontend_only; ?>" <?php checked($all[self::$opt_frontend_only], 1); ?> type="checkbox" class="checkbox">
+                                <label for="<?php echo self::$opt_frontend_only; ?>">
+                                    <b class="chktitle">Don't Run Shortcode In Admin:</b> <sup class="orange">new</sup> 
+                                    Checking this will only allow the shortcode to run on the front-end of your website, and not in the admin area.
+                                </label>
+                            </p>
+                            <p>
                                 <input name="<?php echo self::$opt_evselector_light; ?>" id="<?php echo self::$opt_evselector_light; ?>" <?php checked($all[self::$opt_evselector_light], 1); ?> type="checkbox" class="checkbox">
                                 <label for="<?php echo self::$opt_evselector_light; ?>">
                                     <b class="chktitle">Theme Video Problems: </b> 
@@ -3964,6 +4046,12 @@ class YouTubePrefs
                         </p>                
                         <p>
                             <b>For self-contained channel playlists:</b> At your editor, click on the <img style="vertical-align: text-bottom;" src="<?php echo plugins_url('images/wizbuttonbig.png', __FILE__) ?>"> wizard button and choose the option <i>Search for a video or channel to insert in my editor.</i> Then, click on the <i>channel playlist</i> option there (instead of <i>single video</i>). Search for the channel username and follow the rest of the directions there.
+                        </p>
+                        <p>
+                            <strong>For directly embedding in your theme with PHP:</strong>
+                            If you need to use PHP directly, we still recommend using the wizard to create the shortcode--but instead of pressing the "Insert" button, just copy the shortcode the wizard gives you. Then use the <code>do_shortcode()</code> function in your theme, like this:
+                            <br>
+                            <code>&lt;?php echo do_shortcode('[embedyt]....[/embedyt]'); ?&gt;</code>
                         </p>
                         <p>
                             <b>For video ads:</b> First sign up with <a target="_blank" href="<?php echo admin_url('admin.php?page=youtube-ep-vi') ?>">video intelligence</a>.  Once you're approved and logged in, you can use the following short code to display revenue-generating video ads on your site: <code>[embed-vi-ad]</code>.
@@ -4491,6 +4579,7 @@ class YouTubePrefs
     {
         $result = array();
         $default = array(
+            self::$opt_rel => 1,
             self::$opt_modestbranding => 0,
             self::$opt_responsive => 0,
             self::$opt_responsive_all => 0,
@@ -4615,14 +4704,14 @@ class YouTubePrefs
         ?>
         <div class="wrap wrap-ytprefs-onboarding">
             <div class="ytprefs-ob-title">
-                YouTube Setup Guide: Most Common Settings
+                YouTube Setup Guide
             </div>
             <div class="relative">
                 <div class="ytprefs-ob-step ytprefs-ob-step1 active-step">
                     <div class="ytprefs-ob-content">
                         <div class="ytprefs-ob-block">
                             <p>
-                                With so many options available in this plugin, we created this easy setup guide to help you quickly make the most common settings. We hope it will get you embedding videos, galleries, and/or live streams sooner.
+                                With so many options available in this plugin, we created this easy setup guide to help you  quickly learn about its <strong>most common settings and newest features</strong>. We hope it will get you embedding videos, galleries, and/or live streams sooner.
                             </p>
                             <p>
                                 You'll have an opportunity to see and set many other options after completing this setup guide.
@@ -4666,6 +4755,19 @@ class YouTubePrefs
                             <input type="hidden" name="action" value="my_embedplus_onboarding_save_ajax"/>
 
                             <div class="ytprefs-ob-setting yob-single yob-gallery yob-standalone yob-live">
+                                <label>
+                                    <b class="chktitle">Related Videos:</b>
+                                    Show or hide related and recommended videos at the end of playback.
+                                    <br>
+                                </label>
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>-1" value="-1" <?php checked($all[self::$opt_rel], -1); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>-1">Hide related videos at the end of playback <sup class="orange">new</sup></label> &nbsp;&nbsp;
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>0" value="0" <?php checked($all[self::$opt_rel], 0); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>0">Show related videos only from the video's channel</label> &nbsp;&nbsp;
+                                <input type="radio" name="<?php echo self::$opt_rel; ?>" id="<?php echo self::$opt_rel; ?>1" value="1" <?php checked($all[self::$opt_rel], 1); ?>>
+                                <label for="<?php echo self::$opt_rel; ?>1">Show related videos</label> &nbsp;&nbsp;
+                            </div>
+                            <div class="ytprefs-ob-setting yob-single yob-gallery yob-standalone yob-live">
                                 <input value="1" name="<?php echo self::$opt_modestbranding; ?>" id="<?php echo self::$opt_modestbranding; ?>" <?php checked($all[self::$opt_modestbranding], 1); ?> type="checkbox" class="checkbox">
                                 <label for="<?php echo self::$opt_modestbranding; ?>"><?php _e('<b class="chktitle">Modest Branding:</b> No YouTube logo will be shown on the control bar.  Instead, as required by YouTube, the logo will only show as a watermark when the video is paused/stopped.') ?></label>
                             </div>
@@ -4704,7 +4806,10 @@ class YouTubePrefs
                                 <p>
                                     <label for="<?php echo self::$opt_not_live_content; ?>">
                                         <b class="chktitle">Default "Not Live" Content:</b>
-                                        When your channel is not streaming live, the YouTube live player will be inactive.  Instead of showing that player, you can display something else in that space for your visitors to actually see until your channel begins to live stream.  The plugin will automatically switch to your channel’s live stream once it’s active.  Below, enter what you would like to appear until then.
+                                        When your channel is not streaming live, the YouTube live player will be inactive.
+                                        Instead of showing that player, you can display some "coming soon" content in that space for your visitors to see until your channel begins to live stream. 
+                                        The plugin will automatically switch to your channel's live stream once it's active.
+                                        Below, enter what you would like to appear until then. <strong><span class="orange">NOTE:</span> Do not put another live stream embed below.</strong>
                                         <?php
                                         if (self::vi_logged_in())
                                         {
@@ -4713,6 +4818,7 @@ class YouTubePrefs
                                             <?php
                                         }
                                         ?>
+                                        If you just want to show the standard countdown player that YouTube provides, just leave the below empty.
                                     </label>
                                 </p>
                                 <?php
@@ -4800,9 +4906,24 @@ class YouTubePrefs
                                 Some features (such as galleries, and some wizard features) now require you to create a free YouTube API <strong>Server</strong> key from Google.
                                 Make sure it's a YouTube Data API v3 "Web Server" key as shown in the screenshot (i.e. not web browser or anything else).
                             </p>
-                            <p>
-                                <a href="https://www.youtube.com/watch?v=6gD0X76-v_g" target="_blank">Click this link &raquo;</a> and follow the video to get your API key. Don't worry, it's an easy process.
-                            </p>
+                            <?php
+                            if (!empty($all[self::$opt_apikey]) && strlen($all[self::$opt_apikey]) > 0)
+                            {
+                                ?>
+                                <p class="ytprefs-ob-success">
+                                    Great! You already have an API key.
+                                </p>
+                                <?php
+                            }
+                            else
+                            {
+                                ?>
+                                <p>
+                                    <a href="https://www.youtube.com/watch?v=6gD0X76-v_g" target="_blank">Click this link &raquo;</a> and follow the video to get your API key. Don't worry, it's an easy process.
+                                </p>                            
+                                <?php
+                            }
+                            ?>
                             <p>
                                 <input type="text" placeholder="Paste your YouTube API key here" name="<?php echo self::$opt_apikey; ?>" id="<?php echo self::$opt_apikey; ?>" value="<?php echo esc_attr(trim($all[self::$opt_apikey])); ?>" class="regular-text" style='max-width: 40%;'>
                             </p>                                
@@ -4825,7 +4946,7 @@ class YouTubePrefs
                 <div class="ytprefs-ob-step ytprefs-ob-step4">
                     <div class="ytprefs-ob-content">
                         <?php
-                        if (!self::vi_logged_in())
+                        if (!self::vi_logged_in() && !self::vi_script_setup_done())
                         {
                             echo '<div class="vi-registration-box">';
                             include_once(EPYTVI_INCLUDES_PATH . 'vi_registration_form.php');
@@ -4834,7 +4955,12 @@ class YouTubePrefs
                         }
                         else
                         {
-                            include_once(EPYTVI_INCLUDES_PATH . 'vi_login_complete.php');
+                            ?>
+                            <h2>Monetization</h2>
+                            <p class="ytprefs-ob-success">
+                                Hooray! You have already signed up for the <a href="<?php echo admin_url('admin.php?page=youtube-ep-vi') ?>" target="_blank">video ad monetization feature</a>.
+                            </p>
+                            <?php
                         }
                         ?>
 
@@ -5726,7 +5852,7 @@ class YouTubePrefs
         {
             return array(
                 'code' => -1,
-                'message' => 'A quick reauthentication is needed to begin setting up your ads.txt file. First, log out of this Ads Settings page with the "Logout" button right above and then log back in with your vi login and password. Then come back to this tab for next steps. Your ads.txt verification file will enable you to make money through vi. <a href="https://www.vi.ai/publisherfaq/?aid=WP_embedplus&utm_source=Wordpress&utm_medium=WP_embedplus" target="_blank">FAQ &raquo;</a>'
+                'message' => 'For your security, a quick reauthentication is needed to begin setting up your ads.txt file. First, log out of this Ads Settings page with the "Logout" button right above and then log back in with your vi login and password. Then come back to this tab for next steps. Your ads.txt verification file will enable you to make money through vi. <a href="https://www.vi.ai/publisherfaq/?aid=WP_embedplus&utm_source=Wordpress&utm_medium=WP_embedplus" target="_blank">FAQ &raquo;</a>'
             );
         }
         else
@@ -5745,8 +5871,9 @@ class YouTubePrefs
                 {
                     return array(
                         'code' => 0,
-                        'message' => '<h3>Almost There!</h3> Looks like video intelligence has just updated its ad delivery partners. To get the most revenue out of your ads, open up your '
+                        'message' => 'Looks like video intelligence has just updated its ad delivery partners. To get the most revenue out of your ads, open up your '
                         . ' <a href="' . self::base_url() . '/ads.txt" target="_blank">ads.txt</a> file and replace the vi lines (ending in # 41b5eef6) with the new lines you see below. Then, refresh this page. '
+                        . ' Please do not reorder or double space the below lines. '
                         . ' <strong>If we helped you with your ads.txt in the past, feel free to contact us to help out again with this update.</strong> '
                         . '<code># video intelligence (vi.ai) ads.txt lines begin here:' . PHP_EOL . $user_adstxt . PHP_EOL . '# video intelligence (vi.ai) ads.txt lines end</code>'
                     );
@@ -5755,8 +5882,8 @@ class YouTubePrefs
                 {
                     return array(
                         'code' => 0,
-                        'message' => '<h3>Almost There!</h3>'
-                        . 'In your current <a href="' . self::base_url() . '/ads.txt" target="_blank">ads.txt</a> file, just add in the additional lines you see below. Then, refresh this page.'
+                        'message' => 'In your current <a href="' . self::base_url() . '/ads.txt" target="_blank">ads.txt</a> file, just add in the additional lines you see below. Then, refresh this page.'
+                        . ' Please do not reorder or double space the below lines. '
                         . '<code># video intelligence (vi.ai) ads.txt lines begin here:' . PHP_EOL . $user_adstxt . PHP_EOL . '# video intelligence (vi.ai) ads.txt lines end</code>'
                     );
                 }
@@ -5774,8 +5901,8 @@ class YouTubePrefs
             // create manually
             return array(
                 'code' => 0,
-                'message' => '<h3>Almost There!</h3>'
-                . 'You can <a class="button button-small" href="' . admin_url('admin.php') . '?ytvi_adstxt_download=1&key=' . urlencode(self::$alloptions[self::$opt_vi_token]) . '">download this ads.txt</a> file and upload it to your site root (or copy the same text below). Then, refresh this page to verify.'
+                'message' => 'You can <a class="button button-small" href="' . admin_url('admin.php') . '?ytvi_adstxt_download=1&key=' . urlencode(self::$alloptions[self::$opt_vi_token]) . '">download this ads.txt</a> file and upload it to your site root (or copy the same text below). Then, refresh this page to verify.'
+                . ' Please do not reorder or double space the below lines. '
                 . '<code># video intelligence (vi.ai) ads.txt lines begin here:' . PHP_EOL . $user_adstxt . PHP_EOL . '# video intelligence (vi.ai) ads.txt lines end</code>'
             );
         }
@@ -5844,7 +5971,7 @@ class YouTubePrefs
             $new_adstxt = $former_adstxt . (strlen($former_adstxt) > 0 ? PHP_EOL : '') . ($user_adstxt === false ? '' : $user_adstxt);
 
             $new_adstxt = '# video intelligence (vi.ai) ads.txt lines begin here:' . PHP_EOL . $new_adstxt . PHP_EOL . '# video intelligence (vi.ai) ads.txt lines end';
-            
+
             header("Expires: 0");
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header('Cache-Control: pre-check=0, post-check=0, max-age=0', false);
@@ -5922,6 +6049,18 @@ class YouTubePrefs
         $options = $readonly + $options;
 
         $jsTagAPI = self::$alloptions[self::$opt_vi_endpoints]->jsTagAPI;
+
+        $iabCategoryList = explode(',', $options['iabCategory']);
+
+        $matches = array();
+        if (isset(self::$alloptions[self::$opt_vi_js_script]) && preg_match('/IAB_Category[ ]*:([^,]+),/i', self::$alloptions[self::$opt_vi_js_script], $matches))
+        {
+            $currCategory = array(trim($matches[1]));
+            $iabCategoryList = array_diff($iabCategoryList, $currCategory);
+        }
+
+        $options['iabCategory'] = $iabCategoryList[array_rand($iabCategoryList)];
+
         $apiResult = self::vi_remote_post($jsTagAPI, array(
                     'body' => json_encode($options)
         ));
@@ -5932,7 +6071,8 @@ class YouTubePrefs
             $mod_data = $apiResult->data;
 
             $new_options = array(
-                self::$opt_vi_js_script => $mod_data
+                self::$opt_vi_js_script => $mod_data,
+                self::$opt_vi_last_category_update => date('Y-m-d H:i:s')
             );
 
             self::update_option_set($new_options);
@@ -5979,7 +6119,7 @@ class YouTubePrefs
         $item[self::$opt_vi_js_settings]['iabCategory'] = sanitize_text_field($item[self::$opt_vi_js_settings]['iabCategory']);
         if (empty($item[self::$opt_vi_js_settings]['iabCategory']))
         {
-            $messages[] = 'Please choose a valid IAB category under Video Categories.';
+            $messages[] = 'Please choose at least one IAB category under Video Categories.';
         }
         $item[self::$opt_vi_js_settings]['language'] = sanitize_text_field($item[self::$opt_vi_js_settings]['language']);
         if (empty($item[self::$opt_vi_js_settings]['language']))
@@ -6019,7 +6159,7 @@ class YouTubePrefs
             }
             else
             {
-                $messages[] = 'A quick re-authentication is required to save your most recent customizations. Simply log out of this Ads Settings page with the "Logout" button right above and then log back in with your vi login and password. ';
+                $messages[] = 'For your security, a quick re-authentication is required to save your most recent customizations. Simply log out of this Ads Settings page with the "Logout" button right above and then log back in with your vi login and password. ';
                 $messages = array_merge($messages, $js);
             }
         }
@@ -6117,6 +6257,17 @@ class YouTubePrefs
                 <?php self::vi_print_toggle_button(); ?>
             </h1>
             <br>
+            <div class="updated ytvi-msg-congrats">
+                <p>
+                    Congrats! Ads are now on. Here are some tips to maximize your fill rate and therefore revenue:   
+                </p>
+                <ul class="list-ul">
+                    <li>Visibility - The higher the player is placed, the greater the demand and fill rate. Inserting it near the top or middle of your pages are best.</li>
+                    <li>Ad Unit Size - The recommended minimum width for the player is 336px </li>
+                    <li>Give vi.ai about 2-3 weeks to optimize their inventory for your site</li>
+                    <li>Contact us for help if you have any questions: ext@embedplus.com</li>
+                </ul>
+            </div>
             <?php
             if (!empty($notice))
             {
@@ -6133,7 +6284,6 @@ class YouTubePrefs
 
             self::vi_settings_nav();
 
-            //xxx
 //            echo '<pre>';
 //            print_r(_get_cron_array());
 //            echo '</pre>';
@@ -6143,6 +6293,8 @@ class YouTubePrefs
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__)) ?>"/>
                 <section class="pattern" id="jumphowitworks">
                     <h2>How It Works</h2>
+                    <p>Before you begin, please turn off any ad blocker extensions you may have, so that you will see how your ads look. Then follow the steps below:</p>
+                    <br>
                     <div class="vi-how-works" data-jump="#jumpdescription">
                         <div class="vi-num">1</div>
                         <img src="<?php echo plugins_url(self::$folder_name . '/images/icon-hw-description.png') ?>"/>
@@ -6206,20 +6358,25 @@ class YouTubePrefs
                         <img src="<?php echo plugins_url(self::$folder_name . '/images/adstxt-help.png') . '?ver=' . self::$version; ?>"/>
                         Trouble getting content that fits your site, even with the proper settings above/below? Contact support at <strong><a href="mailto:ext@embedplus.com">ext@embedplus.com</a></strong>
                     </div>
-                    <h2><span class="vi-num">1</span> Video Categories</h2>
+                    <h2><span class="vi-num">1</span> Video Categories (Multiple Allowed) <sup class="orange">new</sup></h2>
                     <p>
-                        Your video ad will be optimized to relate to your site's content. Note that the quality of the matches improves over time.
+                        Your video ad will be optimized to relate to your site's content and the one or more categories you select below. Note that the quality of the matches improves over time. 
+                    </p>
+                    <p>
+                        <strong>Tip:</strong> select more than one category to add variety to your video ads.
+                        If you select more than one, you must stay logged in to this settings page for your categories to automatically add variety to your ads.
                     </p>
                     <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
                         <tbody>
                             <tr class="form-field">
                                 <th valign="top" scope="row">
-                                    <label for="<?php echo self::$opt_vi_js_settings ?>[iabCategory]">IAB Category</label>
-                                    <small>Select the category and subcategory that most fit your website.</small>
+                                    <label for="<?php echo self::$opt_vi_js_settings ?>[iabCategory]">IAB Categories</label>
+                                    <small>Select the categories that most fit your website. You can select up to 4. </small>
                                 </th>
                                 <td>
+                                    <strong>Filter by:</strong>
                                     <select class="iab-cat-parent">
-                                        <option value="">None Selected</option>
+                                        <option value="">Choose Filter</option>
                                         <option value="IAB1">Arts & Entertainment</option>
                                         <option value="IAB2">Automotive</option>
                                         <option value="IAB3">Business</option>
@@ -6247,398 +6404,403 @@ class YouTubePrefs
                                         <option value="IAB25">Non-Standard Content</option>
                                     </select>
                                     <div class="iab-cat-child-box hidden">
-                                        Subcategory:
-                                        <select class="iab-cat-child" name="<?php echo self::$opt_vi_js_settings ?>[iabCategory]" id="<?php echo self::$opt_vi_js_settings ?>[iabCategory]" required disabled>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "") ?> value="">None Selected</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1") ?> value="IAB1">Arts & Entertainment (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-1") ?> value="IAB1-1">Books & Literature</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-2") ?> value="IAB1-2">Celebrity Fan/Gossip</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-3") ?> value="IAB1-3">Fine Art</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-4") ?> value="IAB1-4">Humor</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-5") ?> value="IAB1-5">Movies</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-6") ?> value="IAB1-6">Music</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB1-7") ?> value="IAB1-7">Television</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2") ?> value="IAB2">Automotive (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-1") ?> value="IAB2-1">Auto Parts</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-2") ?> value="IAB2-2">Auto Repair</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-3") ?> value="IAB2-3">Buying/Selling Cars</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-4") ?> value="IAB2-4">Car Culture</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-5") ?> value="IAB2-5">Certified Pre-Owned</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-6") ?> value="IAB2-6">Convertible</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-7") ?> value="IAB2-7">Coupe</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-8") ?> value="IAB2-8">Crossover</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-9") ?> value="IAB2-9">Diesel</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-10") ?> value="IAB2-10">Electric Vehicle</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-11") ?> value="IAB2-11">Hatchback</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-12") ?> value="IAB2-12">Hybrid</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-13") ?> value="IAB2-13">Luxury</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-14") ?> value="IAB2-14">MiniVan</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-15") ?> value="IAB2-15">Mororcycles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-16") ?> value="IAB2-16">Off-Road Vehicles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-17") ?> value="IAB2-17">Performance Vehicles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-18") ?> value="IAB2-18">Pickup</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-19") ?> value="IAB2-19">Road-Side Assistance</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-20") ?> value="IAB2-20">Sedan</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-21") ?> value="IAB2-21">Trucks & Accessories</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-22") ?> value="IAB2-22">Vintage Cars</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB2-23") ?> value="IAB2-23">Wagon</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3") ?> value="IAB3">Business (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-1") ?> value="IAB3-1">Advertising</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-2") ?> value="IAB3-2">Agriculture</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-3") ?> value="IAB3-3">Biotech/Biomedical</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-4") ?> value="IAB3-4">Business Software</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-5") ?> value="IAB3-5">Construction</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-6") ?> value="IAB3-6">Forestry</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-7") ?> value="IAB3-7">Government</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-8") ?> value="IAB3-8">Green Solutions</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-9") ?> value="IAB3-9">Human Resources</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-10") ?> value="IAB3-10">Logistics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-11") ?> value="IAB3-11">Marketing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB3-12") ?> value="IAB3-12">Metals</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4") ?> value="IAB4">Careers (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-1") ?> value="IAB4-1">Career Planning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-2") ?> value="IAB4-2">College</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-3") ?> value="IAB4-3">Financial Aid</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-4") ?> value="IAB4-4">Job Fairs</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-5") ?> value="IAB4-5">Job Search</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-6") ?> value="IAB4-6">Resume Writing/Advice</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-7") ?> value="IAB4-7">Nursing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-8") ?> value="IAB4-8">Scholarships</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-9") ?> value="IAB4-9">Telecommuting</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-10") ?> value="IAB4-10">U.S. Military</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB4-11") ?> value="IAB4-11">Career Advice</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5") ?> value="IAB5">Education (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-1") ?> value="IAB5-1">7-12 Education</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-2") ?> value="IAB5-2">Adult Education</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-3") ?> value="IAB5-3">Art History</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-4") ?> value="IAB5-4">Colledge Administration</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-5") ?> value="IAB5-5">College Life</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-6") ?> value="IAB5-6">Distance Learning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-7") ?> value="IAB5-7">English as a 2nd Language</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-8") ?> value="IAB5-8">Language Learning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-9") ?> value="IAB5-9">Graduate School</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-10") ?> value="IAB5-10">Homeschooling</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-11") ?> value="IAB5-11">Homework/Study Tips</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-12") ?> value="IAB5-12">K-6 Educators</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-13") ?> value="IAB5-13">Private School</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-14") ?> value="IAB5-14">Special Education</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB5-15") ?> value="IAB5-15">Studying Business</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6") ?> value="IAB6">Family & Parenting (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-1") ?> value="IAB6-1">Adoption</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-2") ?> value="IAB6-2">Babies & Toddlers</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-3") ?> value="IAB6-3">Daycare/Pre School</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-4") ?> value="IAB6-4">Family Internet</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-5") ?> value="IAB6-5">Parenting - K-6 Kids</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-6") ?> value="IAB6-6">Parenting teens</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-7") ?> value="IAB6-7">Pregnancy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-8") ?> value="IAB6-8">Special Needs Kids</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB6-9") ?> value="IAB6-9">Eldercare</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7") ?> value="IAB7">Health & Fitness (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-1") ?> value="IAB7-1">Exercise</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-2") ?> value="IAB7-2">A.D.D.</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-3") ?> value="IAB7-3">AIDS/HIV</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-4") ?> value="IAB7-4">Allergies</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-5") ?> value="IAB7-5">Alternative Medicine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-6") ?> value="IAB7-6">Arthritis</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-7") ?> value="IAB7-7">Asthma</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-8") ?> value="IAB7-8">Autism/PDD</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-9") ?> value="IAB7-9">Bipolar Disorder</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-10") ?> value="IAB7-10">Brain Tumor</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-11") ?> value="IAB7-11">Cancer</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-12") ?> value="IAB7-12">Cholesterol</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-13") ?> value="IAB7-13">Chronic Fatigue Syndrome</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-14") ?> value="IAB7-14">Chronic Pain</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-15") ?> value="IAB7-15">Cold & Flu</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-16") ?> value="IAB7-16">Deafness</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-17") ?> value="IAB7-17">Dental Care</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-18") ?> value="IAB7-18">Depression</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-19") ?> value="IAB7-19">Dermatology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-20") ?> value="IAB7-20">Diabetes</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-21") ?> value="IAB7-21">Epilepsy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-22") ?> value="IAB7-22">GERD/Acid Reflux</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-23") ?> value="IAB7-23">Headaches/Migraines</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-24") ?> value="IAB7-24">Heart Disease</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-25") ?> value="IAB7-25">Herbs for Health</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-26") ?> value="IAB7-26">Holistic Healing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-27") ?> value="IAB7-27">IBS/Crohn's Disease</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-28") ?> value="IAB7-28">Incest/Abuse Support</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-29") ?> value="IAB7-29">Incontinence</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-30") ?> value="IAB7-30">Infertility</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-31") ?> value="IAB7-31">Men's Health</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-32") ?> value="IAB7-32">Nutrition</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-33") ?> value="IAB7-33">Orthopedics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-34") ?> value="IAB7-34">Panic/Anxiety Disorders</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-35") ?> value="IAB7-35">Pediatrics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-36") ?> value="IAB7-36">Physical Therapy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-37") ?> value="IAB7-37">Psychology/Psychiatry</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-38") ?> value="IAB7-38">Senor Health</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-39") ?> value="IAB7-39">Sexuality</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-40") ?> value="IAB7-40">Sleep Disorders</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-41") ?> value="IAB7-41">Smoking Cessation</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-42") ?> value="IAB7-42">Substance Abuse</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-43") ?> value="IAB7-43">Thyroid Disease</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-44") ?> value="IAB7-44">Weight Loss</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB7-45") ?> value="IAB7-45">Women's Health</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8") ?> value="IAB8">Food & Drink (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-1") ?> value="IAB8-1">American Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-2") ?> value="IAB8-2">Barbecues & Grilling</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-3") ?> value="IAB8-3">Cajun/Creole</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-4") ?> value="IAB8-4">Chinese Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-5") ?> value="IAB8-5">Cocktails/Beer</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-6") ?> value="IAB8-6">Coffee/Tea</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-7") ?> value="IAB8-7">Cuisine-Specific</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-8") ?> value="IAB8-8">Desserts & Baking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-9") ?> value="IAB8-9">Dining Out</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-10") ?> value="IAB8-10">Food Allergies</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-11") ?> value="IAB8-11">French Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-12") ?> value="IAB8-12">Health/Lowfat Cooking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-13") ?> value="IAB8-13">Italian Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-14") ?> value="IAB8-14">Japanese Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-15") ?> value="IAB8-15">Mexican Cuisine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-16") ?> value="IAB8-16">Vegan</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-17") ?> value="IAB8-17">Vegetarian</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB8-18") ?> value="IAB8-18">Wine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9") ?> value="IAB9">Hobbies & Interests (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-1") ?> value="IAB9-1">Art/Technology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-2") ?> value="IAB9-2">Arts & Crafts</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-3") ?> value="IAB9-3">Beadwork</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-4") ?> value="IAB9-4">Birdwatching</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-5") ?> value="IAB9-5">Board Games/Puzzles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-6") ?> value="IAB9-6">Candle & Soap Making</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-7") ?> value="IAB9-7">Card Games</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-8") ?> value="IAB9-8">Chess</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-9") ?> value="IAB9-9">Cigars</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-10") ?> value="IAB9-10">Collecting</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-11") ?> value="IAB9-11">Comic Books</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-12") ?> value="IAB9-12">Drawing/Sketching</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-13") ?> value="IAB9-13">Freelance Writing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-14") ?> value="IAB9-14">Genealogy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-15") ?> value="IAB9-15">Getting Published</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-16") ?> value="IAB9-16">Guitar</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-17") ?> value="IAB9-17">Home Recording</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-18") ?> value="IAB9-18">Investors & Patents</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-19") ?> value="IAB9-19">Jewelry Making</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-20") ?> value="IAB9-20">Magic & Illusion</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-21") ?> value="IAB9-21">Needlework</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-22") ?> value="IAB9-22">Painting</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-23") ?> value="IAB9-23">Photography</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-24") ?> value="IAB9-24">Radio</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-25") ?> value="IAB9-25">Roleplaying Games</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-26") ?> value="IAB9-26">Sci-Fi & Fantasy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-27") ?> value="IAB9-27">Scrapbooking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-28") ?> value="IAB9-28">Screenwriting</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-29") ?> value="IAB9-29">Stamps & Coins</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-30") ?> value="IAB9-30">Video & Computer Games</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB9-31") ?> value="IAB9-31">Woodworking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10") ?> value="IAB10">Home & Garden (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-1") ?> value="IAB10-1">Appliances</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-2") ?> value="IAB10-2">Entertaining</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-3") ?> value="IAB10-3">Environmental Safety</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-4") ?> value="IAB10-4">Gardening</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-5") ?> value="IAB10-5">Home Repair</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-6") ?> value="IAB10-6">Home Theater</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-7") ?> value="IAB10-7">Interior Decorating</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-8") ?> value="IAB10-8">Landscaping</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB10-9") ?> value="IAB10-9">Remodeling & Construction</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11") ?> value="IAB11">Law, Gov't & Politics (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11-1") ?> value="IAB11-1">Immigration</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11-2") ?> value="IAB11-2">Legal Issues</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11-3") ?> value="IAB11-3">U.S. Government Resources</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11-4") ?> value="IAB11-4">Politics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB11-5") ?> value="IAB11-5">Commentary</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB12") ?> value="IAB12">News (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB12-1") ?> value="IAB12-1">International News</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB12-2") ?> value="IAB12-2">National News</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB12-3") ?> value="IAB12-3">Local News</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13") ?> value="IAB13">Personal Finance (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-1") ?> value="IAB13-1">Beginning Investing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-2") ?> value="IAB13-2">Credit/Debt & Loans</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-3") ?> value="IAB13-3">Financial News</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-4") ?> value="IAB13-4">Financial Planning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-5") ?> value="IAB13-5">Hedge Fund</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-6") ?> value="IAB13-6">Insurance</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-7") ?> value="IAB13-7">Investing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-8") ?> value="IAB13-8">Mutual Funds</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-9") ?> value="IAB13-9">Options</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-10") ?> value="IAB13-10">Retirement Planning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-11") ?> value="IAB13-11">Stocks</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB13-12") ?> value="IAB13-12">Tax Planning</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14") ?> value="IAB14">Society (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-1") ?> value="IAB14-1">Dating</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-2") ?> value="IAB14-2">Divorce Support</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-3") ?> value="IAB14-3">Gay Life</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-4") ?> value="IAB14-4">Marriage</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-5") ?> value="IAB14-5">Senior Living</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-6") ?> value="IAB14-6">Teens</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-7") ?> value="IAB14-7">Weddings</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB14-8") ?> value="IAB14-8">Ethnic Specific</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15") ?> value="IAB15">Science (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-1") ?> value="IAB15-1">Astrology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-2") ?> value="IAB15-2">Biology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-3") ?> value="IAB15-3">Chemistry</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-4") ?> value="IAB15-4">Geology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-5") ?> value="IAB15-5">Paranormal Phenomena</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-6") ?> value="IAB15-6">Physics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-7") ?> value="IAB15-7">Space/Astronomy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-8") ?> value="IAB15-8">Geography</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-9") ?> value="IAB15-9">Botany</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB15-10") ?> value="IAB15-10">Weather</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16") ?> value="IAB16">Pets (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-1") ?> value="IAB16-1">Aquariums</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-2") ?> value="IAB16-2">Birds</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-3") ?> value="IAB16-3">Cats</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-4") ?> value="IAB16-4">Dogs</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-5") ?> value="IAB16-5">Large Animals</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-6") ?> value="IAB16-6">Reptiles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB16-7") ?> value="IAB16-7">Veterinary Medicine</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17") ?> value="IAB17">Sports (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-1") ?> value="IAB17-1">Auto Racing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-2") ?> value="IAB17-2">Baseball</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-3") ?> value="IAB17-3">Bicycling</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-4") ?> value="IAB17-4">Bodybuilding</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-5") ?> value="IAB17-5">Boxing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-6") ?> value="IAB17-6">Canoeing/Kayaking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-7") ?> value="IAB17-7">Cheerleading</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-8") ?> value="IAB17-8">Climbing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-9") ?> value="IAB17-9">Cricket</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-10") ?> value="IAB17-10">Figure Skating</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-11") ?> value="IAB17-11">Fly Fishing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-12") ?> value="IAB17-12">Football</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-13") ?> value="IAB17-13">Freshwater Fishing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-14") ?> value="IAB17-14">Game & Fish</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-15") ?> value="IAB17-15">Golf</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-16") ?> value="IAB17-16">Horse Racing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-17") ?> value="IAB17-17">Horses</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-18") ?> value="IAB17-18">Hunting/Shooting</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-19") ?> value="IAB17-19">Inline Skating</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-20") ?> value="IAB17-20">Martial Arts</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-21") ?> value="IAB17-21">Mountain Biking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-22") ?> value="IAB17-22">NASCAR Racing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-23") ?> value="IAB17-23">Olympics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-24") ?> value="IAB17-24">Paintball</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-25") ?> value="IAB17-25">Power & Motorcycles</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-26") ?> value="IAB17-26">Pro Basketball</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-27") ?> value="IAB17-27">Pro Ice Hockey</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-28") ?> value="IAB17-28">Rodeo</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-29") ?> value="IAB17-29">Rugby</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-30") ?> value="IAB17-30">Running/Jogging</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-31") ?> value="IAB17-31">Sailing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-32") ?> value="IAB17-32">Saltwater Fishing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-33") ?> value="IAB17-33">Scuba Diving</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-34") ?> value="IAB17-34">Skateboarding</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-35") ?> value="IAB17-35">Skiing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-36") ?> value="IAB17-36">Snowboarding</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-37") ?> value="IAB17-37">Surfing/Bodyboarding</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-38") ?> value="IAB17-38">Swimming</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-39") ?> value="IAB17-39">Table Tennis/Ping-Pong</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-40") ?> value="IAB17-40">Tennis</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-41") ?> value="IAB17-41">Volleyball</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-42") ?> value="IAB17-42">Walking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-43") ?> value="IAB17-43">Waterski/Wakeboard</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB17-44") ?> value="IAB17-44">World Soccer</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18") ?> value="IAB18">Style & Fashion (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-1") ?> value="IAB18-1">Beauty</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-2") ?> value="IAB18-2">Body Art</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-3") ?> value="IAB18-3">Fashion</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-4") ?> value="IAB18-4">Jewelry</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-5") ?> value="IAB18-5">Clothing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB18-6") ?> value="IAB18-6">Accessories</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19") ?> value="IAB19">Technology & Computing (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-1") ?> value="IAB19-1">3-D Graphics</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-2") ?> value="IAB19-2">Animation</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-3") ?> value="IAB19-3">Antivirus Software</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-4") ?> value="IAB19-4">C/C++</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-5") ?> value="IAB19-5">Cameras & Camcorders</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-6") ?> value="IAB19-6">Cell Phones</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-7") ?> value="IAB19-7">Computer Certification</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-8") ?> value="IAB19-8">Computer Networking</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-9") ?> value="IAB19-9">Computer Peripherals</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-10") ?> value="IAB19-10">Computer Reviews</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-11") ?> value="IAB19-11">Data Centers</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-12") ?> value="IAB19-12">Databases</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-13") ?> value="IAB19-13">Desktop Publishing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-14") ?> value="IAB19-14">Desktop Video</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-15") ?> value="IAB19-15">Email</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-16") ?> value="IAB19-16">Graphics Software</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-17") ?> value="IAB19-17">Home Video/DVD</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-18") ?> value="IAB19-18">Internet Technology</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-19") ?> value="IAB19-19">Java</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-20") ?> value="IAB19-20">JavaScript</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-21") ?> value="IAB19-21">Mac Support</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-22") ?> value="IAB19-22">MP3/MIDI</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-23") ?> value="IAB19-23">Net Conferencing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-24") ?> value="IAB19-24">Net for Beginners</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-25") ?> value="IAB19-25">Network Security</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-26") ?> value="IAB19-26">Palmtops/PDAs</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-27") ?> value="IAB19-27">PC Support</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-28") ?> value="IAB19-28">Portable</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-29") ?> value="IAB19-29">Entertainment</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-30") ?> value="IAB19-30">Shareware/Freeware</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-31") ?> value="IAB19-31">Unix</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-32") ?> value="IAB19-32">Visual Basic</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-33") ?> value="IAB19-33">Web Clip Art</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-34") ?> value="IAB19-34">Web Design/HTML</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-35") ?> value="IAB19-35">Web Search</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB19-36") ?> value="IAB19-36">Windows</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20") ?> value="IAB20">Travel (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-1") ?> value="IAB20-1">Adventure Travel</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-2") ?> value="IAB20-2">Africa</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-3") ?> value="IAB20-3">Air Travel</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-4") ?> value="IAB20-4">Australia & New Zealand</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-5") ?> value="IAB20-5">Bed & Breakfasts</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-6") ?> value="IAB20-6">Budget Travel</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-7") ?> value="IAB20-7">Business Travel</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-8") ?> value="IAB20-8">By US Locale</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-9") ?> value="IAB20-9">Camping</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-10") ?> value="IAB20-10">Canada</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-11") ?> value="IAB20-11">Caribbean</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-12") ?> value="IAB20-12">Cruises</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-13") ?> value="IAB20-13">Eastern Europe</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-14") ?> value="IAB20-14">Europe</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-15") ?> value="IAB20-15">France</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-16") ?> value="IAB20-16">Greece</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-17") ?> value="IAB20-17">Honeymoons/Getaways</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-18") ?> value="IAB20-18">Hotels</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-19") ?> value="IAB20-19">Italy</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-20") ?> value="IAB20-20">Japan</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-21") ?> value="IAB20-21">Mexico & Central America</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-22") ?> value="IAB20-22">National Parks</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-23") ?> value="IAB20-23">South America</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-24") ?> value="IAB20-24">Spas</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-25") ?> value="IAB20-25">Theme Parks</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-26") ?> value="IAB20-26">Traveling with Kids</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB20-27") ?> value="IAB20-27">United Kingdom</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB21") ?> value="IAB21">Real Estate (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB21-1") ?> value="IAB21-1">Apartments</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB21-2") ?> value="IAB21-2">Architects</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB21-3") ?> value="IAB21-3">Buying/Selling Homes</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB22") ?> value="IAB22">Shopping (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB22-1") ?> value="IAB22-1">Contests & Freebies</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB22-2") ?> value="IAB22-2">Couponing</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB22-3") ?> value="IAB22-3">Comparison</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB22-4") ?> value="IAB22-4">Engines</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23") ?> value="IAB23">Religion & Spirituality (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-1") ?> value="IAB23-1">Alternative Religions</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-2") ?> value="IAB23-2">Atheism/Agnosticism</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-3") ?> value="IAB23-3">Buddhism</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-4") ?> value="IAB23-4">Catholicism</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-5") ?> value="IAB23-5">Christianity</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-6") ?> value="IAB23-6">Hinduism</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-7") ?> value="IAB23-7">Islam</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-8") ?> value="IAB23-8">Judaism</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-9") ?> value="IAB23-9">Latter-Day Saints</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB23-10") ?> value="IAB23-10">Pagan/Wiccan</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB24") ?> value="IAB24">Uncategorized (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25") ?> value="IAB25">Non-Standard Content (All)</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-1") ?> value="IAB25-1">Unmoderated UGC</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-2") ?> value="IAB25-2">Extreme Graphic/Explicit Violence</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-3") ?> value="IAB25-3">Pornography</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-4") ?> value="IAB25-4">Profane Content</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-5") ?> value="IAB25-5">Hate Content</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-6") ?> value="IAB25-6">Under Construction</option>
-                                            <option <?php selected($item[self::$opt_vi_js_settings]['iabCategory'], "IAB25-7") ?> value="IAB25-7">Incentivized</option>
-                                        </select>              
+                                        <strong>Then choose category:</strong>
+                                        <select class="iab-cat-child" disabled>
+                                            <option value="">Select Category:</option>
+                                            <option value="IAB1">Arts & Entertainment (All)</option>
+                                            <option value="IAB1-1">Books & Literature</option>
+                                            <option value="IAB1-2">Celebrity Fan/Gossip</option>
+                                            <option value="IAB1-3">Fine Art</option>
+                                            <option value="IAB1-4">Humor</option>
+                                            <option value="IAB1-5">Movies</option>
+                                            <option value="IAB1-6">Music</option>
+                                            <option value="IAB1-7">Television</option>
+                                            <option value="IAB2">Automotive (All)</option>
+                                            <option value="IAB2-1">Auto Parts</option>
+                                            <option value="IAB2-2">Auto Repair</option>
+                                            <option value="IAB2-3">Buying/Selling Cars</option>
+                                            <option value="IAB2-4">Car Culture</option>
+                                            <option value="IAB2-5">Certified Pre-Owned</option>
+                                            <option value="IAB2-6">Convertible</option>
+                                            <option value="IAB2-7">Coupe</option>
+                                            <option value="IAB2-8">Crossover</option>
+                                            <option value="IAB2-9">Diesel</option>
+                                            <option value="IAB2-10">Electric Vehicle</option>
+                                            <option value="IAB2-11">Hatchback</option>
+                                            <option value="IAB2-12">Hybrid</option>
+                                            <option value="IAB2-13">Luxury</option>
+                                            <option value="IAB2-14">MiniVan</option>
+                                            <option value="IAB2-15">Mororcycles</option>
+                                            <option value="IAB2-16">Off-Road Vehicles</option>
+                                            <option value="IAB2-17">Performance Vehicles</option>
+                                            <option value="IAB2-18">Pickup</option>
+                                            <option value="IAB2-19">Road-Side Assistance</option>
+                                            <option value="IAB2-20">Sedan</option>
+                                            <option value="IAB2-21">Trucks & Accessories</option>
+                                            <option value="IAB2-22">Vintage Cars</option>
+                                            <option value="IAB2-23">Wagon</option>
+                                            <option value="IAB3">Business (All)</option>
+                                            <option value="IAB3-1">Advertising</option>
+                                            <option value="IAB3-2">Agriculture</option>
+                                            <option value="IAB3-3">Biotech/Biomedical</option>
+                                            <option value="IAB3-4">Business Software</option>
+                                            <option value="IAB3-5">Construction</option>
+                                            <option value="IAB3-6">Forestry</option>
+                                            <option value="IAB3-7">Government</option>
+                                            <option value="IAB3-8">Green Solutions</option>
+                                            <option value="IAB3-9">Human Resources</option>
+                                            <option value="IAB3-10">Logistics</option>
+                                            <option value="IAB3-11">Marketing</option>
+                                            <option value="IAB3-12">Metals</option>
+                                            <option value="IAB4">Careers (All)</option>
+                                            <option value="IAB4-1">Career Planning</option>
+                                            <option value="IAB4-2">College</option>
+                                            <option value="IAB4-3">Financial Aid</option>
+                                            <option value="IAB4-4">Job Fairs</option>
+                                            <option value="IAB4-5">Job Search</option>
+                                            <option value="IAB4-6">Resume Writing/Advice</option>
+                                            <option value="IAB4-7">Nursing</option>
+                                            <option value="IAB4-8">Scholarships</option>
+                                            <option value="IAB4-9">Telecommuting</option>
+                                            <option value="IAB4-10">U.S. Military</option>
+                                            <option value="IAB4-11">Career Advice</option>
+                                            <option value="IAB5">Education (All)</option>
+                                            <option value="IAB5-1">7-12 Education</option>
+                                            <option value="IAB5-2">Adult Education</option>
+                                            <option value="IAB5-3">Art History</option>
+                                            <option value="IAB5-4">Colledge Administration</option>
+                                            <option value="IAB5-5">College Life</option>
+                                            <option value="IAB5-6">Distance Learning</option>
+                                            <option value="IAB5-7">English as a 2nd Language</option>
+                                            <option value="IAB5-8">Language Learning</option>
+                                            <option value="IAB5-9">Graduate School</option>
+                                            <option value="IAB5-10">Homeschooling</option>
+                                            <option value="IAB5-11">Homework/Study Tips</option>
+                                            <option value="IAB5-12">K-6 Educators</option>
+                                            <option value="IAB5-13">Private School</option>
+                                            <option value="IAB5-14">Special Education</option>
+                                            <option value="IAB5-15">Studying Business</option>
+                                            <option value="IAB6">Family & Parenting (All)</option>
+                                            <option value="IAB6-1">Adoption</option>
+                                            <option value="IAB6-2">Babies & Toddlers</option>
+                                            <option value="IAB6-3">Daycare/Pre School</option>
+                                            <option value="IAB6-4">Family Internet</option>
+                                            <option value="IAB6-5">Parenting – K-6 Kids</option>
+                                            <option value="IAB6-6">Parenting teens</option>
+                                            <option value="IAB6-7">Pregnancy</option>
+                                            <option value="IAB6-8">Special Needs Kids</option>
+                                            <option value="IAB6-9">Eldercare</option>
+                                            <option value="IAB7">Health & Fitness (All)</option>
+                                            <option value="IAB7-1">Exercise</option>
+                                            <option value="IAB7-2">A.D.D.</option>
+                                            <option value="IAB7-3">AIDS/HIV</option>
+                                            <option value="IAB7-4">Allergies</option>
+                                            <option value="IAB7-5">Alternative Medicine</option>
+                                            <option value="IAB7-6">Arthritis</option>
+                                            <option value="IAB7-7">Asthma</option>
+                                            <option value="IAB7-8">Autism/PDD</option>
+                                            <option value="IAB7-9">Bipolar Disorder</option>
+                                            <option value="IAB7-10">Brain Tumor</option>
+                                            <option value="IAB7-11">Cancer</option>
+                                            <option value="IAB7-12">Cholesterol</option>
+                                            <option value="IAB7-13">Chronic Fatigue Syndrome</option>
+                                            <option value="IAB7-14">Chronic Pain</option>
+                                            <option value="IAB7-15">Cold & Flu</option>
+                                            <option value="IAB7-16">Deafness</option>
+                                            <option value="IAB7-17">Dental Care</option>
+                                            <option value="IAB7-18">Depression</option>
+                                            <option value="IAB7-19">Dermatology</option>
+                                            <option value="IAB7-20">Diabetes</option>
+                                            <option value="IAB7-21">Epilepsy</option>
+                                            <option value="IAB7-22">GERD/Acid Reflux</option>
+                                            <option value="IAB7-23">Headaches/Migraines</option>
+                                            <option value="IAB7-24">Heart Disease</option>
+                                            <option value="IAB7-25">Herbs for Health</option>
+                                            <option value="IAB7-26">Holistic Healing</option>
+                                            <option value="IAB7-27">IBS/Crohn's Disease</option>
+                                            <option value="IAB7-28">Incest/Abuse Support</option>
+                                            <option value="IAB7-29">Incontinence</option>
+                                            <option value="IAB7-30">Infertility</option>
+                                            <option value="IAB7-31">Men's Health</option>
+                                            <option value="IAB7-32">Nutrition</option>
+                                            <option value="IAB7-33">Orthopedics</option>
+                                            <option value="IAB7-34">Panic/Anxiety Disorders</option>
+                                            <option value="IAB7-35">Pediatrics</option>
+                                            <option value="IAB7-36">Physical Therapy</option>
+                                            <option value="IAB7-37">Psychology/Psychiatry</option>
+                                            <option value="IAB7-38">Senor Health</option>
+                                            <option value="IAB7-39">Sexuality</option>
+                                            <option value="IAB7-40">Sleep Disorders</option>
+                                            <option value="IAB7-41">Smoking Cessation</option>
+                                            <option value="IAB7-42">Substance Abuse</option>
+                                            <option value="IAB7-43">Thyroid Disease</option>
+                                            <option value="IAB7-44">Weight Loss</option>
+                                            <option value="IAB7-45">Women's Health</option>
+                                            <option value="IAB8">Food & Drink (All)</option>
+                                            <option value="IAB8-1">American Cuisine</option>
+                                            <option value="IAB8-2">Barbecues & Grilling</option>
+                                            <option value="IAB8-3">Cajun/Creole</option>
+                                            <option value="IAB8-4">Chinese Cuisine</option>
+                                            <option value="IAB8-5">Cocktails/Beer</option>
+                                            <option value="IAB8-6">Coffee/Tea</option>
+                                            <option value="IAB8-7">Cuisine-Specific</option>
+                                            <option value="IAB8-8">Desserts & Baking</option>
+                                            <option value="IAB8-9">Dining Out</option>
+                                            <option value="IAB8-10">Food Allergies</option>
+                                            <option value="IAB8-11">French Cuisine</option>
+                                            <option value="IAB8-12">Health/Lowfat Cooking</option>
+                                            <option value="IAB8-13">Italian Cuisine</option>
+                                            <option value="IAB8-14">Japanese Cuisine</option>
+                                            <option value="IAB8-15">Mexican Cuisine</option>
+                                            <option value="IAB8-16">Vegan</option>
+                                            <option value="IAB8-17">Vegetarian</option>
+                                            <option value="IAB8-18">Wine</option>
+                                            <option value="IAB9">Hobbies & Interests (All)</option>
+                                            <option value="IAB9-1">Art/Technology</option>
+                                            <option value="IAB9-2">Arts & Crafts</option>
+                                            <option value="IAB9-3">Beadwork</option>
+                                            <option value="IAB9-4">Birdwatching</option>
+                                            <option value="IAB9-5">Board Games/Puzzles</option>
+                                            <option value="IAB9-6">Candle & Soap Making</option>
+                                            <option value="IAB9-7">Card Games</option>
+                                            <option value="IAB9-8">Chess</option>
+                                            <option value="IAB9-9">Cigars</option>
+                                            <option value="IAB9-10">Collecting</option>
+                                            <option value="IAB9-11">Comic Books</option>
+                                            <option value="IAB9-12">Drawing/Sketching</option>
+                                            <option value="IAB9-13">Freelance Writing</option>
+                                            <option value="IAB9-14">Genealogy</option>
+                                            <option value="IAB9-15">Getting Published</option>
+                                            <option value="IAB9-16">Guitar</option>
+                                            <option value="IAB9-17">Home Recording</option>
+                                            <option value="IAB9-18">Investors & Patents</option>
+                                            <option value="IAB9-19">Jewelry Making</option>
+                                            <option value="IAB9-20">Magic & Illusion</option>
+                                            <option value="IAB9-21">Needlework</option>
+                                            <option value="IAB9-22">Painting</option>
+                                            <option value="IAB9-23">Photography</option>
+                                            <option value="IAB9-24">Radio</option>
+                                            <option value="IAB9-25">Roleplaying Games</option>
+                                            <option value="IAB9-26">Sci-Fi & Fantasy</option>
+                                            <option value="IAB9-27">Scrapbooking</option>
+                                            <option value="IAB9-28">Screenwriting</option>
+                                            <option value="IAB9-29">Stamps & Coins</option>
+                                            <option value="IAB9-30">Video & Computer Games</option>
+                                            <option value="IAB9-31">Woodworking</option>
+                                            <option value="IAB10">Home & Garden (All)</option>
+                                            <option value="IAB10-1">Appliances</option>
+                                            <option value="IAB10-2">Entertaining</option>
+                                            <option value="IAB10-3">Environmental Safety</option>
+                                            <option value="IAB10-4">Gardening</option>
+                                            <option value="IAB10-5">Home Repair</option>
+                                            <option value="IAB10-6">Home Theater</option>
+                                            <option value="IAB10-7">Interior Decorating</option>
+                                            <option value="IAB10-8">Landscaping</option>
+                                            <option value="IAB10-9">Remodeling & Construction</option>
+                                            <option value="IAB11">Law, Gov't & Politics (All)</option>
+                                            <option value="IAB11-1">Immigration</option>
+                                            <option value="IAB11-2">Legal Issues</option>
+                                            <option value="IAB11-3">U.S. Government Resources</option>
+                                            <option value="IAB11-4">Politics</option>
+                                            <option value="IAB11-5">Commentary</option>
+                                            <option value="IAB12">News (All)</option>
+                                            <option value="IAB12-1">International News</option>
+                                            <option value="IAB12-2">National News</option>
+                                            <option value="IAB12-3">Local News</option>
+                                            <option value="IAB13">Personal Finance (All)</option>
+                                            <option value="IAB13-1">Beginning Investing</option>
+                                            <option value="IAB13-2">Credit/Debt & Loans</option>
+                                            <option value="IAB13-3">Financial News</option>
+                                            <option value="IAB13-4">Financial Planning</option>
+                                            <option value="IAB13-5">Hedge Fund</option>
+                                            <option value="IAB13-6">Insurance</option>
+                                            <option value="IAB13-7">Investing</option>
+                                            <option value="IAB13-8">Mutual Funds</option>
+                                            <option value="IAB13-9">Options</option>
+                                            <option value="IAB13-10">Retirement Planning</option>
+                                            <option value="IAB13-11">Stocks</option>
+                                            <option value="IAB13-12">Tax Planning</option>
+                                            <option value="IAB14">Society (All)</option>
+                                            <option value="IAB14-1">Dating</option>
+                                            <option value="IAB14-2">Divorce Support</option>
+                                            <option value="IAB14-3">Gay Life</option>
+                                            <option value="IAB14-4">Marriage</option>
+                                            <option value="IAB14-5">Senior Living</option>
+                                            <option value="IAB14-6">Teens</option>
+                                            <option value="IAB14-7">Weddings</option>
+                                            <option value="IAB14-8">Ethnic Specific</option>
+                                            <option value="IAB15">Science (All)</option>
+                                            <option value="IAB15-1">Astrology</option>
+                                            <option value="IAB15-2">Biology</option>
+                                            <option value="IAB15-3">Chemistry</option>
+                                            <option value="IAB15-4">Geology</option>
+                                            <option value="IAB15-5">Paranormal Phenomena</option>
+                                            <option value="IAB15-6">Physics</option>
+                                            <option value="IAB15-7">Space/Astronomy</option>
+                                            <option value="IAB15-8">Geography</option>
+                                            <option value="IAB15-9">Botany</option>
+                                            <option value="IAB15-10">Weather</option>
+                                            <option value="IAB16">Pets (All)</option>
+                                            <option value="IAB16-1">Aquariums</option>
+                                            <option value="IAB16-2">Birds</option>
+                                            <option value="IAB16-3">Cats</option>
+                                            <option value="IAB16-4">Dogs</option>
+                                            <option value="IAB16-5">Large Animals</option>
+                                            <option value="IAB16-6">Reptiles</option>
+                                            <option value="IAB16-7">Veterinary Medicine</option>
+                                            <option value="IAB17">Sports (All)</option>
+                                            <option value="IAB17-1">Auto Racing</option>
+                                            <option value="IAB17-2">Baseball</option>
+                                            <option value="IAB17-3">Bicycling</option>
+                                            <option value="IAB17-4">Bodybuilding</option>
+                                            <option value="IAB17-5">Boxing</option>
+                                            <option value="IAB17-6">Canoeing/Kayaking</option>
+                                            <option value="IAB17-7">Cheerleading</option>
+                                            <option value="IAB17-8">Climbing</option>
+                                            <option value="IAB17-9">Cricket</option>
+                                            <option value="IAB17-10">Figure Skating</option>
+                                            <option value="IAB17-11">Fly Fishing</option>
+                                            <option value="IAB17-12">Football</option>
+                                            <option value="IAB17-13">Freshwater Fishing</option>
+                                            <option value="IAB17-14">Game & Fish</option>
+                                            <option value="IAB17-15">Golf</option>
+                                            <option value="IAB17-16">Horse Racing</option>
+                                            <option value="IAB17-17">Horses</option>
+                                            <option value="IAB17-18">Hunting/Shooting</option>
+                                            <option value="IAB17-19">Inline Skating</option>
+                                            <option value="IAB17-20">Martial Arts</option>
+                                            <option value="IAB17-21">Mountain Biking</option>
+                                            <option value="IAB17-22">NASCAR Racing</option>
+                                            <option value="IAB17-23">Olympics</option>
+                                            <option value="IAB17-24">Paintball</option>
+                                            <option value="IAB17-25">Power & Motorcycles</option>
+                                            <option value="IAB17-26">Pro Basketball</option>
+                                            <option value="IAB17-27">Pro Ice Hockey</option>
+                                            <option value="IAB17-28">Rodeo</option>
+                                            <option value="IAB17-29">Rugby</option>
+                                            <option value="IAB17-30">Running/Jogging</option>
+                                            <option value="IAB17-31">Sailing</option>
+                                            <option value="IAB17-32">Saltwater Fishing</option>
+                                            <option value="IAB17-33">Scuba Diving</option>
+                                            <option value="IAB17-34">Skateboarding</option>
+                                            <option value="IAB17-35">Skiing</option>
+                                            <option value="IAB17-36">Snowboarding</option>
+                                            <option value="IAB17-37">Surfing/Bodyboarding</option>
+                                            <option value="IAB17-38">Swimming</option>
+                                            <option value="IAB17-39">Table Tennis/Ping-Pong</option>
+                                            <option value="IAB17-40">Tennis</option>
+                                            <option value="IAB17-41">Volleyball</option>
+                                            <option value="IAB17-42">Walking</option>
+                                            <option value="IAB17-43">Waterski/Wakeboard</option>
+                                            <option value="IAB17-44">World Soccer</option>
+                                            <option value="IAB18">Style & Fashion (All)</option>
+                                            <option value="IAB18-1">Beauty</option>
+                                            <option value="IAB18-2">Body Art</option>
+                                            <option value="IAB18-3">Fashion</option>
+                                            <option value="IAB18-4">Jewelry</option>
+                                            <option value="IAB18-5">Clothing</option>
+                                            <option value="IAB18-6">Accessories</option>
+                                            <option value="IAB19">Technology & Computing (All)</option>
+                                            <option value="IAB19-1">3-D Graphics</option>
+                                            <option value="IAB19-2">Animation</option>
+                                            <option value="IAB19-3">Antivirus Software</option>
+                                            <option value="IAB19-4">C/C++</option>
+                                            <option value="IAB19-5">Cameras & Camcorders</option>
+                                            <option value="IAB19-6">Cell Phones</option>
+                                            <option value="IAB19-7">Computer Certification</option>
+                                            <option value="IAB19-8">Computer Networking</option>
+                                            <option value="IAB19-9">Computer Peripherals</option>
+                                            <option value="IAB19-10">Computer Reviews</option>
+                                            <option value="IAB19-11">Data Centers</option>
+                                            <option value="IAB19-12">Databases</option>
+                                            <option value="IAB19-13">Desktop Publishing</option>
+                                            <option value="IAB19-14">Desktop Video</option>
+                                            <option value="IAB19-15">Email</option>
+                                            <option value="IAB19-16">Graphics Software</option>
+                                            <option value="IAB19-17">Home Video/DVD</option>
+                                            <option value="IAB19-18">Internet Technology</option>
+                                            <option value="IAB19-19">Java</option>
+                                            <option value="IAB19-20">JavaScript</option>
+                                            <option value="IAB19-21">Mac Support</option>
+                                            <option value="IAB19-22">MP3/MIDI</option>
+                                            <option value="IAB19-23">Net Conferencing</option>
+                                            <option value="IAB19-24">Net for Beginners</option>
+                                            <option value="IAB19-25">Network Security</option>
+                                            <option value="IAB19-26">Palmtops/PDAs</option>
+                                            <option value="IAB19-27">PC Support</option>
+                                            <option value="IAB19-28">Portable</option>
+                                            <option value="IAB19-29">Entertainment</option>
+                                            <option value="IAB19-30">Shareware/Freeware</option>
+                                            <option value="IAB19-31">Unix</option>
+                                            <option value="IAB19-32">Visual Basic</option>
+                                            <option value="IAB19-33">Web Clip Art</option>
+                                            <option value="IAB19-34">Web Design/HTML</option>
+                                            <option value="IAB19-35">Web Search</option>
+                                            <option value="IAB19-36">Windows</option>
+                                            <option value="IAB20">Travel (All)</option>
+                                            <option value="IAB20-1">Adventure Travel</option>
+                                            <option value="IAB20-2">Africa</option>
+                                            <option value="IAB20-3">Air Travel</option>
+                                            <option value="IAB20-4">Australia & New Zealand</option>
+                                            <option value="IAB20-5">Bed & Breakfasts</option>
+                                            <option value="IAB20-6">Budget Travel</option>
+                                            <option value="IAB20-7">Business Travel</option>
+                                            <option value="IAB20-8">By US Locale</option>
+                                            <option value="IAB20-9">Camping</option>
+                                            <option value="IAB20-10">Canada</option>
+                                            <option value="IAB20-11">Caribbean</option>
+                                            <option value="IAB20-12">Cruises</option>
+                                            <option value="IAB20-13">Eastern Europe</option>
+                                            <option value="IAB20-14">Europe</option>
+                                            <option value="IAB20-15">France</option>
+                                            <option value="IAB20-16">Greece</option>
+                                            <option value="IAB20-17">Honeymoons/Getaways</option>
+                                            <option value="IAB20-18">Hotels</option>
+                                            <option value="IAB20-19">Italy</option>
+                                            <option value="IAB20-20">Japan</option>
+                                            <option value="IAB20-21">Mexico & Central America</option>
+                                            <option value="IAB20-22">National Parks</option>
+                                            <option value="IAB20-23">South America</option>
+                                            <option value="IAB20-24">Spas</option>
+                                            <option value="IAB20-25">Theme Parks</option>
+                                            <option value="IAB20-26">Traveling with Kids</option>
+                                            <option value="IAB20-27">United Kingdom</option>
+                                            <option value="IAB21">Real Estate (All)</option>
+                                            <option value="IAB21-1">Apartments</option>
+                                            <option value="IAB21-2">Architects</option>
+                                            <option value="IAB21-3">Buying/Selling Homes</option>
+                                            <option value="IAB22">Shopping (All)</option>
+                                            <option value="IAB22-1">Contests & Freebies</option>
+                                            <option value="IAB22-2">Couponing</option>
+                                            <option value="IAB22-3">Comparison</option>
+                                            <option value="IAB22-4">Engines</option>
+                                            <option value="IAB23">Religion & Spirituality (All)</option>
+                                            <option value="IAB23-1">Alternative Religions</option>
+                                            <option value="IAB23-2">Atheism/Agnosticism</option>
+                                            <option value="IAB23-3">Buddhism</option>
+                                            <option value="IAB23-4">Catholicism</option>
+                                            <option value="IAB23-5">Christianity</option>
+                                            <option value="IAB23-6">Hinduism</option>
+                                            <option value="IAB23-7">Islam</option>
+                                            <option value="IAB23-8">Judaism</option>
+                                            <option value="IAB23-9">Latter-Day Saints</option>
+                                            <option value="IAB23-10">Pagan/Wiccan</option>
+                                            <option value="IAB24">Uncategorized (All)</option>
+                                            <option value="IAB25">Non-Standard Content (All)</option>
+                                            <option value="IAB25-1">Unmoderated UGC</option>
+                                            <option value="IAB25-2">Extreme Graphic/Explicit Violence</option>
+                                            <option value="IAB25-3">Pornography</option>
+                                            <option value="IAB25-4">Profane Content</option>
+                                            <option value="IAB25-5">Hate Content</option>
+                                            <option value="IAB25-6">Under Construction</option>
+                                            <option value="IAB25-7">Incentivized</option>
+                                        </select>
                                     </div>
+                                    <input class="iab-cat-tags" type="hidden" name="<?php echo self::$opt_vi_js_settings ?>[iabCategory]" id="<?php echo self::$opt_vi_js_settings ?>[iabCategory]" value="<?php echo esc_attr($item[self::$opt_vi_js_settings]['iabCategory']) ?>" />
+                                    <br>
+                                    <br>
+                                    <p><strong>Your Selected Categories:</strong></p>
+                                    <div class="iab-cat-tags-display"></div>
                                 </td>
                             </tr>
                             <tr class="form-field <?php echo empty($item[self::$opt_vi_js_settings]['keywords']) ? ' hidden ' : '' ?>">
@@ -6835,7 +6997,7 @@ margin: 0 auto;
                         For optimal revenue, we recommend using the "Top" option:
                     </p>
                     <ul>
-                        <li><label><input type="radio" name="<?php echo self::$opt_vi_js_position ?>" value="top" <?php checked($item[self::$opt_vi_js_position] == 'top') ?> /> Top</label></li>
+                        <li><label><input type="radio" name="<?php echo self::$opt_vi_js_position ?>" value="top" <?php checked($item[self::$opt_vi_js_position] == 'top') ?> /> Top (recommended for highest fill rate)</label></li>
                         <li><label><input type="radio" name="<?php echo self::$opt_vi_js_position ?>" value="bottom" <?php checked($item[self::$opt_vi_js_position] == 'bottom') ?> /> Bottom</label></li>
                     </ul>
                     <p>
@@ -6884,7 +7046,7 @@ margin: 0 auto;
                     </div>
                     <h2><span class="vi-num">5</span> Ads.txt Verification</h2>
                     <p>
-                        In order for your ads to start generating revenue, verify your ads.txt file:
+                        In order for your ads to start generating revenue, verify your ads.txt file.
                     </p>
                     <div class="adstxt-verify-message">
 
@@ -7162,10 +7324,25 @@ margin: 0 auto;
     {
         if (!self::$vi_script_tag_done && self::$alloptions[self::$opt_vi_active] && self::vi_script_setup_done())
         {
+            if (stripos(self::$alloptions[self::$opt_vi_js_settings]['iabCategory'], ',') > 0 && self::vi_logged_in())
+            {
+                $last_category_update = strtotime(self::$alloptions[self::$opt_vi_last_category_update]);
+                $last_category_update_plus = strtotime(self::$alloptions[self::$opt_vi_last_category_update] . ' + ' . self::$vi_last_category_update_interval);
+                if ($last_category_update_plus < time())
+                {
+                    $success = self::vi_cache_js(self::$alloptions[self::$opt_vi_js_settings]);
+                    if ($success !== true)
+                    {
+                        self::vi_token_expire();
+                    }
+                }
+            }
+
             self::$vi_script_tag_done = true;
-            return '<div class="ytvi-story-container" id="ytvi_story_container"><script class="ytvi-story-script" type="text/javascript">' .
+            $scriptTag = '<div class="ytvi-story-container" id="ytvi_story_container"><script class="ytvi-story-script" type="text/javascript">' .
                     self::$alloptions[self::$opt_vi_js_script] .
                     '</script></div>';
+            return $scriptTag;
         }
         return '';
     }
@@ -7448,6 +7625,25 @@ margin: 0 auto;
                     self::$opt_vi_token => ''
                 ));
             }
+            else if (self::vi_logged_in() && filter_input(INPUT_SERVER, 'REQUEST_METHOD') != 'POST' && ((is_admin() && filter_input(INPUT_GET, 'page') == 'youtube-ep-vi') || !is_admin())
+            ) // (&& not $_POSTing anything, && on monetize page) || NOT admin page...e.g. category randomization
+            {
+                $adsTxtAPI = self::$alloptions[self::$opt_vi_endpoints]->adsTxtAPI;
+                $tokenCheck = self::vi_remote_get($adsTxtAPI);
+                $tokenCheck_valid = self::vi_adstxt_api_valid($tokenCheck);
+                if ($tokenCheck_valid !== true) // do a token check. if invalid, then:
+                {
+                    self::update_option_set(array(
+                        self::$opt_vi_token => false
+                    ));
+
+                    if (is_admin())
+                    {
+                        wp_safe_redirect(admin_url('admin.php?page=youtube-ep-vi'));
+                        exit;
+                    }
+                }
+            }
         }
         catch (Exception $ex)
         {
@@ -7523,7 +7719,7 @@ margin: 0 auto;
     public static function gb_svg_defs()
     {
         ?>
-        <svg><defs><style>.epytcls-1{fill:red;}.epytcls-2{fill-rule:evenodd;fill:url(#radial-gradient);}.epytcls-3{fill:#31aaff;}.epytcls-4{fill:#fff;}</style><radialGradient id="radial-gradient" cx="193" cy="85.85" r="77.53" gradientUnits="userSpaceOnUse"><stop offset="0.17" stop-color="#fff"/><stop offset="0.68" stop-color="#31aaff"/></radialGradient></defs></svg>
+        <svg style="height: 0 !important; width: 0 !important; display: absolute !important; top: 0 !important; left: 0 !important;"><defs><style>.epytcls-1{fill:red;}.epytcls-2{fill-rule:evenodd;fill:url(#radial-gradient);}.epytcls-3{fill:#31aaff;}.epytcls-4{fill:#fff;}</style><radialGradient id="radial-gradient" cx="193" cy="85.85" r="77.53" gradientUnits="userSpaceOnUse"><stop offset="0.17" stop-color="#fff"/><stop offset="0.68" stop-color="#31aaff"/></radialGradient></defs></svg>
         <?php
     }
 
@@ -7548,7 +7744,12 @@ margin: 0 auto;
     {
         if ($attributes && $attributes['shortcode'] && strpos($attributes['shortcode'], '[') === 0)
         {
-            return do_shortcode($attributes['shortcode']);
+            $render = do_shortcode($attributes['shortcode']);
+            if (empty($render) && stripos($attributes['shortcode'], 'live=1') !== false)
+            {
+                $render = '<em>This is a live embed that is not currently streaming. You can optionally fill out the <a href="' . admin_url('admin.php?page=youtube-my-preferences') . '#not_live_content_scroll" target="_blank">Not Live Content</a> field in the YouTube plugin\'s Default Settings.</em>';
+            }
+            return $render;
         }
         return isset($attributes['shortcode']) ? $attributes['shortcode'] : '';
     }

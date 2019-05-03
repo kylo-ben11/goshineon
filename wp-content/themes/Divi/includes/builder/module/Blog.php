@@ -514,7 +514,8 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 		$fields['border_styles']           = array( 'border' => self::$_->array_get( $this->advanced_fields, 'borders.default.css.main.border_styles' ) );
 		$fields['border_radii_fullwidth']  = array( 'border-radius' => self::$_->array_get( $this->advanced_fields, 'borders.fullwidth.css.main.border_radii' ) );
 		$fields['border_styles_fullwidth'] = array( 'border' => self::$_->array_get( $this->advanced_fields, 'borders.fullwidth.css.main.border_styles' ) );
-		$fields['max_width']               = array( 'max-width' => '%%order_class%%');
+		$fields['max_width']               = array( 'max-width' => '%%order_class%%' );
+		$fields['width']                   = array( 'width' => '%%order_class%%' );
 
 		return $fields;
 	}

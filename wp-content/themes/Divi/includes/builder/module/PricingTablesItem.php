@@ -157,6 +157,7 @@ class ET_Builder_Module_Pricing_Tables_Item extends ET_Builder_Module {
 				),
 			),
 			'max_width'             => false,
+			'height'                => false,
 		);
 
 		$this->custom_css_fields = array(

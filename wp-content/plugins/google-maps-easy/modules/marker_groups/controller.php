@@ -92,10 +92,24 @@ class marker_groupsControllerGmp extends controllerGmp {
 		}
 		return $res->ajaxExec();
 	}
+	public function saveMarkerGroupsOptions() {
+		$res = new responseGmp();
+		$data = reqGmp::get('post');
+		if(!isset($data['options'])) {
+			$res->pushError(__('Marker Category Options data not found', GMP_LANG_CODE));
+			return $res->ajaxExec();
+		}
+		if($this->getModel()->saveMarkerGroupsOptions($data['options'])) {
+			$res->addMessage(__('Done', GMP_LANG_CODE));
+		} else {
+			$res->pushError( $this->getModel()->getErrors() );
+		}
+		return $res->ajaxExec();
+	}
 	public function getPermissions() {
 		return array(
 			GMP_USERLEVELS => array(
-				GMP_ADMIN => array('getAllMarkerGroups', 'save', 'remove')
+				GMP_ADMIN => array('getAllMarkerGroups', 'save', 'remove', 'saveMarkerGroupsOptions')
 			),
 		);
 	}

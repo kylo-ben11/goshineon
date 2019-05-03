@@ -129,20 +129,27 @@ class ET_Builder_Module_Divider extends ET_Builder_Module {
 				'default'           => $this->defaults['divider_weight'],
 				'hover'             => 'tabs',
 			),
-			'height' => array(
-				'label'            => esc_html__( 'Height', 'et_builder' ),
-				'type'             => 'range',
-				'option_category'  => 'layout',
-				'tab_slug'         => 'advanced',
-				'toggle_slug'      => 'width',
-				'description'      => esc_html__( 'Define how much space should be added below the divider.', 'et_builder' ),
-				'default'          => '23px',
-				'default_unit'     => 'px',
-				'default_on_front' => '23px',
-				'hover'            => 'tabs',
-			),
 		);
 		return $fields;
+	}
+
+	public function get_height_fields() {
+		$defaults = array(
+			'default' => '23px',
+			'min'     => '1',
+			'max'     => '100',
+		);
+
+		return ET_Builder_Module_Fields_Factory::get( 'Height' )->get_fields( $defaults );
+	}
+
+	public function get_max_height_fields() {
+		$defaults = array(
+			'min' => '1',
+			'max' => '100',
+		);
+
+		return ET_Builder_Module_Fields_Factory::get( 'MaxHeight' )->get_fields( $defaults );
 	}
 
 	public function get_transition_fields_css_props() {
@@ -150,7 +157,6 @@ class ET_Builder_Module_Divider extends ET_Builder_Module {
 
 		$fields['color'] = array( 'border' => '%%order_class%%:before' );
 		$fields['divider_weight'] = array( 'border' => '%%order_class%%:before' );
-		$fields['height'] = array( 'height' => '%%order_class%%' );
 
 		return $fields;
 	}
@@ -159,8 +165,6 @@ class ET_Builder_Module_Divider extends ET_Builder_Module {
 		$color                       = $this->props['color'];
 		$color_hover                 = $this->get_hover_value( 'color' );
 		$show_divider                = $this->props['show_divider'];
-		$height                      = $this->props['height'];
-		$height_hover                = $this->get_hover_value( 'height' );
 		$divider_style               = $this->props['divider_style'];
 		$divider_position            = $this->props['divider_position'];
 		$divider_position_customizer = ! et_is_builder_plugin_active() ? et_get_option( 'et_pb_divider-divider_position', 'top' ) : 'top';
@@ -232,26 +236,6 @@ class ET_Builder_Module_Divider extends ET_Builder_Module {
 			ET_Builder_Element::set_style( $render_slug, array(
 				'selector'    => '%%order_class%%:hover:before',
 				'declaration' => ltrim( $hover_style )
-			) );
-		}
-
-		if ( '' !== $height ) {
-			ET_Builder_Element::set_style( $render_slug, array(
-				'selector'    => '%%order_class%%',
-				'declaration' => sprintf(
-					'height: %s;',
-					esc_attr( et_builder_process_range_value( $height ) )
-				),
-			) );
-		}
-
-		if ( et_builder_is_hover_enabled( 'height', $this->props ) ) {
-			ET_Builder_Element::set_style( $render_slug, array(
-				'selector'    => '%%order_class%%:hover',
-				'declaration' => sprintf(
-					'height: %s;',
-					esc_attr( et_builder_process_range_value( $height_hover ) )
-				),
 			) );
 		}
 

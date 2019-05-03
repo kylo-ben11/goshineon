@@ -53,6 +53,8 @@ class ET_Builder_Module_Bar_Counters_Item extends ET_Builder_Module {
 				),
 			),
 			'margin_padding' => array(
+				'draggable_margin'  => false,
+				'draggable_padding' => false,
 				'css' => array(
 					'margin'  => ".et_pb_counters {$this->main_css_element}",
 					'padding' => ".et_pb_counters {$this->main_css_element} .et_pb_counter_amount",
@@ -69,6 +71,11 @@ class ET_Builder_Module_Bar_Counters_Item extends ET_Builder_Module {
 				),
 			),
 			'button'                => false,
+			'height'                => array(
+				'css' => array(
+					'main' => '%%order_class%% .et_pb_counter_container, %%order_class%% .et_pb_counter_container .et_pb_counter_amount'
+				)
+			),
 		);
 
 		$this->settings_modal_toggles = array(

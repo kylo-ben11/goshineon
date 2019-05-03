@@ -88,6 +88,11 @@
                         {
                             event.target.ponce = true;
                         }
+                                                
+                        if (event.data === window.YT.PlayerState.ENDED && $(ifm).data('relstop') == '1')
+                        {
+                            event.target.stopVideo();
+                        }
 
                         var $gallery = $(ifm).closest('.epyt-gallery');
                         if (!$gallery.length)

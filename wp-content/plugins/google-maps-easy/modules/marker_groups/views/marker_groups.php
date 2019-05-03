@@ -10,8 +10,6 @@ class marker_groupsViewGmp extends viewGmp {
 		frameGmp::_()->getModule('templates')->loadJqTreeView();
 		frameGmp::_()->addScript('admin.mgr.list', $this->getModule()->getModPath(). 'js/admin.marker_groups.list.js');
 		frameGmp::_()->addJSVar('admin.mgr.list', 'mgrTblData', $markerGroups);
-
-		$this->assign('addNewLink', frameGmp::_()->getModule('options')->getTabUrl('marker_groups_add_new'));
 		return parent::getContent('mgrAdmin');
 	}
 	public function getEditMarkerGroup($id = 0) {
@@ -26,12 +24,21 @@ class marker_groupsViewGmp extends viewGmp {
 		}
 		$this->assign('editMarkerGroup', $editMarkerGroup);
 		$this->assign('parentsList', $this->getModel()->getMarkerGroupsForSelect(array( 0 => __('None', GMP_LANG_CODE) )));
-		$this->assign('addNewLink', frameGmp::_()->getModule('options')->getTabUrl('marker_groups_add_new'));
 		return parent::getContent('mgrEditMarkerGroup');
+	}
+	public function getOptionsTabContent() {
+		frameGmp::_()->addScript('jquery-ui-sortable');
+		frameGmp::_()->addScript('admin.mgr.edit', $this->getModule()->getModPath(). 'js/admin.marker_groups.options.js');
+		frameGmp::_()->addStyle('admin.mgr', $this->getModule()->getModPath() . 'css/admin.marker.groups.css');
+		$this->assign('options', $this->getModel()->getMarkerGroupsOptions());
+		return parent::getContent('mgrMarkerGroupsOptions');
 	}
 	public function getListOperations($markerGroup) {
 		$this->assign('marker_group', $markerGroup);
 		$this->assign('editLink', $this->getModule()->getEditMarkerGroupLink( $markerGroup['id'] ));
 		return trim(parent::getInlineContent('mgrListOperations'));
+	}
+	public function _getPageLink($name) {
+		return frameGmp::_()->getModule('options')->getTabUrl($name);
 	}
 }

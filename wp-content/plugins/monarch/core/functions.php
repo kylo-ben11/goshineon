@@ -114,7 +114,7 @@ function et_core_die( $message = '' ) {
 		wp_send_json_error( array( 'error' => $message ) );
 	}
 
-	die(-1);
+	wp_die();
 }
 endif;
 
@@ -555,6 +555,10 @@ if ( ! function_exists( 'et_core_security_check' ) ):
  * @return bool|null Whether or not the checked passed if `$die` is `false`.
  */
 function et_core_security_check( $user_can = 'manage_options', $nonce_action = '', $nonce_key = '', $nonce_location = '_POST', $die = true ) {
+	$user_can     = (string) $user_can;
+	$nonce_action = (string) $nonce_action;
+	$nonce_key    = (string) $nonce_key;
+
 	if ( empty( $nonce_key ) && false === strpos( $nonce_action, '_nonce' ) ) {
 		$nonce_key = $nonce_action . '_nonce';
 	} else if ( empty( $nonce_key ) ) {
@@ -579,13 +583,24 @@ function et_core_security_check( $user_can = 'manage_options', $nonce_action = '
 
 	$passed = true;
 
-	if ( '' !== $nonce_action && ! isset( $nonce_location[ $nonce_key ] ) ) {
+	if ( is_numeric( $user_can ) ) {
+		// Numeric values are deprecated in current_user_can(). We do not accept them here.
 		$passed = false;
+
+	} else if ( '' !== $nonce_action && empty( $nonce_location[ $nonce_key ] ) ) {
+		// A nonce value is required when a nonce action is provided.
+		$passed = false;
+
 	} else if ( '' === $user_can && '' === $nonce_action ) {
+		// At least one of a capability OR a nonce action is required.
 		$passed = false;
+
 	} else if ( '' !== $user_can && ! current_user_can( $user_can ) ) {
+		// Capability check failed.
 		$passed = false;
-	} else if ( '' !== $nonce_action && ! empty( $nonce_location[ $nonce_key ] ) && ! wp_verify_nonce( $nonce_location[ $nonce_key ], $nonce_action ) ) {
+
+	} else if ( '' !== $nonce_action && ! wp_verify_nonce( $nonce_location[ $nonce_key ], $nonce_action ) ) {
+		// Nonce verification failed.
 		$passed = false;
 	}
 
@@ -811,6 +826,25 @@ function et_core_replace_enqueued_style( $old_src, $new_src, $regex = false ) {
 		// Enqueue the same handle with the new src.
 		wp_enqueue_style( $style_handle, $style_src, $style_deps, $style_ver, $style_media );
 	}
+}
+endif;
+
+if ( ! function_exists( 'et_core_is_safe_mode_active' ) ):
+/**
+ * Check whether the Support Center's Safe Mode is active
+ *
+ * @since ?.?
+ *
+ * @see ET_Support_Center::toggle_safe_mode
+ *
+ * @return bool
+ */
+function et_core_is_safe_mode_active() {
+	$is_safe_mode_active = false;
+	if ( 'on' === get_user_meta( get_current_user_id(), '_et_support_center_safe_mode', true ) ) {
+		$is_safe_mode_active = true;
+	};
+	return $is_safe_mode_active;
 }
 endif;
 

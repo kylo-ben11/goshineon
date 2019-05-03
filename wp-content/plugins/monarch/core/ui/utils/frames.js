@@ -293,7 +293,12 @@ class ETCoreFrames {
       // The only `document.write`s we care about are the ones used to load scripts
       // like WP polyfills, anything else will just break the builder or show content
       // in the wrong place, hence we wrap them in an hidden container.
-      jQuery(target_body).append(`<div style="display: none">${documentWrites.join(' ')}</div>`);
+      try {
+        jQuery(target_body).append(`<div style="display: none">${documentWrites.join(' ')}</div>`);
+      } catch(e) {
+        // We don't wanna log the exception here since, polyfills excluded, whatever is using `document.write`
+        // would hardly care about handling errors. E.g. checking if DOM element exists before trying to use it....
+      }
     }
 
     Promise.all(this.loading).then(() => {

@@ -1,6 +1,6 @@
 <?php
 
-define( 'ET_BUILDER_ENABLE_BFB_OPTIN_MODAL', false );
+define( 'ET_BUILDER_ENABLE_BFB_OPTIN_MODAL', true );
 
 
 if ( ! function_exists( 'et_builder_add_filters' ) ):
@@ -43,15 +43,22 @@ function et_builder_should_load_framework() {
 
 	$is_admin = is_admin();
 	$required_admin_pages = array( 'edit.php', 'post.php', 'post-new.php', 'admin.php', 'customize.php', 'edit-tags.php', 'admin-ajax.php', 'export.php', 'options-permalink.php', 'themes.php', 'revision.php' ); // list of admin pages where we need to load builder files
-	$specific_filter_pages = array( 'edit.php', 'admin.php', 'edit-tags.php' ); // list of admin pages where we need more specific filtering
+	$specific_filter_pages = array( 'edit.php', 'post.php', 'post-new.php', 'admin.php', 'edit-tags.php' ); // list of admin pages where we need more specific filtering
+	$post_id = (int) et_()->array_get( $_GET, 'post', 0 );
 
-	$is_edit_library_page = 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'et_pb_layout' === $_GET['post_type'];
+	$bfb_settings = get_option( 'et_bfb_settings' );
+	$is_bfb = et_pb_is_allowed( 'use_visual_builder' ) && isset( $bfb_settings['enable_bfb'] ) && 'on' === $bfb_settings['enable_bfb'];
+	$is_bfb_used = 'on' === get_post_meta( $post_id, '_et_pb_use_builder', true ) && $is_bfb;
+
+	$is_edit_library_page = in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) && ( ( isset( $_GET['post_type'] ) && 'et_pb_layout' === $_GET['post_type'] ) || ( $post_id && 'et_pb_layout' === get_post_type( $post_id ) ) );
+	$is_extra_builder = $post_id && 'layout' === get_post_type( $post_id );
+	$is_edit_page_not_bfb = in_array( $pagenow, array( 'post-new.php', 'post.php' ) ) && !$is_bfb_used;
 	$is_role_editor_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && apply_filters( 'et_divi_role_editor_page', 'et_divi_role_editor' ) === $_GET['page'];
 	$is_import_page = 'admin.php' === $pagenow && isset( $_GET['import'] ) && 'wordpress' === $_GET['import']; // Page Builder files should be loaded on import page as well to register the et_pb_layout post type properly
 	$is_wpml_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'sitepress-multilingual-cms/menu/languages.php' === $_GET['page']; // Page Builder files should be loaded on WPML clone page as well to register the custom taxonomies properly
 	$is_edit_layout_category_page = 'edit-tags.php' === $pagenow && isset( $_GET['taxonomy'] ) && ( 'layout_category' === $_GET['taxonomy'] || 'layout_pack' === $_GET['taxonomy'] );
 
-	if ( ! $is_admin || ( $is_admin && in_array( $pagenow, $required_admin_pages ) && ( ! in_array( $pagenow, $specific_filter_pages ) || $is_edit_library_page || $is_role_editor_page || $is_edit_layout_category_page || $is_import_page || $is_wpml_page ) ) ) {
+	if ( ! $is_admin || ( $is_admin && in_array( $pagenow, $required_admin_pages ) && ( ! in_array( $pagenow, $specific_filter_pages ) || $is_edit_library_page || $is_role_editor_page || $is_edit_layout_category_page || $is_import_page || $is_wpml_page || $is_edit_page_not_bfb || $is_extra_builder ) ) ) {
 		$should_load = true;
 	} else {
 		$should_load = false;
@@ -317,10 +324,12 @@ function et_builder_get_third_party_unqueryable_post_types() {
  * @return array
  */
 function et_get_registered_post_type_options( $usort = false ) {
-	static $post_type_options = null;
 
-	if ( ! is_null( $post_type_options ) ) {
-		return $post_type_options;
+	// Cache key
+	$key = 'et_get_registered_post_type_options';
+
+	if ( ET_Core_Cache::has( $key ) ) {
+		return ET_Core_Cache::get( $key );
 	}
 
 	$blacklist      = et_builder_get_blacklisted_post_types();
@@ -353,8 +362,23 @@ function et_get_registered_post_type_options( $usort = false ) {
 		wp_list_pluck( $post_types, 'label' )
 	);
 
+	ET_Core_Cache::add( $key, $post_type_options );
+
 	return $post_type_options;
 }
+
+/**
+ * Clear post type options cache whenever a custom post type is registered.
+ *
+ * @since 3.21.2
+ *
+ * @return void
+ */
+function et_clear_registered_post_type_options_cache() {
+	ET_Core_Cache::delete( 'et_get_registered_post_type_options' );
+}
+
+add_action( 'registered_post_type', 'et_clear_registered_post_type_options_cache');
 
 /**
  * Get the list of unsupported Post Types.
@@ -630,7 +654,7 @@ function et_pb_get_current_user_role() {
 
 /**
  * Generate the list of all roles ( with editing permissions ) registered in current WP
- * @return string
+ * @return array
  */
 function et_pb_get_all_roles_list() {
 	// get all roles registered in current WP
@@ -643,8 +667,14 @@ function et_pb_get_all_roles_list() {
 
 	if ( ! empty( $all_roles ) ) {
 		foreach( $all_roles as $role => $role_data ) {
-			// add roles with edit_posts capability into $builder_roles_array
-			if ( ! empty( $role_data['capabilities']['edit_posts'] ) && 1 === (int) $role_data['capabilities']['edit_posts'] ) {
+			// add roles with edit_posts capability into $builder_roles_array (but not Support)
+			if (
+				! empty( $role_data['capabilities']['edit_posts'] )
+				&&
+				1 === (int) $role_data['capabilities']['edit_posts']
+				&&
+				! in_array( $role_data['name'], array( "ET Support", "ET Support - Elevated" ) )
+			) {
 				$builder_roles_array[ $role ] = $role_data['name'];
 			}
 		}
@@ -2051,6 +2081,7 @@ function et_fb_get_nonces() {
 		'resolvePostContent'            => wp_create_nonce( 'et_fb_resolve_post_content' ),
 		'getPostTypes'                  => wp_create_nonce( 'et_fb_get_post_types' ),
 		'getPostsList'                  => wp_create_nonce( 'et_fb_get_posts_list' ),
+		'sendErrorReport'               => wp_create_nonce( 'et_fb_send_error_report' ),
 	);
 
 	return array_merge( $nonces, $fb_nonces );
@@ -2957,6 +2988,29 @@ function et_builder_get_no_builder_notification_modal() {
 		</div>',
 		esc_html__( 'Incompatible Post Type', 'et_builder' ),
 		esc_html__( 'This post does not show the standard WordPress content area. Unfortunately, that means the Divi Builder cannot be used on this post.', 'et_builder' )
+	);
+
+	return $output;
+}
+endif;
+
+if ( ! function_exists( 'et_builder_get_no_browser_notification_modal' ) ) :
+function et_builder_get_no_browser_notification_modal() {
+	$output = sprintf(
+		'<div class="et-core-modal-overlay et-builder-timeout et-core-active">
+			<div class="et-core-modal">
+				<div class="et-core-modal-header">
+					<h3 class="et-core-modal-title">%1$s</h3>
+					<a href="#" class="et-core-modal-close" data-et-core-modal="close"></a>
+				</div>
+
+				<div class="et-core-modal-content">
+					<p><strong>%2$s</strong></p>
+				</div>
+			</div>
+		</div>',
+		esc_html__( 'Your Browser Is Not Supported', 'et_builder' ),
+		esc_html__( 'The Divi Builder does not support the browser you are using. Your browser is no longer being developed, so it is time to switch to something new! The Divi Builder works best in the most recent versions of Chrome, Firefox, Safari, Opera and Edge.', 'et_builder' )
 	);
 
 	return $output;
@@ -4549,12 +4603,28 @@ function et_fb_prepare_ssl_link( $link ) {
  * @return string.
  */
 if ( ! function_exists( 'et_fb_get_builder_url' ) ) :
-	function et_fb_get_builder_url( $url = false, $builder = 'vb' ) {
+	function et_fb_get_builder_url( $url = false, $builder = 'vb', $is_new_page = false, $custom_page_id = false ) {
 		$args = array(
 			'et_fb'     => '1',
 			'et_bfb'    => 'bfb' === $builder ? '1' : false,
 			'PageSpeed' => 'off',
 		);
+
+		if ('bfb' === $builder && $is_new_page) {
+			global $post;
+
+			$duplicate_options  = get_user_meta( get_current_user_id(), 'pll_duplicate_content', true );
+			$duplicate_content  = ! empty( $duplicate_options ) && ! empty( $duplicate_options[ $post->post_type ] );
+			$duplicate_fallback = (int) $custom_page_id === (int) get_option( 'page_for_posts' ) ? (int) $custom_page_id : 'empty';
+			$from_post_id       = isset( $_GET['from_post'] ) ? (int) sanitize_text_field( $_GET['from_post'] ) : false;
+
+			$args['from_post']   = $duplicate_content && $from_post_id ? $from_post_id : $duplicate_fallback;
+			$args['is_new_page'] = '1';
+
+			if ( $custom_page_id ) {
+				$args['custom_page_id'] = $custom_page_id;
+			}
+		}
 
 		// Additional info need to be appended via query strings if current request is used to get
 		// BFB URL and the given page's custom post type has its publicly_queryable setting is set
@@ -4604,8 +4674,8 @@ endif;
  * @return string.
  */
 if ( ! function_exists( 'et_fb_get_bfb_url' ) ) :
-	function et_fb_get_bfb_url( $url = false ) {
-		return et_fb_get_builder_url( $url, 'bfb' );
+	function et_fb_get_bfb_url( $url = false, $is_new_page = false, $custom_page_id = false ) {
+		return et_fb_get_builder_url( $url, 'bfb', $is_new_page, $custom_page_id );
 	}
 endif;
 
@@ -4914,7 +4984,7 @@ if ( ! function_exists( 'et_builder_filter_show_bfb_optin_modal') ):
  *
  * @return bool
  */
-function et_builder_filter_show_bfb_optin_modal( $default ) {
+function et_builder_filter_show_bfb_optin_modal( $default = true ) {
 	global $shortname;
 
 	// Only admin users should see the modal
@@ -4925,7 +4995,7 @@ function et_builder_filter_show_bfb_optin_modal( $default ) {
 	$shown = et_get_option( $shortname . '_bfb_optin_modal_shown', 'unset' );
 
 	// $shown === 'no' - modal is queued to be shown, but has not had the chance yet.
-	return 'unset' === $shown ? $default : $shown === 'no';
+	return 'unset' === $shown ? (bool) $default : $shown === 'no';
 }
 endif;
 
@@ -4981,8 +5051,13 @@ function et_builder_show_bfb_optin_modal() {
 	if ( 'post.php' !== $pagenow ) {
 		return;
 	}
+	
+	// Exit if no pagebuilder enabled or BFB activated already.
+	if ( ! et_pb_is_pagebuilder_used() || et_builder_bfb_enabled() ) {
+		return;
+	}
 
-	if ( apply_filters( 'et_builder_show_bfb_optin_modal', false ) === false ) {
+	if ( false === apply_filters( 'et_builder_show_bfb_optin_modal', true ) ) {
 		return;
 	}
 
@@ -5002,9 +5077,8 @@ function et_builder_show_bfb_optin_modal() {
 			</div>
 
 			<div class="et-core-modal-content">
-				<p><?php esc_html_e( 'A new and improved Divi Builder experience is now available. This new experience brings various interface enchancements as well as visual editing capabilities to the back end. You can try the new experience today, or you can continue using the classic builder for a limited time. Once the new experience has been activated, you can still switch back to the classic editor at any time - no worries!', 'et_builder' ); ?></p>
-				<?php // TODO add link to docs ?>
-				<p><a href="#" target="_blank"><?php esc_html_e( 'Learn more about the new experience here.', 'et_builder' ); ?></a></p>
+				<p><?php esc_html_e( 'A new and improved Divi Builder experience is now available. This new experience brings various interface enhancements as well as visual editing capabilities to the back end. You can try the new experience today, or you can continue using the classic builder for now. Once the new experience has been activated, you can still switch back to the classic editor at any time.', 'et_builder' ); ?></p>
+				<p><a href="https://www.elegantthemes.com/blog/theme-releases/introducing-the-new-divi-builder-experience" target="_blank"><?php esc_html_e( 'Learn more about the new experience here.', 'et_builder' ); ?></a></p>
 			</div>
 
 			<div class="et_pb_prompt_buttons">
@@ -5045,7 +5119,7 @@ function et_builder_show_bfb_welcome_modal() {
 			</div>
 
 			<div class="et-core-modal-content">
-				<p><?php esc_html_e( 'You are now using the new Divi Builder experience! This new version of the builder comes with a lot of great interface enhancements that were previously only available in the Visual Builder. If you run into problems, you can always switch back to the classic builder using the button at the top of the page.', 'et_builder' ); ?></p>
+				<p><?php esc_html_e( 'You are now using the new Divi Builder experience! This new version of the builder comes with a lot of great interface enhancements that were previously only available in the Visual Builder. If you run into problems, you can always switch back to the classic builder using the button at the bottom of the page.', 'et_builder' ); ?></p>
 			</div>
 
 			<div class="et_pb_prompt_buttons">
@@ -5063,7 +5137,7 @@ function et_builder_show_bfb_welcome_modal() {
 endif;
 add_action( 'admin_footer', 'et_builder_show_bfb_welcome_modal' );
 
-if ( ! function_exists( 'et_builder_maybe_queue_bfb_optin_modal') ):
+if ( ! function_exists( 'et_builder_prepare_bfb') ):
 /**
  * Maybe queue BFB opt-in modal.
  *
@@ -5140,12 +5214,14 @@ add_filter( 'et_builder_inner_content_class', 'et_builder_add_builder_inner_cont
  * @return string
  */
 function et_builder_add_builder_content_wrapper( $content ) {
-	if ( ! et_pb_is_pagebuilder_used( get_the_ID() ) && ! is_et_pb_preview() ) {
+	$is_bfb_new_page = isset( $_GET['is_new_page'] ) && '1' === $_GET['is_new_page'];
+
+	if ( ! et_pb_is_pagebuilder_used( get_the_ID() ) && ! is_et_pb_preview() && ! $is_bfb_new_page ) {
 		return $content;
 	}
 
 	// Divi builder layout should only be used in singular template
-	if ( ! is_singular() ) {
+	if ( ! is_singular() && ! $is_bfb_new_page ) {
 		return $content;
 	}
 
@@ -5369,5 +5445,18 @@ function et_fb_delete_builder_assets() {
 	foreach ( array_merge( $old_files, $new_files ) as $file ) {
 		@unlink( $file );
 	}
+}
+endif;
+
+
+if ( ! function_exists( 'et_fb_enqueue_open_sans' ) ):
+function et_fb_enqueue_open_sans() {
+	$protocol   = is_ssl() ? 'https' : 'http';
+	$query_args = array(
+		'family' => 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800',
+		'subset' => 'latin,latin-ext',
+	);
+
+	wp_enqueue_style( 'et-fb-fonts', esc_url_raw( add_query_arg( $query_args, "{$protocol}://fonts.googleapis.com/css" ) ), array(), null );
 }
 endif;

@@ -89,6 +89,7 @@ class ET_Builder_Module_Social_Media_Follow_Item extends ET_Builder_Module {
 			'fonts'                 => false,
 			'text'                  => false,
 			'max_width'             => false,
+			'height'                => false,
 			'button'                => false,
 			'link_options'          => false,
 		);

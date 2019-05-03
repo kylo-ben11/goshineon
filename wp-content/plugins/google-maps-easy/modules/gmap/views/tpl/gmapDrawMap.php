@@ -6,18 +6,11 @@ $viewId = $this->currentMap['view_id'];
 $mapHtmlId = $this->currentMap['view_html_id'];
 $mapPreviewClassname = @$this->currentMap['html_options']['classname'];
 //$mapOptsClassname = $popup ? 'display_as_popup' : '';
-
-if($this->markersDisplayType === 'slider_checkbox_table') {
-	$mapsWrapperStart = "<div class='gmpLeft'>";
-	$mapsWrapperEnd = "</div>";
-	$filtersWrapperStart = "<div class='filterRight'>";
-	$filtersWrapperEnd = "</div>";
-} else {
-	$mapsWrapperStart = "";
-	$mapsWrapperEnd = "";
-	$filtersWrapperStart = "";
-	$filtersWrapperEnd = "";
-}?>
+$markersDisplayType = $this->markersDisplayType === 'slider_checkbox_table';
+$mapsWrapperStart = $markersDisplayType ? "<div class='gmpLeft'>" : '';
+$mapsWrapperEnd = $markersDisplayType ? "</div>" : '';
+$filtersWrapperStart = $markersDisplayType ? "<div class='filterRight'>" : '';
+$filtersWrapperEnd = $markersDisplayType ? "</div>" : '';?>
 <?php if($isStatic) { ?>
 	<?php $canDrawStaticMap = (bool)(frameGmp::_()->getModule('supsystic_promo')->isPro() 
 			&& frameGmp::_()->getModule('add_map_options') 

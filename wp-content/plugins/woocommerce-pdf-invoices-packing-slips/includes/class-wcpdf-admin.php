@@ -169,13 +169,17 @@ class Admin {
 		$listing_actions = array();
 		$documents = WPO_WCPDF()->documents->get_documents();
 		foreach ($documents as $document) {
-			$document->read_data( $order );
-			$listing_actions[$document->get_type()] = array(
-				'url'		=> wp_nonce_url( admin_url( "admin-ajax.php?action=generate_wpo_wcpdf&document_type={$document->get_type()}&order_ids=" . WCX_Order::get_id( $order ) ), 'generate_wpo_wcpdf' ),
-				'img'		=> !empty($document->icon) ? $document->icon : WPO_WCPDF()->plugin_url() . "/assets/images/generic_document.png",
-				'alt'		=> "PDF " . $document->get_title(),
-				'exists'	=> $document->exists(),
-			);
+			$document_title = $document->get_title();
+			$icon = !empty($document->icon) ? $document->icon : WPO_WCPDF()->plugin_url() . "/assets/images/generic_document.png";
+			if ( $document = wcpdf_get_document( $document->get_type(), $order ) ) {
+				$document_title = method_exists($document, 'get_title') ? $document->get_title() : $document_title;
+				$listing_actions[$document->get_type()] = array(
+					'url'		=> wp_nonce_url( admin_url( "admin-ajax.php?action=generate_wpo_wcpdf&document_type={$document->get_type()}&order_ids=" . WCX_Order::get_id( $order ) ), 'generate_wpo_wcpdf' ),
+					'img'		=> $icon,
+					'alt'		=> "PDF " . $document_title,
+					'exists'	=> method_exists($document, 'exists') ? $document->exists() : false,
+				);
+			}
 		}
 
 		$listing_actions = apply_filters( 'wpo_wcpdf_listing_actions', $listing_actions, $order );			
@@ -272,6 +276,12 @@ class Admin {
 	 * Resend order emails
 	 */
 	public function send_order_email_meta_box( $post ) {
+		global $theorder;
+		// This is used by some callbacks attached to hooks such as woocommerce_resend_order_emails_available
+		// which rely on the global to determine if emails should be displayed for certain orders.
+		if ( ! is_object( $theorder ) ) {
+			$theorder = wc_get_order( $post->ID );
+		}
 		?>
 		<ul class="wpo_wcpdf_send_emails submitbox">
 			<li class="wide" id="actions">
@@ -313,13 +323,16 @@ class Admin {
 		$documents = WPO_WCPDF()->documents->get_documents();
 		$order = WCX::get_order( $post->ID );
 		foreach ($documents as $document) {
-			$document->read_data( $order );
-			$meta_box_actions[$document->get_type()] = array(
-				'url'		=> wp_nonce_url( admin_url( "admin-ajax.php?action=generate_wpo_wcpdf&document_type={$document->get_type()}&order_ids=" . $post_id ), 'generate_wpo_wcpdf' ),
-				'alt'		=> esc_attr( "PDF " . $document->get_title() ),
-				'title'		=> "PDF " . $document->get_title(),
-				'exists'	=> $document->exists(),
-			);
+			$document_title = $document->get_title();
+			if ( $document = wcpdf_get_document( $document->get_type(), $order ) ) {
+				$document_title = method_exists($document, 'get_title') ? $document->get_title() : $document_title;
+				$meta_box_actions[$document->get_type()] = array(
+					'url'		=> wp_nonce_url( admin_url( "admin-ajax.php?action=generate_wpo_wcpdf&document_type={$document->get_type()}&order_ids=" . $post_id ), 'generate_wpo_wcpdf' ),
+					'alt'		=> esc_attr( "PDF " . $document_title ),
+					'title'		=> "PDF " . $document_title,
+					'exists'	=> method_exists($document, 'exists') ? $document->exists() : false,
+				);
+			}
 		}
 
 		$meta_box_actions = apply_filters( 'wpo_wcpdf_meta_box_actions', $meta_box_actions, $post_id );
@@ -440,7 +453,7 @@ class Admin {
 			
 			$order = WCX::get_order( $post_id );
 			if ( $invoice = wcpdf_get_invoice( $order ) ) {
-				if ( isset( $_POST['wcpdf_invoice_date'] ) ) {
+				if ( !empty( $_POST['wcpdf_invoice_date'] ) ) {
 					$date = $_POST['wcpdf_invoice_date'];
 					$hour = !empty( $_POST['wcpdf_invoice_date_hour'] ) ? $_POST['wcpdf_invoice_date_hour'] : '00';
 					$minute = !empty( $_POST['wcpdf_invoice_date_minute'] ) ? $_POST['wcpdf_invoice_date_minute'] : '00';
@@ -548,8 +561,8 @@ class Admin {
 		}
 		$orderby = $query->get( 'orderby');
 		if( 'pdf_invoice_number' == $orderby ) {
-			$query->set('meta_key','_wcpdf_invoice_number');
-			$query->set('orderby','meta_value');
+			$query->set( 'meta_key', '_wcpdf_invoice_number' );
+			$query->set( 'orderby', apply_filters( 'wpo_wcpdf_invoice_number_column_orderby', 'meta_value' ) );
 		}
 	}
 
@@ -564,7 +577,7 @@ class Admin {
 				if ( 'pdf_invoice_number' === $query_vars['orderby'] ) {
 					$query_vars = array_merge( $query_vars, array(
 						'meta_key'  => '_wcpdf_invoice_number',
-						'orderby'   => 'meta_value',
+						'orderby'   => apply_filters( 'wpo_wcpdf_invoice_number_column_orderby', 'meta_value' ),
 					) );
 				}
 			}

@@ -655,3 +655,27 @@ h2 .vi-num {
         line-height: 45px;
     }    
 }
+
+.iab-cat-tags-display {
+    margin-top: 20px;
+}
+
+.iab-cat-tags-display:empty:after {
+    content: 'None selected yet';
+    font-style: italic;
+}
+
+.iab-cat-tag-button {
+    display: inline-block;
+    background-color: #0073aa;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 12px;
+    margin: 0 12px 12px 0;
+    cursor: pointer;
+}
+
+.ytvi-msg-congrats {
+    display: none;
+}

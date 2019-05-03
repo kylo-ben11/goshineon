@@ -20,6 +20,7 @@ class supsystic_promoGmp extends moduleGmp {
 		dispatcherGmp::addFilter('mainAdminTabs', array($this, 'addAdminTab'));
 		dispatcherGmp::addAction('beforeSaveOpts', array($this, 'checkSaveOpts'));
 		dispatcherGmp::addAction('addMapBottomControls', array($this, 'checkWeLoveYou'), 99);
+		dispatcherGmp::addAction('discountMsg', array($this, 'getDiscountMsg'));
 		add_action('admin_notices', array($this, 'checkAdminPromoNotices'));
 		add_action('admin_notices', array($this, 'showUserApiKeyAdminNotice'));
 	}
@@ -74,7 +75,7 @@ class supsystic_promoGmp extends moduleGmp {
 			// Wait for next week - when icons will be ready
 			if(!class_exists('frameUms')) {
 				$ultimateMapsInstallUrl = admin_url('plugin-install.php?tab=search&type=term&s=Ultimate+Maps+by+Supsystic');
-				$ultimateMapsMsg = '<p>'. 
+				$ultimateMapsMsg = '<p>'.
 						sprintf(__("Tired from Google Maps and it's pricings? We developed <b>Free Maps alternative for You</b> - <a href='%s' target='_blank'>Ultimate Maps by Supsystic</a>! Just try it in <a href='%s' target='_blank'>few clicks</a>!", GMP_LANG_CODE), $ultimateMapsInstallUrl, $ultimateMapsInstallUrl)
 						. '</p>';
 				$notices['ultimate_maps_promo'] = array('html' => $ultimateMapsMsg, 'show_after' => 1 * $day);
@@ -267,15 +268,17 @@ class supsystic_promoGmp extends moduleGmp {
 	}
 	public function addPromoMapTabs() {
 		$tabs = array();
+		$descirption['figures'] = 'With Figures Feature, you can create polygon, polyline and circle shapes on your map with an easy to use interface. Provide a Figure title and description, using text, photos, videos and links for the overlay.';
+		$descirption['heatmap'] = 'Heatmap is an extremely common map visualization type, especially prevalent in weather, travel, fitness and social areas. Use the points to display the relative density of the points on the map as a smoothly varying set of colours, depend on low and high density.';
 		if(!$this->isPro()) {
 			$tabs['gmpShapeTab'] = array(
 				'label' => __('Figures', GMP_LANG_CODE),
-				'content' => $this->getView()->getPromoTabContent('shapes&utm_campaign=googlemaps'),
+				'content' => $this->getView()->getPromoTabContent('shapes&utm_campaign=googlemaps', 'Figures', $descirption['figures']),
 				'promo' => true,
 			);
 			$tabs['gmpHeatmapTab'] = array(
 				'label' => __('Heatmap', GMP_LANG_CODE),
-				'content' => $this->getView()->getPromoTabContent('heatmap&utm_campaign=googlemaps'),
+				'content' => $this->getView()->getPromoTabContent('heatmap&utm_campaign=googlemaps', 'Heatmap Layer', $descirption['heatmap']),
 				'promo' => true,
 			);
 		}
@@ -283,5 +286,39 @@ class supsystic_promoGmp extends moduleGmp {
 	}
 	public function showFeaturedPluginsPage() {
 		return $this->getView()->showFeaturedPluginsPage();
+	}
+	public function getDiscountMsg() {
+		if($this->isPro()
+			&& frameGmp::_()->getModule('options')->getActiveTab() == 'license'
+			&& frameGmp::_()->getModule('license')
+			&& frameGmp::_()->getModule('license')->getModel()->isActive()
+		) {
+			$proPluginsList = array(
+				'ultimate-maps-by-supsystic-pro', 'newsletters-by-supsystic-pro', 'contact-form-by-supsystic-pro', 'live-chat-pro',
+				'digital-publications-supsystic-pro', 'coming-soon-supsystic-pro', 'price-table-supsystic-pro', 'tables-generator-pro',
+				'social-share-pro', 'popup-by-supsystic-pro', 'supsystic_slider_pro', 'supsystic-gallery-pro', 'google-maps-easy-pro',
+				'backup-supsystic-pro',
+			);
+			$activePluginsList = get_option('active_plugins', array());
+			$activeProPluginsCount = 0;
+			foreach($activePluginsList as $actPl) {
+				foreach($proPluginsList as $proPl) {
+					if(strpos($actPl, $proPl) !== false) {
+						$activeProPluginsCount++;
+					}
+				}
+			}
+			if($activeProPluginsCount === 1) {
+				$buyLink = $this->getDiscountBuyUrl();
+				$this->getView()->getDiscountMsg($buyLink);
+			}
+		}
+	}
+	public function getDiscountBuyUrl() {
+		$license = frameGmp::_()->getModule('license')->getModel()->getCredentials();
+		$license['key'] = md5($license['key']);
+		$license = urlencode(base64_encode(implode('|', $license)));
+		$plugin_code = 'google_maps_easy_pro';
+		return 'http://supsystic.com/?mod=manager&pl=lms&action=applyDiscountBuyUrl&plugin_code='. $plugin_code. '&lic='. $license;
 	}
 }

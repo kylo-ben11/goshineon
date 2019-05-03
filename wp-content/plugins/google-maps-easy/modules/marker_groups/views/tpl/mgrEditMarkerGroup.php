@@ -2,13 +2,11 @@
 	<div class="supsystic-item supsystic-panel">
 		<div id="containerWrapper">
 			<div id="gmpMgrTab" class="mgrTabContent">
-				<a
-					href="<?php echo $this->addNewLink?>"
-					class="button button-table-action"
-					id="addMarkerGroup"
-					style="display: <?php echo $this->editMarkerGroup ? 'inline-block;' : 'none;'?>"
-				>
+				<a href="<?php echo $this->_getPageLink('marker_groups_add_new')?>" class="button button-table-action" id="addMarkerGroup" style="display: <?php echo $this->editMarkerGroup ? 'inline-block;' : 'none;'?>">
 					<?php _e('Add Category', GMP_LANG_CODE)?>
+				</a>
+				<a href="<?php echo $this->_getPageLink('marker_groups_options')?>" class="button button-table-action" id="markerGroupOptions" style="display: <?php echo $this->editMarkerGroup ? 'inline-block;' : 'none;'?>">
+					<?php _e('Options', GMP_LANG_CODE)?>
 				</a>
 				<button class="button" id="gmpMgrSaveBtn">
 					<i class="fa fa-save"></i>

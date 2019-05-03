@@ -56,13 +56,15 @@ class ET_Builder_Module_Accordion_Item extends ET_Builder_Module {
 					),
 				),
 			),
-			'margin_padding' => array(
+			'margin_padding'        => array(
+				'draggable_margin'  => false,
+				'draggable_padding' => false,
 				'css' => array(
 					'important' => 'all',
 				),
 			),
 			'max_width'             => array(
-				'css' => array(
+				'css'                  => array(
 					'module_alignment' => "%%order_class%%.et_pb_toggle",
 				),
 			),
@@ -73,6 +75,11 @@ class ET_Builder_Module_Accordion_Item extends ET_Builder_Module {
 			),
 			'fonts'                 => false,
 			'button'                => false,
+			'height'                => array(
+				'css' => array(
+					'main' => '%%order_class%% .et_pb_toggle_content'
+				)
+			),
 		);
 
 		$this->custom_css_fields = array(

@@ -1149,6 +1149,7 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 					con_goal: false,
 					con_short: false,
 				};
+			var grid_containers = $('.et_pb_grid_item').parent().get();
 			var $hover_gutter_modules = $('.et_pb_gutter_hover');
 
 			window.et_pb_slider_init = function( $this_slider ) {
@@ -1401,6 +1402,10 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 				$et_lightbox_image.bind( 'click' );
 
 				window.et_pb_image_lightbox_init = function( $et_lightbox_image ) {
+					// Delay the initialization if magnificPopup hasn't finished loading yet.
+					if (!$et_lightbox_image.magnificPopup) {
+						return jQuery(window).on('load', function() {window.et_pb_image_lightbox_init($et_lightbox_image);});
+					}
 					$et_lightbox_image.magnificPopup( {
 						type: 'image',
 						removalDelay: 500,
@@ -1437,6 +1442,12 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 
 					$this_carousel.et_pb_simple_carousel( et_carousel_settings );
 				} );
+			}
+
+			if (grid_containers.length || is_frontend_builder) {
+				$(grid_containers).each(function () {
+					window.et_pb_set_responsive_grid($(this), '.et_pb_grid_item');
+				});
 			}
 
 			if ( $et_pb_fullwidth_portfolio.length || is_frontend_builder ) {
@@ -2116,15 +2127,12 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 						posts_number = isNaN( posts_number_original ) || 0 === posts_number_original ? 4 : posts_number_original,
 						pages = Math.ceil( total_grid_items / posts_number );
 
+					window.et_pb_set_responsive_grid($the_gallery_items_container, '.et_pb_gallery_item');
+
 					set_gallery_grid_pages( $the_gallery, pages );
 
 					var total_grid_items = 0;
 					var _page = 1;
-
-					// Remove existing fillers, if any
-					$the_gallery_items_container.find('.et_pb_gallery_filler').remove();
-					var filler = '<div class="et_pb_gallery_filler"></div>';
-					var fillers_added = 0;
 
 					$the_gallery_items.data('page', '');
 					$the_gallery_items.each(function(i){
@@ -2133,17 +2141,6 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 						var $this = $(this);
 						if ( 0 === parseInt( total_grid_items % posts_number ) ) {
 							$this.data('page', _page);
-							// This is the last item in the current page, since the grid layout is controlled
-							// by css rules using nth-child selectors, we need to make sure the current item
-							// is also the last on its column or else layout might break in other pages.
-							// To do so, we add as many empty filler as needed until the element right margin is 0
-							fillers_added = 0;
-							while (fillers_added < 4 && '0px' !== $this.css('marginRight')) {
-								// We can't possibly need more than 3 fillers for each row, make sure we exit anyway
-								// to prevent infinite loops.
-								fillers_added++;
-								$this.before($(filler));
-							}
 							_page++;
 						} else {
 							$this.data('page', _page);
@@ -3184,11 +3181,11 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 						$this_el.find('video').removeAttr('style');
 					}
 
-					var el_ratio  = parseFloat( $this_el.attr( 'data-ratio' ) );
-					var el_width  = parseInt( $this_el.find( 'video' ).attr( 'width' ) || $this_el.find( 'video' ).width() );
-					var el_height = parseInt( $this_el.find( 'video' ).attr( 'height' ) || $this_el.find( 'video' ).height() );
+					var $video    = $this_el.find('video');
+					var el_width  = ($video.prop('videoWidth')) || parseInt($video.width());
+					var el_height = ($video.prop('videoHeight')) || parseInt($video.height());
 
-					var ratio = ( ! isNaN( el_ratio ) ) ? el_ratio : ( el_width / el_height );
+					var ratio = el_width / el_height;
 
 					var $video_elements = $this_el.find( '.mejs-video, video, object' ).css( 'margin', 0 );
 
@@ -3281,7 +3278,7 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 						return true;
 					}
 
-					$slide_containers.css( 'height', 0 );
+					$slide_containers.css( 'height', '' );
 
 					// make slides visible to calculate the height correctly
 					$slides.addClass( 'et_pb_temp_slide' );
@@ -4998,11 +4995,26 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 				$( 'section.et_pb_fullscreen' ).each( function(){
 					$.proxy( et_calc_fullscreen_section, $( this ) )();
 				});
+
+				clearTimeout(et_calc_fullscreen_section.timeout);
+
+				et_calc_fullscreen_section.timeout = setTimeout(function () {
+					$et_window.off('resize', et_calculate_fullscreen_section_size);
+					$et_window.off('et-pb-header-height-calculated', et_calculate_fullscreen_section_size);
+
+					$et_window.trigger('resize');
+
+					$et_window.on('resize', et_calculate_fullscreen_section_size);
+					$et_window.on('et-pb-header-height-calculated', et_calculate_fullscreen_section_size);
+				});
+				// 100ms timeout is set to make sure that the fulls screen section size is calculated
+				// This allows the posibility that in some specific cases this may not be enought
+				// so we may need to review this.
 			};
 
 			if (!is_frontend_builder) {
-				$et_window.on( 'resize', et_calculate_fullscreen_section_size );
-				$et_window.on( 'et-pb-header-height-calculated', et_calculate_fullscreen_section_size );
+				$et_window.on('resize', et_calculate_fullscreen_section_size);
+				$et_window.on('et-pb-header-height-calculated', et_calculate_fullscreen_section_size);
 			}
 
 
@@ -5103,6 +5115,12 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 						window.et_bar_counters_init( $( this ) );
 					});
 				} /* $et_pb_counter_amount.length */
+
+				if (grid_containers.length || is_frontend_builder) {
+					$(grid_containers).each(function () {
+						window.et_pb_set_responsive_grid($(this), '.et_pb_grid_item');
+					});
+				}
 			} );
 
 			function fitvids_slider_fullscreen_init() {
@@ -5400,6 +5418,12 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 				$( 'html, body' ).animate({
 					scrollTop: ( $current_module.offset().top - ( $( '#main-header' ).innerHeight() + $( '#top-header' ).innerHeight() + 50 ) )
 				});
+
+				//Set classes for gallery and portfolio breakdowns
+				var grid_items = $current_module.find('.et_pb_grid_item');
+				if (grid_items.length) {
+					et_pb_set_responsive_grid($(grid_items.parent().get(0)), '.et_pb_grid_item');
+				}
 			}
 
 			window.et_pb_search_init = function( $search ) {
@@ -5912,7 +5936,7 @@ var isBuilder = 'object' === typeof window.ET_Builder;
 
 					$('<style />', {
 						'id' : 'et_fix_html_margin',
-						'text' : 'html.js { margin-top: 0px !important; }'
+						'text' : 'html.js.et-fb-top-html { margin-top: 0px !important; }'
 					}).appendTo('head');
 				}, 0);
 			}

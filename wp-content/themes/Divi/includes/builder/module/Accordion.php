@@ -69,6 +69,7 @@ class ET_Builder_Module_Accordion extends ET_Builder_Module {
 				),
 			),
 			'margin_padding' => array(
+				'draggable_padding' => false,
 				'css'        => array(
 					'padding'   => "{$this->main_css_element} .et_pb_toggle_content",
 					'margin'    => $this->main_css_element,

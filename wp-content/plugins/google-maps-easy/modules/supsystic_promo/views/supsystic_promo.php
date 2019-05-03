@@ -49,10 +49,10 @@ class supsystic_promoViewGmp extends viewGmp {
 	public function getNewsContent() {
 		$getData = wp_remote_get('http://supsystic.com/news/main.html');
 		$content = '';
-		if($getData 
-			&& is_array($getData) 
-			&& isset($getData['response']) 
-			&& isset($getData['response']['code']) 
+		if($getData
+			&& is_array($getData)
+			&& isset($getData['response'])
+			&& isset($getData['response']['code'])
 			&& $getData['response']['code'] == 200
 			&& isset($getData['body'])
 			&& !empty($getData['body'])
@@ -81,8 +81,13 @@ class supsystic_promoViewGmp extends viewGmp {
             'PHP CURL Support' => array('value' => extension_loaded('curl') ? __('Yes', GMP_LANG_CODE) : __('No', GMP_LANG_CODE), 'error' => !extension_loaded('curl')),
 		);
 	}
-	public function getPromoTabContent($tabCode) {
+	public function getPromoTabContent($tabCode, $tabTitle, $tabDescription) {
+        $tabCode = isset($tabCode) ? $tabCode : '';
+        $tabTitle = isset($tabTitle) ? $tabTitle : '';
+        $tabDescription = isset($tabDescription) ? $tabDescription : '';
 		$this->assign('tabCode', $tabCode);
+        $this->assign('tabTitle', $tabTitle);
+        $this->assign('tabDescription', $tabDescription);
 		return parent::getContent('adminPromoTabContent');
 	}
 	public function showFeaturedPluginsPage() {
@@ -93,6 +98,7 @@ class supsystic_promoViewGmp extends viewGmp {
 		$pluginsUrl = $siteUrl. 'plugins/';
 		$uploadsUrl = $siteUrl. 'wp-content/uploads/';
 		$downloadsUrl = 'https://downloads.wordpress.org/plugin/';
+		$imgUrl = frameGmp::_()->getModule('supsystic_promo')->getModPath(). 'img/';
 		$promoCampaign = 'googlemaps';
 		$this->assign('pluginsList', array(
 			array('label' => __('Popup Plugin', GMP_LANG_CODE), 'url' => $pluginsUrl. 'popup-plugin/', 'img' => $uploadsUrl. '2016/07/Popup_256.png', 'desc' => __('The Best WordPress PopUp option plugin to help you gain more subscribers, social followers or advertisement. Responsive pop-ups with friendly options.', GMP_LANG_CODE), 'download' => $downloadsUrl. 'popup-by-supsystic.zip'),
@@ -109,11 +115,19 @@ class supsystic_promoViewGmp extends viewGmp {
 			array('label' => __('Backup Plugin', GMP_LANG_CODE), 'url' => $pluginsUrl. 'backup-plugin/', 'img' => $uploadsUrl. '2016/07/Backup_256.png', 'desc' => __('Backup and Restore WordPress Plugin by Supsystic provides quick and unhitched DropBox, FTP, Amazon S3, Google Drive backup for your WordPress website.', GMP_LANG_CODE), 'download' => $downloadsUrl. 'backup-by-supsystic.zip'),
 			array('label' => __('Google Maps Easy', GMP_LANG_CODE), 'url' => $pluginsUrl. 'google-maps-plugin/', 'img' => $uploadsUrl. '2016/07/Google_Maps_256.png', 'desc' => __('Display custom Google Maps. Set markers and locations with text, images, categories and links. Customize google map in a simple and intuitive way.', GMP_LANG_CODE), 'download' => $downloadsUrl. 'google-maps-easy.zip'),
 			array('label' => __('Digital Publication Plugin', GMP_LANG_CODE), 'url' => $pluginsUrl. 'digital-publication-plugin/', 'img' => $uploadsUrl. '2016/07/Digital_Publication_256.png', 'desc' => __('Digital Publication WordPress Plugin by Supsystic for Magazines, Catalogs, Portfolios. Convert images, posts, PDF to the page flip book.', GMP_LANG_CODE), 'download' => $downloadsUrl. 'digital-publications-by-supsystic.zip'),
+			array('label' => __('Kinsta Hosting', GMP_LANG_CODE), 'url' => 'https://kinsta.com?kaid=MNRQQASUYJRT', 'external' => true, 'img' => $imgUrl. 'kinsta_banner.png', 'desc' => __('If you want to host a business site or a blog, Kinsta managed WordPress hosting is the best place to stop on. Without any hesitation, we can say Kinsta is incredible when it comes to uptime and speed.', GMP_LANG_CODE)),
 		));
 		foreach($this->pluginsList as $i => $p) {
-			$this->pluginsList[ $i ]['url'] = $this->pluginsList[ $i ]['url']. '?utm_source=plugin&utm_medium=featured_plugins&utm_campaign='. $promoCampaign;
+			if(empty($p['external'])) {
+				$this->pluginsList[ $i ]['url'] = $this->pluginsList[ $i ]['url']. '?utm_source=plugin&utm_medium=featured_plugins&utm_campaign='. $promoCampaign;
+			}
 		}
 		$this->assign('bundleUrl', $siteUrl. 'product/plugins-bundle/'. '?utm_source=plugin&utm_medium=featured_plugins&utm_campaign='. $promoCampaign);
 		return parent::getContent('featuredPlugins');
+	}
+	public function getDiscountMsg($buyLink = '#') {
+		$this->assign('bundlePageLink', '//supsystic.com/all-plugins/');
+		$this->assign('buyLink', $buyLink);
+		parent::display('discountMsg');
 	}
 }

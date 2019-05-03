@@ -64,9 +64,17 @@ class ET_Builder_Module_Image extends ET_Builder_Module {
 			),
 			'max_width'             => array(
 				'options' => array(
+					'width'     => array(
+						'depends_show_if' => 'off',
+					),
 					'max_width' => array(
 						'depends_show_if' => 'off',
 					),
+				),
+			),
+			'height'                => array(
+				'css' => array(
+					'main' => '%%order_class%% .et_pb_image_wrap img',
 				),
 			),
 			'fonts'                 => false,
@@ -253,6 +261,7 @@ class ET_Builder_Module_Image extends ET_Builder_Module {
 				'toggle_slug' => 'width',
 				'affects' => array(
 					'max_width',
+					'width',
 				),
 			),
 			'always_center_on_mobile' => array(
@@ -309,7 +318,7 @@ class ET_Builder_Module_Image extends ET_Builder_Module {
 		if ( 'on' === $force_fullwidth ) {
 			ET_Builder_Element::set_style( $render_slug, array(
 				'selector'    => '%%order_class%%',
-				'declaration' => 'max-width: 100% !important;',
+				'declaration' => 'width: 100%; max-width: 100% !important;',
 			) );
 
 			ET_Builder_Element::set_style( $render_slug, array(

@@ -3,8 +3,13 @@
 		<div id="containerWrapper">
 			<ul class="supsystic-bar-controls">
 				<li title="<?php _e('Add Category', GMP_LANG_CODE)?>">
-					<a class="button button-table-action" id="addMarkerGroup" href="<?php echo $this->addNewLink?>">
+					<a class="button button-table-action" id="addMarkerGroup" href="<?php echo $this->_getPageLink('marker_groups_add_new')?>">
 						<?php _e('Add Category', GMP_LANG_CODE)?>
+					</a>
+				</li>
+				<li title="<?php _e('Options', GMP_LANG_CODE)?>">
+					<a class="button button-table-action" id="markerGroupOptions" href="<?php echo $this->_getPageLink('marker_groups_options')?>">
+						<?php _e('Options', GMP_LANG_CODE)?>
 					</a>
 				</li>
 				<li title="<?php _e('Delete selected', GMP_LANG_CODE)?>">

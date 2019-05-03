@@ -89,6 +89,7 @@ class modInstallerGmp {
         $locations['plugDir'] = dirname(WP_PLUGIN_DIR. DS. $locations['plugPath']);
 		$locations['plugMainFile'] = WP_PLUGIN_DIR. DS. $locations['plugPath'];
         $locations['xmlPath'] = $locations['plugDir']. DS. 'install.xml';
+		$locations['extendModPath'] = $locations['plugDir']. DS. 'install.php';
         return $locations;
     }
     static private function _getModulesFromXml($xmlPath) {
@@ -109,6 +110,23 @@ class modInstallerGmp {
             errorsGmp::push(__('No XML file were found', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
         return false;
     }
+	static private function _getExtendModules($locations) {
+		$modules = array();
+		$isExtendModPath = file_exists($locations['extendModPath']);
+		$modulesList = $isExtendModPath ? include $locations['extendModPath'] : self::_getModulesFromXml($locations['xmlPath']);
+		if(!empty($modulesList)) {
+			foreach($modulesList as $mod) {
+				$modData = $isExtendModPath ? $mod : utilsGmp::xmlNodeAttrsToArr($mod);
+				array_push($modules, $modData);
+			}
+			if(empty($modules))
+				errorsGmp::push(__('No modules were found in installation file', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
+			else
+				return $modules;
+		} else
+			errorsGmp::push(__('No installation file were found', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
+		return false;
+	}
     /**
      * Check whether modules is installed or not, if not and must be activated - install it
      * @param array $codes array with modules data to store in database
@@ -117,20 +135,20 @@ class modInstallerGmp {
      */
     static public function check($extPlugName = '') {
         $locations = self::_getPluginLocations();
-        if($modules = self::_getModulesFromXml($locations['xmlPath'])) {
-            foreach($modules as $m) {
-                $modDataArr = utilsGmp::xmlNodeAttrsToArr($m);
-                if(!empty($modDataArr)) {
-                    if(frameGmp::_()->moduleExists($modDataArr['code'])) { //If module Exists - just activate it
-                        self::activate($modDataArr);
-                    } else {                                           //  if not - install it
-                        if(!self::install($modDataArr, $locations['plugDir'])) {
-                            errorsGmp::push(sprintf(__('Install %s failed'), $modDataArr['code']), errorsGmp::MOD_INSTALL);
-                        }
-                    }
-                }
-            }
-        } else
+		if($modules = self::_getExtendModules($locations)) {
+			foreach($modules as $m) {
+				if(!empty($m)) {
+					//If module Exists - just activate it, we can't check this using frameGmp::moduleExists because this will not work for multy-site WP
+					if(frameGmp::_()->getTable('modules')->exists($m['code'], 'code') /*frameGmp::_()->moduleExists($m['code'])*/) {
+						self::activate($m);
+					} else {                                           //  if not - install it
+						if(!self::install($m, $locations['plugDir'])) {
+							errorsGmp::push(sprintf(__('Install %s failed'), $m['code']), errorsGmp::MOD_INSTALL);
+						}
+					}
+				}
+			}
+		} else
             errorsGmp::push(__('Error Activate module', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
         if(errorsGmp::haveErrors(errorsGmp::MOD_INSTALL)) {
             self::displayErrors();
@@ -153,19 +171,18 @@ class modInstallerGmp {
      */
     static public function deactivate() {
         $locations = self::_getPluginLocations();
-        if($modules = self::_getModulesFromXml($locations['xmlPath'])) {
-            foreach($modules as $m) {
-                $modDataArr = utilsGmp::xmlNodeAttrsToArr($m);
-                if(frameGmp::_()->moduleActive($modDataArr['code'])) { //If module is active - then deacivate it
-                    if(frameGmp::_()->getModule('options')->getModel('modules')->put(array(
-                        'id' => frameGmp::_()->getModule($modDataArr['code'])->getID(),
-                        'active' => 0,
-                    ))->error) {
-                        errorsGmp::push(__('Error Deactivation module', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
-                    }
-                }
-            }
-        }
+		if($modules = self::_getExtendModules($locations)) {
+			foreach($modules as $m) {
+				if(frameGmp::_()->moduleActive($m['code'])) { //If module is active - then deacivate it
+					if(frameGmp::_()->getModule('options')->getModel('modules')->put(array(
+						'id' => frameGmp::_()->getModule($m['code'])->getID(),
+						'active' => 0,
+					))->error) {
+						errorsGmp::push(__('Error Deactivation module', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
+					}
+				}
+			}
+		}
         if(errorsGmp::haveErrors(errorsGmp::MOD_INSTALL)) {
             self::displayErrors(false);
             return false;
@@ -173,26 +190,20 @@ class modInstallerGmp {
         return true;
     }
     static public function activate($modDataArr) {
-        $locations = self::_getPluginLocations();
-        if($modules = self::_getModulesFromXml($locations['xmlPath'])) {
-            foreach($modules as $m) {
-                $modDataArr = utilsGmp::xmlNodeAttrsToArr($m);
-                if(!frameGmp::_()->moduleActive($modDataArr['code'])) { //If module is not active - then acivate it
-                    if(frameGmp::_()->getModule('options')->getModel('modules')->put(array(
-                        'code' => $modDataArr['code'],
-                        'active' => 1,
-                    ))->error) {
-                        errorsGmp::push(__('Error Activating module', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
-                    } else {
-						$dbModData = frameGmp::_()->getModule('options')->getModel('modules')->get(array('code' => $modDataArr['code']));
-						if(!empty($dbModData) && !empty($dbModData[0])) {
-							$modDataArr['ex_plug_dir'] = $dbModData[0]['ex_plug_dir'];
-						}
-						self::_runModuleInstall($modDataArr, 'activate');
-					}
-                }
-            }
-        }
+		if(!empty($modDataArr['code']) && !frameGmp::_()->moduleActive($modDataArr['code'])) { //If module is not active - then acivate it
+			if(frameGmp::_()->getModule('options')->getModel('modules')->put(array(
+				'code' => $modDataArr['code'],
+				'active' => 1,
+			))->error) {
+				errorsGmp::push(__('Error Activating module', GMP_LANG_CODE), errorsGmp::MOD_INSTALL);
+			} else {
+				$dbModData = frameGmp::_()->getModule('options')->getModel('modules')->get(array('code' => $modDataArr['code']));
+				if(!empty($dbModData) && !empty($dbModData[0])) {
+					$m['ex_plug_dir'] = $dbModData[0]['ex_plug_dir'];
+				}
+				self::_runModuleInstall($modDataArr, 'activate');
+			}
+		}
     } 
     /**
      * Display all errors for module installer, must be used ONLY if You realy need it
@@ -205,15 +216,14 @@ class modInstallerGmp {
         if($exit) exit();
     }
     static public function uninstall() {
-        $locations = self::_getPluginLocations();
-        if($modules = self::_getModulesFromXml($locations['xmlPath'])) {
-            foreach($modules as $m) {
-                $modDataArr = utilsGmp::xmlNodeAttrsToArr($m);
-                self::_uninstallTables($modDataArr);
-                frameGmp::_()->getModule('options')->getModel('modules')->delete(array('code' => $modDataArr['code']));
-                utilsGmp::deleteDir(GMP_MODULES_DIR. $modDataArr['code']);
-            }
-        }
+		$locations = self::_getPluginLocations();
+		if($modules = self::_getExtendModules($locations)) {
+			foreach($modules as $m) {
+				self::_uninstallTables($m);
+				frameGmp::_()->getModule('options')->getModel('modules')->delete(array('code' => $m['code']));
+				utilsGmp::deleteDir(GMP_MODULES_DIR. $m['code']);
+			}
+		}
     }
     static protected  function _uninstallTables($module) {
         if(is_dir(GMP_MODULES_DIR. $module['code']. DS. 'tables')) {

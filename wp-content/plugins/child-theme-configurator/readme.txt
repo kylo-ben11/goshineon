@@ -5,7 +5,7 @@ Tags: child, theme, child theme, child themes, custom styles, customize styles, 
 Requires at least: 4.0
 Requires PHP: 5.6.36
 Tested up to: 5.1
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -298,6 +298,9 @@ https://www.youtube.com/watch?v=iBiiAgsK4G4
 7. Files tab
 
 == Changelog ==
+= 2.4.4 =
+* Analyzer now saves all signals on successful child theme regardless of analysis results. 
+* This fixes a bug in some themes where the enqueue hooks were being rewitten incorrectly after adding web fonts.
 = 2.4.3 =
 * Fixed a serious regression bug created by version 2.4.2.
 = 2.4.2 =
@@ -313,17 +316,14 @@ https://www.youtube.com/watch?v=iBiiAgsK4G4
 * Automatically add action parent RTL stylesheet when child theme does not have one.
 * Handle case where parent theme changes queue action incorrectly points to non-existent child theme stylesheet.
 * Correctly copies customizer css to child theme.
-= Fixed PHP 7.3 compatability issue (thanks @forest-skills for identifying this)
-= 2.3.0.4 =
+* Fixed PHP 7.3 compatability issue (thanks @forest-skills for identifying this)
+
+= 2.3.x =
 * strip scripts during template scan to prevent false positives
-= 2.3.0.3 =
 * check file size during template scan to prevent timeout
 * changed syntax of statement that was being flagged by WP Defender
-= 2.3.0.2 =
 * Fixed bug in screenshot copy.
-= 2.3.0.1 =
 * Fixed incorrect reference to errors array in UI.
-= 2.3.0 =
 * Added ability to rename @media query 
 * Added height/Width for theme images on Files Tab
 * Added test for RTL in Analyzer
@@ -573,6 +573,7 @@ https://www.youtube.com/watch?v=iBiiAgsK4G4
 
 == Upgrade Notice ==
 
+2.4.4 Analyzer now always resubmits on success to ensure all signals are saved. This fixes a bug in some themes where the enqueue hooks were being rewitten incorrectly after adding web fonts.
 2.4.3 Fixed a serious regression bug created by version 2.4.2. Please update immediately.
 
 == Query/Selector Tab ==

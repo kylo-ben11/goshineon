@@ -71,6 +71,7 @@ class ET_Builder_Module_Button extends ET_Builder_Module {
 			'background'            => false,
 			'fonts'                 => false,
 			'max_width'             => false,
+			'height'                => false,
 			'link_options'          => false,
 		);
 

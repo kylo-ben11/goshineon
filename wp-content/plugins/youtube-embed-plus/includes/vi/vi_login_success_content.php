@@ -11,7 +11,7 @@
     else
     {
         ?>
-        You're now ready to monetize &raquo;
+        Click here to begin customizing &raquo;
         <?php
     }
     ?>

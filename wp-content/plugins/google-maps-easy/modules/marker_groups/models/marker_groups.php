@@ -14,7 +14,7 @@ class marker_groupsModelGmp extends modelGmp {
 
 		return $markerGroups;
 	}
-	public function getMarkerGroupsByIds($ids){
+	public function getMarkerGroupsByIds($ids, $isShowAllParents = false){
 		if(!$ids){
 			return false;
 		}
@@ -22,7 +22,7 @@ class marker_groupsModelGmp extends modelGmp {
 			$ids = array( $ids );
 		$ids = array_map('intval', $ids);
 		$groups = frameGmp::_()->getTable('marker_groups')->orderBy('sort_order')->get('*', array('additionalCondition' => 'id IN (' . implode(',', $ids) . ')'));
-		$groups = $this->_afterGet($groups);
+		$groups = $this->_afterGet($groups, false, $isShowAllParents);
 		if(!empty($groups)) {
 			return $groups;
 		}
@@ -57,7 +57,7 @@ class marker_groupsModelGmp extends modelGmp {
 			$this->pushError (__('Invalid ID', GMP_LANG_CODE));
 		return false;
 	}
-	protected function _afterGet($data, $single = false) {
+	protected function _afterGet($data, $single = false, $isShowAllParents = false) {
 		if($single) {
 			$data = array($data);
 		}
@@ -72,7 +72,7 @@ class marker_groupsModelGmp extends modelGmp {
 			if($data[$k]['sort_order'] == 1){
 				$data[$k]['parent'] = 0;
 			}
-			if(!$single && $this->searchForId($data[$k]['parent'], $data) === false){
+			if(!$single && !$isShowAllParents && $this->searchForId($data[$k]['parent'], $data) === false){
 				$data[$k]['parent'] = 0;
 			}
 		}
@@ -183,8 +183,8 @@ class marker_groupsModelGmp extends modelGmp {
 					}
 				}
 			}
-			$markerGroups = $this->getMarkerGroupsByIds($groupsForCurMap);
-
+			$isShowAllParents = !empty($map['params']['marker_filter_show_all_parents']) && (int) $map['params']['marker_filter_show_all_parents'];
+			$markerGroups = $this->getMarkerGroupsByIds($groupsForCurMap, $isShowAllParents);
 			if(!empty($markerGroups)) {
 				$markerGroups = $this->updateMarkerGroupsListByParents($markerGroups, $groupsForCurMap);
 				$markerGroupsTree = $this->getMarkerGroupsTree($markerGroups);
@@ -230,6 +230,12 @@ class marker_groupsModelGmp extends modelGmp {
 			$markerGroupsForSelect[ $value['id'] ] = $this->_updateTitleForTreeView($value['title'], $value, $allMarkerGroupsList);
 		}
 		return $markerGroupsForSelect;
+	}
+	public function getMarkerGroupsOptions() {
+		return get_option('gmp_marker_groups_opts', array());
+	}
+	public function saveMarkerGroupsOptions($options) {
+		return update_option('gmp_marker_groups_opts', $options);
 	}
 	public function _updateTitleForTreeView($title, $group, $allMarkerGroups) {
 		$level = $this->_itemGetLevel($group, $allMarkerGroups);

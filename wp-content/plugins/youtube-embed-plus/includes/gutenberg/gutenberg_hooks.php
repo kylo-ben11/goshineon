@@ -1,7 +1,7 @@
 <?php
 
 // Hook: Frontend assets.
-add_action('enqueue_block_assets', array(get_class(), 'gb_block_assets'));
+//add_action('enqueue_block_assets', array(get_class(), 'gb_block_assets'));
 
 // Hook: Editor assets.
 add_action('enqueue_block_editor_assets', array(get_class(), 'gb_editor_assets'));

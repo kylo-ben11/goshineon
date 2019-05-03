@@ -146,6 +146,10 @@ function et_fb_get_dynamic_backend_helpers() {
 		'status'      => get_site_option( 'et_account_status', 'not_active' ),
 	);
 
+	// In some cases when page created using Polylang
+	// it may have predefined content, so inital content is not empty.
+	$has_predefined_content = isset( $_GET['from_post'] ) && 'empty' !== $_GET['from_post'] ? 'yes' : 'no';
+
 	$helpers = array(
 		'site_url'                     => get_site_url(),
 		'locale'                       => get_user_locale(),
@@ -157,6 +161,7 @@ function et_fb_get_dynamic_backend_helpers() {
 		'layoutType'                   => $layout_type,
 		'layoutScope'                  => $layout_scope,
 		'layoutBuiltFor'               => $layout_built_for,
+		'hasPredefinedContent'         => $has_predefined_content,
 		'publishCapability'            => ( is_page() && ! current_user_can( 'publish_pages' ) ) || ( ! is_page() && ! current_user_can( 'publish_posts' ) ) ? 'no_publish' : 'publish',
 		'ajaxUrl'                      => is_ssl() ? admin_url( 'admin-ajax.php' ) : admin_url( 'admin-ajax.php', 'http' ),
 		'et_account'                   => $et_account,
@@ -168,6 +173,9 @@ function et_fb_get_dynamic_backend_helpers() {
 		'gmt_offset_string'            => et_pb_get_gmt_offset_string(),
 		'currentUserDisplayName'       => $current_user->display_name,
 		'currentRole'                  => et_pb_get_current_user_role(),
+		'currentUserCapabilities'      => array(
+			'manageOptions' => current_user_can( 'manage_options' ),
+		),
 		'exportUrl'                    => et_fb_get_portability_export_url(),
 		'nonces'                       => et_fb_get_nonces(),
 		'currentPage'                  => et_fb_current_page_params(),
@@ -214,6 +222,7 @@ function et_fb_get_dynamic_backend_helpers() {
 			'moduleCustomizerUrl'      => et_pb_is_allowed( 'theme_customizer' ) ? add_query_arg( array( 'et_customizer_option_set' => 'module', 'url' => urlencode( $current_url ) ), admin_url( 'customize.php' ) ) : false,
 			'roleEditorUrl'            => current_user_can( 'manage_options' ) ? add_query_arg( array( 'page' => 'et_divi_role_editor' ), admin_url( 'admin.php' ) ) : false,
 			'manageLibraryUrl'         => current_user_can( 'manage_options' ) ? add_query_arg( array( 'post_type' => 'et_pb_layout' ), admin_url( 'edit.php' ) ) : false,
+			'ajaxUrl'                  => is_ssl() ? admin_url( 'admin-ajax.php' ) : admin_url( 'admin-ajax.php', 'http' ),
 		),
 		'defaults'                     => array(
 			'et_pb_countdown_timer' => array(
@@ -412,6 +421,7 @@ function et_fb_get_static_backend_helpers($post_type) {
 		'builderVersion'               => ET_BUILDER_PRODUCT_VERSION,
 		'failureNotification'          => et_builder_get_failure_notification_modal(),
 		'noBuilderSupportNotification' => et_builder_get_no_builder_notification_modal(),
+		'noBrowserSupportNotification' => et_builder_get_no_browser_notification_modal(),
 		'exitNotification'             => et_builder_get_exit_notification_modal(),
 		'browserAutosaveNotification'  => et_builder_get_browser_autosave_notification_modal(),
 		'serverAutosaveNotification'   => et_builder_get_server_autosave_notification_modal(),
@@ -1884,10 +1894,25 @@ function et_fb_get_static_backend_helpers($post_type) {
 			),
 		),
 		'errorBoundaries'     => array(
-			'noDisplay' => esc_html__( 'could not be displayed', 'et_builder' ),
-			'hideError' => esc_html__( 'hide error message', 'et_builder' ),
-			'showError' => esc_html__( 'show error message', 'et_builder' ),
-			'component' => esc_html__( 'Component', 'et_builder' ),
+			'title'            => esc_html__( 'Oops! An Error Has Occurred', 'et_builder' ),
+			'message'          => esc_html__( 'This content could not be displayed. Please report this error to our team so that we can fix it and then save and reload the builder.', 'et_builder' ),
+			'messageNonAdmin'  => esc_html__( 'This content could not be displayed. Click the button below to save and reload the builder', 'et_builder' ),
+			'buttonReport'     => esc_html__( 'Report This Error', 'et_builder' ),
+			'buttonSaveReload' => esc_html__( 'Save and Reload', 'et_builder' ),
+			'modal' => array(
+				'title'                => esc_html__( 'Report An Error', 'et_builder' ),
+				'noAccountMessage'     => esc_html__( 'Elegant Themes username and API key have not been configured on this site. Error reporting requires username and API key to work.', 'et_builder' ),
+				'noAccountGuide'       => esc_html__( 'Click the button below, then go to Updates tab.', 'et_builder' ),
+				'noAccountButtonLabel' => esc_html__( 'Configure username and API key', 'et_builder' ),
+				'consentTitle'         => esc_html__( 'Data Transfer Agreement', 'et_builder' ),
+				'consentDescription'   => esc_html__( 'The following information will be sent to our team when you submit an error report. This includes the complete content of this page, a detailed error report, and basic information about your website such as which plugins you have installed, which software versions you are using and more. The full list of data transfered in this report will include the following:', 'et_builder' ),
+				'consentLabel'         => esc_html__( 'I agree to transfer this data to Elegant Themes.', 'et_builder' ),
+				'buttonLabel'          => esc_html__( 'Send Error Report', 'et_builder' ),
+				'successMessage'       => esc_html__( 'Thank you for reporting this issue. Your report has been successfully sent.', 'et_builder' ),
+				'successAutoclose'     => esc_html__( 'This message will be automatically closed in 3 seconds.', 'et_builder' ),
+				'debugInfo'            => ET_Builder_Error_Report::get_debug_info(),
+				'errorMessage'         => esc_html__( 'An error occurred, please try again.', 'et_builder' ),
+			),
 		),
 		/**
 		 * @todo update vbSupport['modalSupportNotices']['off'] and vbSupport['modalSupportNotices']['partial'] once the documentation page is ready
@@ -1944,8 +1969,10 @@ function et_fb_backend_helpers() {
 
 	if ( wp_script_is( 'et-dynamic-asset-helpers', 'enqueued' ) ) {
 		// New loading method
-		$post_id = isset( $post->ID ) ? $post->ID : false;
-		$layout_type = '';
+		$custom_post_id  = isset( $_GET['custom_page_id'] ) ? $_GET['custom_page_id'] : false;
+		$current_post_id = isset( $post->ID ) ? $post->ID : false;
+		$post_id         = $custom_post_id ? $custom_post_id : $current_post_id;
+		$layout_type     = '';
 
 		if ( 'et_pb_layout' === $post_type ) {
 			$layout_type = et_fb_get_layout_type( $post_id );

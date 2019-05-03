@@ -169,7 +169,11 @@ class Controller {
         const title = getEditedPostAttribute('title');
         // Restore GB content and title (without saving)
         this.setupEditor(placeholder.unwrap(content), title);
-        unregisterPlaceholder();
+        // WP 5.2 GB requires setupEditor to be called twice....
+        setTimeout(() => {
+          this.setupEditor(placeholder.unwrap(content), title);
+          unregisterPlaceholder();
+        }, 0);
 
         toggleMetaSettings(false);
       }

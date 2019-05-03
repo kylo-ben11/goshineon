@@ -27,7 +27,7 @@
 							frameborder="0">
 					</iframe>
 				</div>
-				<div class="video">
+				<div class="pro-features">
 					<h3><?php _e('PRO Features', GMP_LANG_CODE)?></h3>
 					<iframe type="text/html"
 							width="80%"
@@ -104,6 +104,12 @@
 						<i class="fa fa-envelope-o"></i>
 						<?php _e('Your email was send, we will try to respond to you as soon as possible. Thank you for support!', GMP_LANG_CODE)?>
 					</div>
+				</div>
+				<div class="banner">
+					<div class="text-block"><?php _e('If you want to host a business site or a blog, Kinsta managed WordPress hosting is the best place to stop on. Without any hesitation, we can say Kinsta is incredible when it comes to uptime and speed.', GMP_LANG_CODE)?></div>
+					<a href="https://kinsta.com?kaid=MNRQQASUYJRT">
+						<img src="<?php echo frameGmp::_()->getModule('supsystic_promo')->getModPath()?>img/kinsta_banner.png" style="width: 300px;height: 250px;" />
+					</a>
 				</div>
 			</div>
 			<div style="clear: both;"></div>

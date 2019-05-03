@@ -65,7 +65,9 @@ class gmapViewGmp extends viewGmp {
 
 		if(!empty($mapsInPostsParams) && !empty($mapsInPostsParams[$mapObj['view_id']])) {
 			$mapObj = $this->applyShortcodeHtmlParams($mapObj, $mapsInPostsParams[$mapObj['view_id']]);
+			$mapObj = $this->applyShortcodeMapParams($mapObj, $mapsInPostsParams[$mapObj['view_id']]);
 		}
+		$this->prepareMapHtmlParams($mapObj);
 		$this->assign('currentMap', $mapObj);
 		array_push($this->_mapStyles, $mapObj['view_id']);
 
@@ -146,17 +148,14 @@ class gmapViewGmp extends viewGmp {
 		if($mapMarkersGroupsList) {
 			$mapObj['marker_groups'] = frameGmp::_()->getModule('marker_groups')->getModel()->getMarkerGroupsByIds($mapMarkersGroupsList);
 		}
-
 		$mapObj['params']['markers_list_type'] = isset($params['markers_list_type'])
 			? $params['markers_list_type']
 			: (isset($mapObj['params']['markers_list_type']) && !empty($mapObj['params']['markers_list_type']))
 				? $mapObj['params']['markers_list_type']
 				: '';
 		$mapObj = dispatcherGmp::applyFilters('mapDataRender', $mapObj);
+		// for Social Share integration
 		$mapObj['params']['ss_html'] = $this->generateSocialSharingHtml($mapObj);
-
-		$this->connectMapsAssets( $mapObj['params'] );
-
 		// for Membership activity Map add window
 		if(!empty($params['membership-integrating'])) {
 			$this->assign('mbsIntegrating', $params['id']);
@@ -170,17 +169,47 @@ class gmapViewGmp extends viewGmp {
 			}
 			$mapObj['mbs_created'] = 1;
 		}
-
+		// Connect map assets
+		$this->connectMapsAssets( $mapObj['params'] );
 		frameGmp::_()->addScript('frontend.gmap', $this->getModule()->getModPath(). 'js/frontend.gmap.js', array('jquery'), false, true);
+		// Add styles if they were not added yet
+		$content = '';
+		if(!in_array($mapObj['view_id'], $this->_mapStyles)) {
+			$content .= $this->addMapStyles($mapObj);
+		}
+		$mapObj['params']['html_options'] = $this->htmlOptions; // have created in $this->addMapStyles function
+		// Add map object to js
 		$this->addMapData(dispatcherGmp::applyFilters('mapDataToJs', $mapObj));
 
 		$this->assign('markersDisplayType', $mapObj['params']['markers_list_type']);
 		$this->assign('currentMap', $mapObj);
-		$res = '';
-		if(!in_array($mapObj['view_id'], $this->_mapStyles)) {
-			$res .= $this->addMapStyles($mapObj);
+
+		return ($content. parent::getInlineContent('gmapDrawMap'));
+	}
+	public function prepareMapHtmlParams($mapObj) {
+		$htmlOptions = $mapObj['html_options'];
+		$htmlOptions['width_units'] = isset($mapObj['params']['width_units']) ? $mapObj['params']['width_units'] : 'px';
+		$htmlOptions['width'] = $htmlOptions['width_units'] === '%' && (int)$htmlOptions['width'] > 100 ? 100 : trim($htmlOptions['width']);
+		if($mapObj['params']['map_display_mode'] === 'popup') {
+			$htmlOptions['width_units'] = '%';
+			$htmlOptions['width'] = 100;
 		}
-		return ($res. parent::getInlineContent('gmapDrawMap'));
+		$htmlOptions['width_full'] = (int)$htmlOptions['width']. ($htmlOptions['width_units']);
+		$htmlOptions['height'] = trim($mapObj['html_options']['height']);
+		$htmlOptions['height_units'] = 'px';
+		$htmlOptions['height_full'] = $htmlOptions['height']. $htmlOptions['height_units'];
+		if(!empty($htmlOptions['align'])) {
+			$htmlOptions['align'] = trim($htmlOptions['align']);
+		}
+		if(!empty($htmlOptions['border_width']) && !empty($htmlOptions['border_color'])) {
+			$htmlOptions['border_color'] = trim($htmlOptions['border_width']). 'px solid '. trim($htmlOptions['border_color']);
+		}
+		if(!empty($htmlOptions['margin'])) {
+			$htmlOptions['margin'] = trim($htmlOptions['margin']) . 'px';
+		}
+		$this->assign('htmlOptions', $htmlOptions);
+
+		return $mapObj;
 	}
 	public function applyShortcodeHtmlParams($mapObj, $params){
 		foreach($this->_shortCodeHtmlParams as $code) {

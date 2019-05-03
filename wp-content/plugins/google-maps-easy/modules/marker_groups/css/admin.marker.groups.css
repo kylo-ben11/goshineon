@@ -63,3 +63,18 @@
 	float: right;
 	margin-right: 30px;
 }
+.mgrFontSizeLevel {
+	margin-top: 10px;
+}
+@media screen and (max-width: 782px) {
+	.form-table td .mgrFontSizeLevel input[type=text] {
+		display: inline-block;
+		width: auto;
+		font-size: 16px;
+		line-height: 17px;
+		vertical-align: middle;
+	}
+	.form-table td .mgrFontSizeLevel .mgrFontSizeLevelRemoveBtn {
+		margin: 0;
+	}
+}

@@ -7,7 +7,15 @@ define( 'ET_BUILDER_AJAX_TEMPLATES_AMOUNT', apply_filters( 'et_pb_templates_load
 
 add_action( 'init', array( 'ET_Builder_Element', 'set_media_queries' ), 11 );
 
+require_once 'module/helpers/Overflow.php';
 require_once 'module/helpers/HoverOptions.php';
+require_once 'module/helpers/ResponsiveOptions.php';
+require_once 'module/helpers/Height.php';
+require_once 'module/helpers/MinHeight.php';
+require_once 'module/helpers/MaxHeight.php';
+require_once 'module/helpers/Width.php';
+require_once 'module/helpers/MaxWidth.php';
+require_once 'module/helpers/Alignment.php';
 require_once 'module/helpers/TransitionOptions.php';
 require_once 'module/field/Factory.php';
 
@@ -102,6 +110,8 @@ class ET_Builder_Element {
 	public static $settings_migrations_initialized = false;
 	public static $setting_advanced_styles = false;
 	public static $uses_module_classname = array();
+
+	protected static $_fields_unprocessed = array();
 
 	private static $_current_section_index = -1;
 	private static $_current_row_index     = -1;
@@ -202,7 +212,7 @@ class ET_Builder_Element {
 		self::$current_module_index++;
 
 		if ( ! self::$_deprecations ) {
-			self::$_deprecations = require ET_BUILDER_DIR . 'deprecations.php';
+			self::$_deprecations = require_once ET_BUILDER_DIR . 'deprecations.php';
 			self::$_deprecations = self::$_deprecations['classes']['\ET_Builder_Module_Blurb'];
 		}
 
@@ -270,6 +280,7 @@ class ET_Builder_Element {
 
 		$this->_additional_fields_options = array();
 		$this->_add_additional_fields();
+
 		$this->_add_custom_css_fields();
 
 		$this->_maybe_add_global_defaults();
@@ -649,7 +660,7 @@ class ET_Builder_Element {
 
 		$is_preview       = is_preview() || is_et_pb_preview();
 		$forced_in_footer = $post_id && et_builder_setting_is_on( 'et_pb_css_in_footer', $post_id );
-		$forced_inline    = ! $post_id || $is_preview || $forced_in_footer || et_builder_setting_is_off( 'et_pb_static_css_file', $post_id );
+		$forced_inline    = ! $post_id || $is_preview || $forced_in_footer || et_builder_setting_is_off( 'et_pb_static_css_file', $post_id ) || et_core_is_safe_mode_active();
 		$unified_styles   = ! $forced_inline && ! $forced_in_footer;
 
 		$resource_owner = $unified_styles ? 'core' : 'builder';
@@ -783,30 +794,46 @@ class ET_Builder_Element {
 		$this->text_shadow = ET_Builder_Module_Fields_Factory::get( 'TextShadow' );
 	}
 
+	protected function _set_fields_unprocessed( $fields ) {
+		$unprocessed = &self::$_fields_unprocessed;
+
+		foreach ( $fields as $field => $definition ) {
+			// We could save more memory here by using md5 at the cost of more cpu usage
+			// and risk of collisions.
+			$key = ( serialize( $definition ) );
+			if ( ! isset( $unprocessed[ $key ] ) ) {
+				$unprocessed[ $key ] = $definition;
+			}
+
+			$this->fields_unprocessed[ $field ] = $unprocessed[ $key ];
+		}
+	}
+
 	/**
 	 * Populates {@see self::$fields_unprocessed}.
 	 */
-	function set_fields() {
-		$this->fields_unprocessed = $this->get_complete_fields();
+	public function set_fields() {
+		$fields_unprocessed = $this->get_complete_fields();
 
 		// Add _builder_version field to all modules
-		$this->fields_unprocessed['_builder_version'] = array( 'type' => 'skip' );
+		$fields_unprocessed['_builder_version'] = array( 'type' => 'skip' );
 
 		// Add _dynamic_attributes field to all modules.
-		$this->fields_unprocessed['_dynamic_attributes'] = array( 'type' => 'skip' );
+		$fields_unprocessed['_dynamic_attributes'] = array( 'type' => 'skip' );
 
 		if ( $this->_is_official_module ) {
+			$this->_set_fields_unprocessed( $fields_unprocessed );
 			return;
 		}
 
 		// 3rd-Party module backwards compatability starts here
-		foreach ( $this->fields_unprocessed as $field => $info ) {
+		foreach ( $fields_unprocessed as $field => $info ) {
 			if ( isset( $info['depends_to'] ) ) {
-				$this->fields_unprocessed[ $field ]['depends_on'] = $info['depends_to'];
+				$fields_unprocessed[ $field ]['depends_on'] = $info['depends_to'];
 			}
 
 			if ( isset( $info['depends_default'] ) && $info['depends_default'] && ! isset( $info['depends_show_if'] ) ) {
-				$this->fields_unprocessed[ $field ]['depends_show_if'] = 'on';
+				$fields_unprocessed[ $field ]['depends_show_if'] = 'on';
 				$message = "You're Doing It Wrong! Setting definition for {$field} includes deprecated parameter: 'depends_default'. Use 'show_if' instead.";
 				et_debug( $message );
 			}
@@ -837,10 +864,10 @@ class ET_Builder_Element {
 						break;
 				}
 
-				$this->fields_unprocessed[ $field ]['type'] = $updated_field_type;
+				$fields_unprocessed[ $field ]['type'] = $updated_field_type;
 
 				if ( 'et_pb_get_font_down_icon_list' === $info['renderer'] ) {
-					$this->fields_unprocessed[ $field ]['renderer_options'] = array( 'icons_list' => 'icon_down', );
+					$fields_unprocessed[ $field ]['renderer_options'] = array( 'icons_list' => 'icon_down', );
 				}
 
 				// Output developer warning if renderer was converted to type
@@ -853,24 +880,24 @@ class ET_Builder_Element {
 
 			// Normalize `affects` field names if needed.
 			if ( isset( $info['affects'] ) ) {
-				$affects_original = $this->fields_unprocessed[ $field ]['affects'];
-				$this->fields_unprocessed[ $field ]['affects'] = array();
+				$affects_original = $fields_unprocessed[ $field ]['affects'];
+				$fields_unprocessed[ $field ]['affects'] = array();
 				// BB supports comma separated list of affected fields, convert it to array of fields if this is the case.
 				// Some plugins use combination of various lists, handle all of them
 				foreach( $affects_original as $affect_item ) {
 					if ( strpos( $affect_item, ',' ) !== false ) {
-						$this->fields_unprocessed[ $field ]['affects'] = array_merge( $this->fields_unprocessed[ $field ]['affects'], explode( ',', str_replace( ' ', '', $affect_item ) ) );
+						$fields_unprocessed[ $field ]['affects'] = array_merge( $fields_unprocessed[ $field ]['affects'], explode( ',', str_replace( ' ', '', $affect_item ) ) );
 					} else {
-						$this->fields_unprocessed[ $field ]['affects'][] = $affect_item;
+						$fields_unprocessed[ $field ]['affects'][] = $affect_item;
 					}
 				}
 
-				array_walk( $this->fields_unprocessed[ $field ]['affects'], array( $this, 'normalize_affect_fields' ) );
+				array_walk( $fields_unprocessed[ $field ]['affects'], array( $this, 'normalize_affect_fields' ) );
 			}
 
 			if ( 'content_new' === $field ) {
-				$this->fields_unprocessed['content'] = $this->fields_unprocessed['content_new'];
-				unset( $this->fields_unprocessed['content_new'] );
+				$fields_unprocessed['content'] = $fields_unprocessed['content_new'];
+				unset( $fields_unprocessed['content_new'] );
 				$message = "You're Doing It Wrong! Setting definition for {$field} includes deprecated parameter: 'content_new'. Use 'content' instead.";
 				et_debug( $message );
 			}
@@ -878,7 +905,7 @@ class ET_Builder_Element {
 			// convert old color pickers to the new ones supporting alpha channel
 			if ( 'color' === self::$_->array_get( $info, 'type' ) ) {
 				$info['type'] = 'color-alpha';
-				$this->fields_unprocessed[ $field ] = $info;
+				$fields_unprocessed[ $field ] = $info;
 				$message = "You're Doing It Wrong! You're using wrong type for the '" . $field . "'. It should be 'color-alpha' instead of 'color'.";
 				et_debug( $message, 4, false );
 			}
@@ -886,39 +913,39 @@ class ET_Builder_Element {
 			// convert input type to text
 			if ( 'input' === self::$_->array_get( $info, 'type' ) ) {
 				$info['type'] = 'text';
-				$this->fields_unprocessed[ $field ] = $info;
+				$fields_unprocessed[ $field ] = $info;
 				$message = "You're Doing It Wrong! Setting definition for {$field} has a deprecated value: 'input' for parameter: 'type'. Use 'text' instead.";
 				et_debug( $message );
 			}
 
 			// Normalize default values
 			if ( isset( $info['default'] ) ) {
-				$this->fields_unprocessed[ $field ]['default'] = $this->_normalize_field_default( $field, $info['default'] );
+				$fields_unprocessed[ $field ]['default'] = $this->_normalize_field_default( $field, $info['default'], $fields_unprocessed[ $field ]['type'] );
 			}
 		}
 
 		// Set default values in field definitions based on the legacy defaults "rules"
 		if ( isset( $this->fields_defaults ) ) {
 			foreach ( $this->fields_defaults as $field => $value ) {
-				if ( ! isset( $this->fields_unprocessed[ $field ] ) ) {
+				if ( ! isset( $fields_unprocessed[ $field ] ) ) {
 					continue;
 				}
 
 				$condition            = is_array( $value ) ? self::$_->array_get( $value, '1' ) : false;
 				$set_default_on_front = 'only_default_setting' !== $condition;
-				$default              = $this->_normalize_field_default( $field, $value );
+				$default              = $this->_normalize_field_default( $field, $value, $fields_unprocessed[ $field ]['type'] );
 
 				// Always set default value if exists. Only default_on_front should be conditional
-				$this->fields_unprocessed[ $field ]['default'] = $default;
+				$fields_unprocessed[ $field ]['default'] = $default;
 
 				if ( ! $set_default_on_front ) {
 					continue;
 				}
 
-				$has_default = isset( $this->fields_unprocessed[ $field ]['default'] );
+				$has_default = isset( $fields_unprocessed[ $field ]['default'] );
 
-				if ( ! $has_default || $this->fields_unprocessed[ $field ]['default'] !== $default ) {
-					$this->fields_unprocessed[ $field ]['default_on_front'] = $default;
+				if ( ! $has_default || $fields_unprocessed[ $field ]['default'] !== $default ) {
+					$fields_unprocessed[ $field ]['default_on_front'] = $default;
 				}
 			}
 		}
@@ -934,17 +961,19 @@ class ET_Builder_Element {
 						continue;
 					}
 
-					$this->fields_unprocessed[ $field ] = array();
+					$fields_unprocessed[ $field ] = array();
 				}
 			}
 		}
+
+		$this->_set_fields_unprocessed( $fields_unprocessed );
 	}
 
-	protected function _normalize_field_default( $field, $default_value) {
+	protected function _normalize_field_default( $field, $default_value, $type = '' ) {
 		$normalized_value = is_array( $default_value ) ? $default_value[0] : $default_value;
 
 		// normalize default value depends on field type
-		switch ( $this->fields_unprocessed[ $field ]['type'] ) {
+		switch ( $type ) {
 			case 'yes_no_button':
 				if ( is_numeric( $normalized_value ) ) {
 					$normalized_value = (bool) $normalized_value ? 'on' : 'off';
@@ -1001,7 +1030,8 @@ class ET_Builder_Element {
 	 * @return void
 	 */
 	protected function _finalize_all_fields() {
-		$fields_before_filter = $this->fields_unprocessed;
+		$fields_unprocessed   = $this->fields_unprocessed;
+		$fields_before_filter = $fields_unprocessed;
 
 		/**
 		 * Filters module fields.
@@ -1010,55 +1040,56 @@ class ET_Builder_Element {
 		 *
 		 * @param array $fields_unprocessed See {@see self::$fields_unprocessed}.
 		 */
-		$this->fields_unprocessed = apply_filters( "et_pb_all_fields_unprocessed_{$this->slug}", $this->fields_unprocessed );
+		$fields_unprocessed = apply_filters( "et_pb_all_fields_unprocessed_{$this->slug}", $fields_unprocessed );
 
 		// Check if this is an AJAX request since this is how VB and BB loads the initial module data et_core_is_fb_enabled() always returns `false` here
 		// Make exception for VB page which has no dynamic definitions asset so it can cache the definitions correctly
 		if ( ! wp_doing_ajax() && ! ( et_core_is_fb_enabled() && ! et_fb_dynamic_asset_exists( 'definitions' ) ) ) {
+			$this->_set_fields_unprocessed( $fields_unprocessed );
 			return;
 		}
 
-		foreach ( array_keys( $this->fields_unprocessed ) as $field_name ) {
-			$field_info      = $this->fields_unprocessed[ $field_name ];
+		foreach ( array_keys( $fields_unprocessed ) as $field_name ) {
+			$field_info      = $fields_unprocessed[ $field_name ];
 			$affected_fields = self::$_->array_get( $field_info, 'affects', array() );
 
 			foreach ( $affected_fields as $affected_field ) {
-				if ( ! isset( $this->fields_unprocessed[ $affected_field ] ) ) {
+				if ( ! isset( $fields_unprocessed[ $affected_field ] ) ) {
 					continue;
 				}
 
-				if ( ! isset( $this->fields_unprocessed[ $affected_field ]['depends_on'] ) ) {
-					$this->fields_unprocessed[ $affected_field ]['depends_on'] = array();
+				if ( ! isset( $fields_unprocessed[ $affected_field ]['depends_on'] ) ) {
+					$fields_unprocessed[ $affected_field ]['depends_on'] = array();
 				}
 
 				// Avoid value duplication
-				if ( ! in_array( $field_name, $this->fields_unprocessed[ $affected_field ]['depends_on'] ) ) {
-					$this->fields_unprocessed[ $affected_field ]['depends_on'][] = $field_name;
+				if ( ! in_array( $field_name, $fields_unprocessed[ $affected_field ]['depends_on'] ) ) {
+					$fields_unprocessed[ $affected_field ]['depends_on'][] = $field_name;
 				}
 
 				// Set `depends_show_if = on` if no condition defined for the affected field for backward compatibility with old plugins
-				if ( ! isset( $this->fields_unprocessed[ $affected_field ]['depends_show_if'] ) && ! isset( $this->fields_unprocessed[ $affected_field ]['depends_show_if_not'] ) )  {
+				if ( ! isset( $fields_unprocessed[ $affected_field ]['depends_show_if'] ) && ! isset( $fields_unprocessed[ $affected_field ]['depends_show_if_not'] ) )  {
 					// Deprecation notice has already been logged for this.
-					$this->fields_unprocessed[ $affected_field ]['depends_show_if'] = 'on';
+					$fields_unprocessed[ $affected_field ]['depends_show_if'] = 'on';
 				}
 			}
 
 			// Unset renderer to avoid errors in VB because of errors in 3rd party plugins
 			// BB compat. Still need this data, so leave it for BB
-			if ( ( self::is_loading_vb_data() || et_fb_is_enabled() ) && isset( $this->fields_unprocessed[ $field_name ]['renderer'] ) ) {
-				unset( $this->fields_unprocessed[ $field_name ]['renderer'] );
+			if ( ( self::is_loading_vb_data() || et_fb_is_enabled() ) && isset( $fields_unprocessed[ $field_name ]['renderer'] ) ) {
+				unset( $fields_unprocessed[ $field_name ]['renderer'] );
 			}
 
-			if ( isset( $this->fields_unprocessed[ $field_name ]['use_plugin_main'] ) ) {
-				$this->fields_unprocessed[ $field_name ]['use_limited_main'] = $this->fields_unprocessed[ $field_name ]['use_plugin_main'];
-				unset( $this->fields_unprocessed[ $field_name ]['use_plugin_main'] );
+			if ( isset( $fields_unprocessed[ $field_name ]['use_plugin_main'] ) ) {
+				$fields_unprocessed[ $field_name ]['use_limited_main'] = $fields_unprocessed[ $field_name ]['use_plugin_main'];
+				unset( $fields_unprocessed[ $field_name ]['use_plugin_main'] );
 				$message = "You're Doing It Wrong! Setting definition for {$field_name} includes deprecated parameter: 'use_plugin_main'. Use 'use_limited_main' instead.";
 				et_debug( $message );
 			}
 
-			if ( isset( $this->fields_unprocessed[ $field_name ]['plugin_main'] ) ) {
-				$this->fields_unprocessed[ $field_name ]['limited_main'] = $this->fields_unprocessed[ $field_name ]['plugin_main'];
-				unset( $this->fields_unprocessed[ $field_name ]['plugin_main'] );
+			if ( isset( $fields_unprocessed[ $field_name ]['plugin_main'] ) ) {
+				$fields_unprocessed[ $field_name ]['limited_main'] = $fields_unprocessed[ $field_name ]['plugin_main'];
+				unset( $fields_unprocessed[ $field_name ]['plugin_main'] );
 				$message = "You're Doing It Wrong! Setting definition for {$field_name} includes deprecated parameter: 'plugin_main'. Use 'limited_main' instead.";
 				et_debug( $message );
 			}
@@ -1066,14 +1097,16 @@ class ET_Builder_Element {
 
 		// determine custom fields added via filter and add specific flag to identify them in VB
 		$keys_before_filter = array_keys( $fields_before_filter );
-		$keys_after_filter = array_keys( $this->fields_unprocessed );
+		$keys_after_filter = array_keys( $fields_unprocessed );
 		$added_fields = array_diff( $keys_after_filter, $keys_before_filter );
 
 		if ( ! empty( $added_fields ) ) {
 			foreach ( $added_fields as $key ) {
-				$this->fields_unprocessed[ $key ]['vb_support'] = false;
+				$fields_unprocessed[ $key ]['vb_support'] = false;
 			}
 		}
+
+		$this->_set_fields_unprocessed( $fields_unprocessed );
 	}
 
 	/**
@@ -1104,11 +1137,12 @@ class ET_Builder_Element {
 	 * Double quote are saved as "%22" in shortcode attributes.
 	 * Decode them back into "
 	 *
-	 * @param array $enabled_dynamic_attributes
+	 * @param array<string> $enabled_dynamic_attributes
+	 * @param bool $et_fb_processing_shortcode_object
 	 *
 	 * @return void
 	 */
-	private function _decode_double_quotes( $enabled_dynamic_attributes ) {
+	private function _decode_double_quotes( $enabled_dynamic_attributes, $et_fb_processing_shortcode_object ) {
 		if ( ! isset( $this->props ) ) {
 			return;
 		}
@@ -1120,6 +1154,12 @@ class ET_Builder_Element {
 		$font_icon_options = array( 'font_icon', 'button_icon', 'button_one_icon', 'button_two_icon', 'hover_icon' );
 
 		foreach ( $this->props as $attribute_key => $attribute_value ) {
+			if ( $et_fb_processing_shortcode_object && in_array( $attribute_key, $enabled_dynamic_attributes, true ) ) {
+				// Do not decode dynamic content values when preparing them for VB.
+				$shortcode_attributes[ $attribute_key ] = $attribute_value;
+				continue;
+			}
+
 			// decode HTML entities and remove trailing and leading quote if needed
 			$processed_attr_value = $need_html_entities_decode ? trim( htmlspecialchars_decode( $attribute_value, ENT_QUOTES ), '"' ) : $attribute_value;
 
@@ -1136,11 +1176,9 @@ class ET_Builder_Element {
 				$processed_attr_value = '';
 			}
 
+
 			// URLs are weird since they can allow non-ascii characters so we escape those separately.
-			// Also make sure the attribute is not powered by dynamic content so we do not escape
-			// the JSON value as if it is a raw url.
-			$is_dynamic_content_attribute = $this->_is_dynamic_value( $attribute_key, $attribute_value, $enabled_dynamic_attributes );
-			if ( ! $is_dynamic_content_attribute && in_array( $attribute_key, array( 'url', 'button_link', 'button_url' ), true ) ) {
+			if ( in_array( $attribute_key, array( 'url', 'button_link', 'button_url' ), true ) ) {
 				$shortcode_attributes[ $attribute_key ] = esc_url_raw( $processed_attr_value );
 			} else {
 				$shortcode_attributes[ $attribute_key ] = str_replace( array( '%22', '%92', '%91', '%93' ), array( '"', '\\', '&#91;', '&#93;' ), $processed_attr_value );
@@ -1525,9 +1563,9 @@ class ET_Builder_Element {
 	 *
 	 * @since 3.17.2
 	 *
-	 * @param  array  $attrs              List of attributes
+	 * @param  array  $original_attrs List of attributes
 	 *
-	 * @return array                      Processed attributes with resolved dynamic values.
+	 * @return array                  Processed attributes with resolved dynamic values.
 	 */
 	function process_dynamic_attrs( $original_attrs ) {
 		global $et_fb_processing_shortcode_object;
@@ -1568,15 +1606,17 @@ class ET_Builder_Element {
 	function _render( $attrs, $content = null, $render_slug, $parent_address = '', $global_parent = '', $global_parent_type = '', $parent_type = '' ) {
 		global $et_fb_processing_shortcode_object, $et_pb_current_parent_type;
 
-		$this->attrs_unprocessed = $attrs;
-
 		$enabled_dynamic_attributes = $this->_get_enabled_dynamic_attributes( $attrs );
+
+		$attrs = $this->_encode_legacy_dynamic_content( $attrs, $enabled_dynamic_attributes );
+
+		$this->attrs_unprocessed = $attrs;
 
 		$attrs = $this->process_dynamic_attrs( $attrs );
 
 		$this->props = shortcode_atts( $this->resolve_conditional_defaults($attrs, $render_slug), $attrs );
 
-		$this->_decode_double_quotes( $enabled_dynamic_attributes );
+		$this->_decode_double_quotes( $enabled_dynamic_attributes, $et_fb_processing_shortcode_object );
 
 		$this->_maybe_remove_global_default_values_from_props();
 
@@ -1671,6 +1711,7 @@ class ET_Builder_Element {
 				// cleanup the shortcode string to avoid the attributes messing with content
 				$global_content_processed = false !== $global_content ? str_replace( $global_content, '', $global_module_data ) : $global_module_data;
 				$global_atts = shortcode_parse_atts( et_pb_remove_shortcode_content( $global_content_processed, $this->slug ) );
+				$global_atts = $this->_encode_legacy_dynamic_content( $global_atts, $enabled_dynamic_attributes );
 
 				// reset module addresses because global items will be processed once again and address will be incremented wrongly
 				if ( false !== strpos( $render_slug, '_section' ) ) {
@@ -1709,11 +1750,9 @@ class ET_Builder_Element {
 					}
 				}
 
-				$enabled_dynamic_attributes_global = $this->_get_enabled_dynamic_attributes( $this->props );
-
 				$this->props = $this->process_dynamic_attrs( $this->props );
 
-				$this->_decode_double_quotes( $enabled_dynamic_attributes_global );
+				$this->_decode_double_quotes( array(), $et_fb_processing_shortcode_object );
 			}
 		}
 
@@ -1721,8 +1760,12 @@ class ET_Builder_Element {
 
 		$this->before_render();
 
-		$this->content_unprocessed = (false !== $global_content ? $global_content : $content);
-		$content = $this->_resolve_value(
+		$this->content_unprocessed  = $this->_encode_legacy_dynamic_content_value(
+			'content',
+			false !== $global_content ? $global_content : $content,
+			$enabled_dynamic_attributes
+		);
+		$content                    = $this->_resolve_value(
 			$this->get_the_ID(),
 			'content',
 			$this->content_unprocessed,
@@ -2107,7 +2150,7 @@ class ET_Builder_Element {
 	 * Used as a callback function in {@self::et_pb_maybe_fix_specialty_columns} when fixing content of Specialty Sections
 	 *
 	 * @since 3.19.16
-	 * 
+	 *
 	 * @return string Shortcode string.
 	 */
 	public function et_pb_fix_specialty_columns( $rows ) {
@@ -2119,9 +2162,9 @@ class ET_Builder_Element {
 
 	/**
 	 * Run regex against the Specialty Section content to find and fix invalid inner shortcodes
-	 * 
+	 *
 	 * @since 3.19.16
-	 * 
+	 *
 	 * @return string Shortcode string.
 	 */
 	public function et_pb_maybe_fix_specialty_columns( $section_content ) {
@@ -2233,16 +2276,34 @@ class ET_Builder_Element {
 				// Ensuring that all possible attributes exist to avoid remaining child attributes being used by global parents' attributes
 				// Do that only in case the module is fully global
 				if ( $is_module_fully_global ) {
-					$global_atts = wp_parse_args(
-						shortcode_parse_atts( et_pb_remove_shortcode_content( $global_content_processed, $this->slug ) ),
-						array_map( '__return_empty_string', $this->whitelisted_fields )
-					);
+					$global_atts = shortcode_parse_atts( et_pb_remove_shortcode_content( $global_content_processed, $this->slug ) );
 				} else {
 					$global_atts = shortcode_parse_atts( $global_content_processed );
 				}
 
 				// Run et_pb_module_shortcode_attributes filter to apply migration system on attributes of global module
 				$global_atts = apply_filters( 'et_pb_module_shortcode_attributes', $global_atts, $atts, $this->slug, $this->generate_element_address( $render_slug ), $content );
+
+				// Parse dynamic content in global attributes.
+				$enabled_dynamic_attributes = $this->_get_enabled_dynamic_attributes( $global_atts );
+				$global_atts = $this->_encode_legacy_dynamic_content( $global_atts, $enabled_dynamic_attributes );
+				$global_atts = $this->process_dynamic_attrs( $global_atts );
+
+				// Parse dynamic content in global content.
+				if ( false !== $global_content ) {
+					$global_content = $this->_encode_legacy_dynamic_content_value(
+						'content',
+						$global_content,
+						$enabled_dynamic_attributes
+					);
+					$global_content = $this->_resolve_value(
+						$this->get_the_ID(),
+						'content',
+						$global_content,
+						$this->_get_enabled_dynamic_attributes( $global_atts ),
+						true
+					);
+				}
 
 				foreach( $this->props as $single_attr => $value ) {
 					if ( isset( $global_atts[$single_attr] ) && ! in_array( $single_attr, $unsynced_options ) ) {
@@ -2550,9 +2611,13 @@ class ET_Builder_Element {
 
 		$this->_add_box_shadow_fields();
 
+		$this->_add_transforms_fields();
+
 		$this->_add_text_fields();
 
-		$this->_add_max_width_fields();
+		$this->_add_sizing_fields();
+
+		$this->_add_overflow_fields();
 
 		$this->_add_margin_padding_fields();
 
@@ -2567,6 +2632,8 @@ class ET_Builder_Element {
 
 		$this->_add_additional_transition_fields();
 
+		$this->_add_additional_z_index_fields();
+
 		// Add text shadow fields to all modules
 		$this->_add_text_shadow_fields();
 
@@ -2578,6 +2645,8 @@ class ET_Builder_Element {
 		}
 
 		$additional_options = $this->_additional_fields_options;
+
+		$this->_additional_fields_options = array();
 
 		// Add hover field indication
 		$additional_options['hover_enabled'] = array(
@@ -2595,7 +2664,7 @@ class ET_Builder_Element {
 				}
 			}
 
-			$this->fields_unprocessed = array_merge( $this->fields_unprocessed, $additional_options );
+			$this->_set_fields_unprocessed($additional_options );
 		}
 	}
 
@@ -3287,130 +3356,110 @@ class ET_Builder_Element {
 		}
 	}
 
-	protected function _add_max_width_fields() {
-		// Max width fields are added by default if module has partial or full VB support
-		if ( $this->has_vb_support() ) {
-			$this->advanced_fields['max_width'] = self::$_->array_get( $this->advanced_fields, 'max_width', array() );
-		} else if ( ! $this->has_advanced_fields ) {
-			// Disable if module doesn't set advanced_fields property and has no VB support
+	protected function _add_transforms_fields() {
+		$this->advanced_fields['transform'] = self::$_->array_get( $this->advanced_fields, 'transform', array() );
+
+		// Transforms Disabled
+		if ( false === $this->advanced_fields['transform'] ) {
 			return;
 		}
 
-		// Max width settings have to be array
-		if ( ! is_array( self::$_->array_get( $this->advanced_fields, 'max_width' ) ) ) {
+		// Transforms settings have to be array
+		if ( ! is_array( $this->advanced_fields['transform'] ) ) {
 			return;
 		}
 
-		$max_width_settings = $this->advanced_fields['max_width'];
-		$tab_slug           = isset( $max_width_settings['tab_slug'] ) ? $max_width_settings['tab_slug'] : 'advanced';
-		$toggle_slug        = isset( $max_width_settings['toggle_slug'] ) ? $max_width_settings['toggle_slug'] : 'width';
-		$toggle_title       = isset( $max_width_settings['toggle_title'] ) ? $max_width_settings['toggle_title'] : esc_html__( 'Sizing', 'et_builder' );
-		$toggle_priority    = isset( $max_width_settings['toggle_priority'] ) ? $max_width_settings['toggle_priority'] : 80;
-
-		$setting_defaults   = array(
-			'use_max_width'        => true,
-			'use_module_alignment' => true,
+		$this->settings_modal_toggles['advanced']['toggles']['transform'] = array(
+			'title'    => esc_html__( 'Transform', 'et_builder' ),
+			'priority' => 109,
 		);
-		$this->advanced_fields['max_width'] = wp_parse_args( $this->advanced_fields['max_width'], $setting_defaults );
 
-		$this->_add_settings_modal_toggles( $tab_slug, array(
-			$toggle_slug => array(
-				'title'    => $toggle_title,
-				'priority' => $toggle_priority,
-			),
-		) );
+		$this->_additional_fields_options = array_merge(
+			$this->_additional_fields_options,
+			/** @see ET_Builder_Module_Field_Transform::get_fields() */
+			ET_Builder_Module_Fields_Factory::get( 'Transform' )->get_fields()
+		);
 
-		// Added max width option
-		if ( $this->advanced_fields['max_width']['use_max_width'] ) {
-			$additional_options = array(
-				'max_width'             => array(
-					'label'            => esc_html__( 'Width', 'et_builder' ),
-					'type'             => 'range',
-					'option_category'  => 'layout',
-					'tab_slug'         => $tab_slug,
-					'toggle_slug'      => $toggle_slug,
-					'mobile_options'   => true,
-					'default_on_child' => true,
-					'validate_unit'    => true,
-					'default'          => '100%',
-					'default_tablet'   => '100%',
-					'default_unit'     => '%',
-					'allow_empty'      => true,
-					'range_settings'   => array(
-						'min'  => '0',
-						'max'  => '100',
-						'step' => '1',
-					),
-					'hover'            => 'tabs',
-				),
-				'max_width_tablet'      => array(
-					'type'        => 'skip',
-					'tab_slug'    => $tab_slug,
-					'toggle_slug' => $toggle_slug,
-				),
-				'max_width_phone'       => array(
-					'type'        => 'skip',
-					'tab_slug'    => $tab_slug,
-					'toggle_slug' => $toggle_slug,
-				),
-				'max_width_last_edited' => array(
-					'type'        => 'skip',
-					'tab_slug'    => $tab_slug,
-					'toggle_slug' => $toggle_slug,
-				),
-			);
-		}
+	}
 
-		// Added module alignment option
-		$allowed_children = array( 'et_pb_counter', 'et_pb_accordion_item' );
-		$is_excluded      = isset( $this->type ) && 'child' === $this->type && ! in_array( $this->slug, $allowed_children );
+	protected function _add_sizing_fields() {
+		// Maybe someone did overwrite this function
+		$this->_add_max_width_fields();
 
-		if ( $this->advanced_fields['max_width']['use_module_alignment'] && ! $is_excluded ) {
-			$additional_options['module_alignment'] = array(
-				'label'           => esc_html__( 'Module Alignment', 'et_builder' ),
-				'type'            => 'text_align',
-				'option_category' => 'layout',
-				'options'         => et_builder_get_text_orientation_options( array( 'justified' ) ),
-				'tab_slug'        => $tab_slug,
-				'toggle_slug'     => $toggle_slug,
-			);
+		$additional_options = array();
+		$features = array(
+			'max_width' => 'MaxWidth',
+			'height'    => 'Height',
+		);
 
-			// Added max width & module alignment attributes which only make sense if both field exist
-			if ( $this->advanced_fields['max_width']['use_max_width'] ) {
-				$additional_options['max_width']['responsive_affects'] = array(
-					'module_alignment',
-				);
-
-				$additional_options['module_alignment']['depends_on'] = array(
-					'max_width',
-					et_pb_hover_options()->get_hover_field( 'max_width' ),
-				);
-
-				$additional_options['module_alignment']['depends_on_responsive'] = array(
-					'max_width',
-				);
-
-				$additional_options['module_alignment']['depends_show_if_not'] = array(
-					'',
-					'100%',
-				);
+		foreach ( $features as $name => $fields_name ) {
+			if ( $this->has_vb_support() ) {
+				$this->advanced_fields[ $name ] = self::$_->array_get( $this->advanced_fields, $name, array() );
+			} else if ( ! $this->has_advanced_fields ) {
+				return;
 			}
-		}
 
-		// Allow module to configure specific options
-		if ( isset( $max_width_settings['options'] ) && is_array( $max_width_settings['options'] ) ) {
-			foreach ( $max_width_settings['options'] as $option_slug => $options ) {
-				if ( ! is_array( $options ) ) {
-					continue;
-				}
+			if ( ! is_array( self::$_->array_get( $this->advanced_fields, $name ) ) ) {
+				return;
+			}
 
-				foreach ( $options as $option_name => $option_value ) {
-					$additional_options[ $option_slug ][ $option_name ] = $option_value;
+			$extra              = self::$_->array_get( $this->advanced_fields[ $name ], 'extra', array() );
+			$fields             = array_merge( array( '' => $this->advanced_fields[ $name ] ), $extra );
+
+			foreach ( $fields as $prefix => $settings ) {
+				$prefix          = et_builder_add_prefix( $prefix, '' );
+				$tab_slug        = isset( $settings['tab_slug'] ) ? $settings['tab_slug'] : 'advanced';
+				$toggle_slug     = isset( $settings['toggle_slug'] ) ? $settings['toggle_slug'] : 'width';
+				$toggle_title    = isset( $settings['toggle_title'] ) ? $settings['toggle_title'] : esc_html__( 'Sizing', 'et_builder' );
+				$toggle_priority = isset( $settings['toggle_priority'] ) ? $settings['toggle_priority'] : 80;
+
+				$settings['prefix'] = $prefix;
+
+				$this->_add_settings_modal_toggles( $tab_slug,
+					array(
+						$toggle_slug => array(
+							'title'    => $toggle_title,
+							'priority' => $toggle_priority,
+						),
+					) );
+
+				$additional_options = array_merge(
+					$additional_options,
+					ET_Builder_Module_Fields_Factory::get( $fields_name )->get_fields( $settings )
+				);
+
+				// Allow module to configure specific options
+				if ( isset( $settings['options'] ) && is_array( $settings['options'] ) ) {
+					foreach ( $settings['options'] as $option_slug => $options ) {
+						if ( ! is_array( $options ) ) {
+							continue;
+						}
+
+						foreach ( $options as $option_name => $option_value ) {
+							$additional_options[ $prefix . $option_slug ][ $option_name ] = $option_value;
+						}
+					}
 				}
 			}
-		}
 
-		$this->_additional_fields_options = array_merge( $this->_additional_fields_options, $additional_options );
+			$this->_additional_fields_options = array_merge( $this->_additional_fields_options, $additional_options );
+		}
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function _add_max_width_fields() {
+
+	}
+
+	protected function _add_overflow_fields() {
+		if ( is_array( self::$_->array_get( $this->advanced_fields, 'overflow', array() ) ) ) {
+			$this->_additional_fields_options = array_merge(
+				$this->_additional_fields_options,
+				ET_Builder_Module_Fields_Factory::get( 'Overflow' )->get_fields()
+			);
+		}
 	}
 
 	protected function _add_margin_padding_fields() {
@@ -3430,8 +3479,10 @@ class ET_Builder_Element {
 		$additional_options = array();
 
 		$defaults = array(
-			'use_margin'  => true,
-			'use_padding' => true,
+			'use_margin'        => true,
+			'draggable_margin'  => true,
+			'use_padding'       => true,
+			'draggable_padding' => true,
 		);
 		$this->advanced_fields['margin_padding'] = wp_parse_args( $this->advanced_fields['margin_padding'], $defaults );
 
@@ -4493,6 +4544,45 @@ class ET_Builder_Element {
 		$this->_additional_fields_options = array_merge( $this->_additional_fields_options, $additional_options );
 	}
 
+	private function _add_additional_z_index_fields() {
+
+		$this->advanced_fields['z_index'] = self::$_->array_get( $this->advanced_fields, 'z_index', array() );
+
+		$additional_options = array();
+
+		$additional_options['z_index'] = array(
+			'label'            => esc_html__( 'Z Index', 'et_builder' ),
+			'type'             => 'range',
+			'range_settings'   => array(
+				'min'  => 0,
+				'max'  => 999,
+				'step' => 1,
+			),
+			'option_category'  => 'layout',
+			'default'          => '',
+			'default_on_child' => true,
+			'tab_slug'         => 'custom_css',
+			'toggle_slug'      => 'visibility',
+			'unitless'         => true,
+			'hover'            => 'tabs',
+			'responsive'       => true,
+			'mobile_options'   => true,
+			'description'      => esc_html__( 'Here you can control element position on the z axis. Elements with higher z-index values will sit atop elements with lower z-index values.', 'et_builder' ),
+		);
+
+		$skip = array(
+			'type'        => 'skip',
+			'tab_slug'    => 'custom_css',
+			'toggle_slug' => 'visibility',
+		);
+
+		$additional_options['z_index_tablet']      = $skip;
+		$additional_options['z_index_phone']       = $skip;
+		$additional_options['z_index_last_edited'] = $skip;
+
+		$this->_additional_fields_options = array_merge( $this->_additional_fields_options, $additional_options );
+	}
+
 	/**
 	 * Add CSS filter controls (i.e. saturation, brightness, opacity) to the `_additional_fields_options` array.
 	 *
@@ -5149,6 +5239,20 @@ class ET_Builder_Element {
 		);
 	}
 
+	public function get_transition_transform_css_props( $module = null ) {
+		$key      = empty( $module ) ? '' : "$module.";
+		$suffix   = empty( $module ) ? '' : "_$module";
+		$selector = self::$_->array_get( $this->advanced_fields, "transform.{$key}css.main", '%%order_class%%' );
+		/** @var ET_Builder_Module_Field_Transform */
+		$defaults = array( 'scale', 'translate', 'rotate', 'skew', 'origin' );
+		$fields   = array();
+		foreach ( $defaults as $name ) {
+			$fields += array( "transform_{$name}{$suffix}" => array( 'transform' => implode( ', ', (array) $selector ) ) );
+		}
+
+		return $fields;
+	}
+
 	public function get_transition_font_fields_css_props() {
 		$items = self::$_->array_get( $this->advanced_fields, 'fonts' );
 
@@ -5181,6 +5285,23 @@ class ET_Builder_Element {
 		}
 
 		return $fields;
+	}
+
+	public function get_transition_height_fields_css_props( $prefix = '' ) {
+		$options = self::$_->array_get( $this->advanced_fields, 'height' );
+
+		if ( ! is_array( $options ) ) {
+			return array();
+		}
+
+		$height     = et_pb_height_options( $prefix );
+		$max_height = et_pb_max_height_options( $prefix );
+		$selector   = self::$_->array_get( $options, 'css.main', '%%order_class%%' );
+
+		return array(
+			$height->get_field()     => array( 'height' => $selector ),
+			$max_height->get_field() => array( 'max-height' => $selector ),
+		);
 	}
 
 	public function get_transition_image_fields_css_props() {
@@ -5259,6 +5380,7 @@ class ET_Builder_Element {
 					$default ),
 			),
 			'max_width'         => array( 'max-width' => $default, ),
+			'width'             => array( 'width' => $default, ),
 			'text_color'        => array(
 				'color' => self::$_->array_get( $this->advanced_fields,
 					'text.css.color',
@@ -5275,6 +5397,8 @@ class ET_Builder_Element {
 		$fields = array_merge( $this->get_transition_button_fields_css_props(), $fields );
 		$fields = array_merge( $this->get_transition_font_fields_css_props(), $fields );
 		$fields = array_merge( $this->get_transition_gutter_fields_css_props(), $fields );
+		$fields = array_merge( $this->get_transition_height_fields_css_props(), $fields );
+		$fields = array_merge( $this->get_transition_transform_css_props(), $fields );
 
 		return apply_filters( 'et_builder_hover_transitions_map', $fields );
 	}
@@ -5596,6 +5720,18 @@ class ET_Builder_Element {
 	 * }
 	 */
 	function get_fields() { return array(); }
+
+	/**
+	 * Returns props value by provided key, if the value is empty, returns the default value
+	 *
+	 * @param string $prop
+	 * @param mixed $default
+	 *
+	 * @return mixed|null
+	 */
+	public function prop( $prop, $default = null ) {
+		return et_builder_module_prop( $prop, $this->props, $default );
+	}
 
 	/**
 	 * Get module defined fields + automatically generated fields
@@ -7023,7 +7159,7 @@ class ET_Builder_Element {
 				// Since we are using a hidden field to manage the value, we need to clear the data-affects attribute so that
 				// it doesn't appear on both the `$field` AND the hidden field. This should probably be done for all of these
 				// field types but don't want to risk breaking anything :-/
-				$attributes = preg_replace( '/data-affects="[\w\s-,]*"/', 'data-affects=""', $attributes );
+				$attributes = preg_replace( '/data-affects="[\w\s,-]*"/', 'data-affects=""', $attributes );
 			}
 		}
 
@@ -8647,11 +8783,19 @@ class ET_Builder_Element {
 
 		$module->process_max_width_options( $function_name );
 
+		$module->process_height_options( $function_name );
+
+		$module->process_overflow_options( $function_name );
+
 		$module->process_advanced_custom_margin_options( $function_name );
 
 		$module->process_advanced_button_options( $function_name );
 
 		$this->process_box_shadow( $function_name );
+
+		$this->process_transform( $function_name );
+
+		$this->process_z_index( $function_name );
 
 		$this->setup_hover_transitions( $function_name );
 	}
@@ -9502,6 +9646,125 @@ class ET_Builder_Element {
 		}
 	}
 
+	function process_transform( $function_name ) {
+
+		$transform = self::$_->array_get( $this->advanced_fields, 'transform', array() );
+
+		if ( false === $transform || ! is_array( $transform ) ) {
+			return;
+		}
+
+		$selector            = self::$_->array_get( $transform, 'css.main', '%%order_class%%' );
+		$important           = self::$_->array_get( $transform, 'css.important', false );
+		$hover               = et_pb_hover_options();
+		$isHoverEnabled      = $hover->is_enabled( 'transform_styles', $this->props, '' );
+		$isResponsiveEnabled = isset( $this->props['transform_styles_last_edited'] )
+							   && et_pb_get_responsive_status( $this->props['transform_styles_last_edited'] );
+
+		/** @var $class ET_Builder_Module_Field_Transform */
+		$class = ET_Builder_Module_Fields_Factory::get( 'Transform' );
+		$class->set_props( $this->props );
+
+		$views = array( 'desktop' );
+		if ( $isHoverEnabled ) {
+			array_push( $views, 'hover' );
+		}
+		if ( $isResponsiveEnabled ) {
+			array_push( $views, 'tablet', 'phone' );
+		}
+		foreach ( $views as $view ) {
+			$viewSelector = $selector;
+			$media_query  = array();
+			if ( 'hover' === $view ) {
+				$viewSelector = $selector . ':hover';
+			} elseif ( 'tablet' === $view ) {
+				$media_query = array(
+					'media_query' => ET_Builder_Element::get_media_query( 'max_width_980' ),
+				);
+			} elseif ( 'phone' === $view ) {
+				$media_query = array(
+					'media_query' => ET_Builder_Element::get_media_query( 'max_width_767' ),
+				);
+			}
+			$declaration = $class->get_declaration( $important, $view );
+			if ( ! empty( $declaration ) ) {
+				self::set_style( $function_name,
+					array(
+						'selector'    => $viewSelector,
+						'declaration' => $declaration,
+						'priority'    => $this->_style_priority,
+					) + $media_query );
+			}
+		}
+	}
+
+	function process_z_index( $function_name ) {
+		$setting             = 'z_index';
+		$selector            = '%%order_class%%';
+		$hover               = et_pb_hover_options();
+		$isHoverEnabled      = $hover->is_enabled( $setting, $this->props, '' );
+		$isResponsiveEnabled = isset( $this->props["${setting}_last_edited"] )
+							   && et_pb_get_responsive_status( $this->props["${setting}_last_edited"] );
+		$settingDefault      = '';
+		$views               = array( 'desktop' );
+
+		if ( $isHoverEnabled ) {
+			array_push( $views, 'hover' );
+		}
+
+		if ( $isResponsiveEnabled ) {
+			array_push( $views, 'tablet', 'phone' );
+		}
+
+		foreach ( $views as $view ) {
+			$viewSelector = $selector;
+			$media_query  = array();
+			$suffix       = '';
+			if ( 'hover' === $view ) {
+				$viewSelector .= ':hover';
+				$suffix       = '__hover';
+			} elseif ( 'tablet' === $view ) {
+				$media_query = array(
+					'media_query' => ET_Builder_Element::get_media_query( 'max_width_980' ),
+				);
+				$suffix      = '_tablet';
+			} elseif ( 'phone' === $view ) {
+				$media_query = array(
+					'media_query' => ET_Builder_Element::get_media_query( 'max_width_767' ),
+				);
+				$suffix      = '_phone';
+			}
+
+			$optionValue = isset( $this->props[ $setting . $suffix ] )
+						   && ( ! empty( $this->props[ $setting . $suffix ] ) || $this->props[ $setting . $suffix ] === '0' ) ?
+				$this->props[ $setting . $suffix ] : $settingDefault;
+
+			$defaultValue = $settingDefault;
+			if ( 'hover' === $view && isset( $this->props[ $setting ] ) ) {
+				$defaultValue = empty( $this->props[ $setting ] ) ? $settingDefault : $this->props[ $setting ];
+				if ( ! isset( $this->props[ $setting . $suffix ] ) || empty( $this->props[ $setting . $suffix ] ) ) {
+					$optionValue = $defaultValue;
+				}
+			} elseif ( 'tablet' === $view && isset( $this->props[ $setting ] ) ) {
+				$defaultValue = empty( $this->props[ $setting ] ) ? $settingDefault : $this->props[ $setting ];
+			} elseif ( 'phone' === $view && isset( $this->props[ $setting . '_tablet' ] ) ) {
+				$defaultValue = empty( $this->props[ $setting . '_tablet' ] ) ? 'none' : $this->props[ $setting . '_tablet' ];
+				if ( 'none' === $defaultValue ) {
+					$defaultValue = ! isset( $this->props[ $setting ] )
+									|| empty( $this->props[ $setting ] ) ? $settingDefault : $this->props[ $setting ];
+				}
+			}
+			if ( $defaultValue != $optionValue || $isHoverEnabled ) {
+				self::set_style( $function_name,
+					array(
+						'selector'    => $viewSelector,
+						'declaration' => "z-index: $optionValue; position: relative;",
+						'priority'    => $this->_style_priority,
+					) + $media_query );
+			}
+		}
+	}
+
 	/**
 	 * Adds Filter styles to the page custom css code
 	 *
@@ -9527,136 +9790,269 @@ class ET_Builder_Element {
 			return;
 		}
 
-		if ( ! self::$_->array_get( $this->advanced_fields, 'max_width', false ) ) {
+		if ( ! is_array( self::$_->array_get( $this->advanced_fields, 'max_width', false ) ) ) {
 			return;
 		}
 
-		// Usage setting
-		$setting_defaults   = array(
-			'use_max_width'        => true,
-			'use_module_alignment' => true,
-		);
-		$this->advanced_fields['max_width'] = wp_parse_args( $this->advanced_fields['max_width'], $setting_defaults );
+		$max_width = self::$_->array_get( $this->advanced_fields, 'max_width', array() );
+		$fields = array_merge( array('' => $max_width), self::$_->array_get( $max_width, 'extra', array() ) );
 
-		$is_max_width_customized = false;
-		$hover = et_pb_hover_options();
 
-		// Max width
-		if ( $this->advanced_fields['max_width']['use_max_width'] ) {
-			$max_width_default     = $this->fields_unprocessed['max_width']['default'];
-			$desktop_default       = $max_width_default;
-			$max_width             = self::$_->array_get( $this->props, 'max_width', '' );
-			$max_width_tablet      = self::$_->array_get( $this->props, 'max_width_tablet', '' );
-			$max_width_phone       = self::$_->array_get( $this->props, 'max_width_phone', '' );
-			$max_width_hover       = $hover->get_value( 'max_width', $this->props, '' );
-			$max_width_last_edited = self::$_->array_get( $this->props, 'max_width_last_edited', '' );
-			$max_width_responsive_active = et_pb_get_responsive_status( $max_width_last_edited );
+		foreach ( $fields as $prefix => $field ) {
+			$is_customized = ! self::$_->array_get( $field, 'use_max_width', true ) && ! self::$_->array_get( $field, 'use_width', true );
+			$hover = et_pb_hover_options();
 
-			if ( $max_width_responsive_active ) {
-				foreach ( array( 'max_width', 'max_width_tablet', 'max_width_phone' ) as $value ) {
-					if ( $$value === $max_width_default ) {
-						$$value = '';
+			// Max width
+			foreach ( array( 'width', 'max_width' ) as $key ) {
+				if ( ! self::$_->array_get( $field, "use_$key", true ) ) {
+					continue;
+				}
+
+				$slug     = et_builder_add_prefix( $prefix, $key );
+				$css_prop = $this->field_to_css_prop( $key );
+				$option   = self::$_->array_get( $this->fields_unprocessed, $slug, array() );
+
+				$width_options_css = self::$_->array_get($field, 'css', array());
+				$default_selector  = self::$_->array_get( $width_options_css, 'main', '%%order_class%%' );
+				$selector          = self::$_->array_get( $width_options_css, $key, $default_selector );
+
+				$desktop_default = self::$_->array_get( $option, 'default' );
+				$default         = $desktop_default;
+				$width           = $this->prop( $slug, $default );
+
+				$default_tablet = self::$_->array_get( $option, 'default_tablet', $width );
+				$width_tablet   = $this->prop( "{$slug}_tablet", $default_tablet );
+
+				$default_phone = self::$_->array_get( $option, 'default_phone', $width_tablet );
+				$width_phone   = $this->prop( "{$slug}_phone", $default_phone );
+				$width_hover   = $hover->get_value( $slug, $this->props, '' );
+
+				$width_last_edited       = $this->prop( "{$slug}_last_edited", '' );
+				$width_responsive_active = et_pb_get_responsive_status( $width_last_edited );
+
+				$width        = $width === $default ? '' : $width;
+				$width_tablet = $width_tablet === $default_tablet ? '' : $width_tablet;
+				$width_phone  = $width_phone === $default_phone ? '' : $width_phone;
+
+				if ( '' !== $width_tablet || '' !== $width_phone || '' !== $width ) {
+					$additional_css    = $this->get_max_width_additional_css();
+					$width_attrs       = array( $slug );
+
+					// Append !important tag
+					if ( isset( $width_options_css['important'] ) ) {
+						$additional_css = ' !important;';
+					}
+
+					if ( $width_responsive_active ) {
+						$width_values = array(
+							'desktop_only' => $width,
+							'tablet'       => $width_tablet,
+							'phone'        => $width_phone,
+						);
+
+						$width_attrs = array_merge( $width_attrs, array( "{$slug}_tablet", "{$slug}_phone" ) );
 					} else {
-						// Set current value is smaller breakpoint's default
-						$max_width_default = $$value;
+						$width_values = array(
+							'desktop' => $width,
+						);
 					}
+
+					// Update $is_max_width_customized if one of max_width* value is modified
+					foreach ( $width_attrs as $width_attr ) {
+						if ( $is_customized ) {
+							break;
+						}
+
+						if ( ! in_array( self::$_->array_get($this->props, $width_attr ), array( '', $default ) ) ) {
+							$is_customized = true;
+						}
+					}
+
+					et_pb_generate_responsive_css(
+						$width_values,
+						$selector,
+						$css_prop,
+						$function_name,
+						$additional_css
+					);
+				} else if ( '' !== $default && '100%' !== $default && ! in_array( $default, array( 'auto', 'none' ) ) ) {
+					$is_customized = true;
 				}
-			} else if( $max_width === $max_width_default ) {
-				$max_width = '';
+
+				// Hover styles
+				if ( '' !== $width_hover ) {
+					// Apply 100% max-width if there is only hover max-width set so that transition works.
+					$selector = isset( $width_options_css['main'] ) ? $width_options_css['main'] : '%%order_class%%';
+					$is_customized = true;
+
+					if ( '' === $width ) {
+						$hover_width = $desktop_default ? $desktop_default : '100%';
+						$hover_base = array(
+							'selector'    => $selector,
+							'declaration' => esc_html( "$css_prop: $hover_width;" ),
+						);
+
+						ET_Builder_Element::set_style( $function_name, $hover_base );
+					}
+
+					$selector_hover = et_pb_hover_options()->add_hover_to_order_class( $selector );
+					$additional_css = $this->get_max_width_additional_css();
+
+					$hover_style = array(
+						'selector' => $selector_hover,
+						'declaration' => esc_html( "$css_prop: {$width_hover}{$additional_css};" )
+					);
+
+					ET_Builder_Element::set_style( $function_name, $hover_style );
+				}
 			}
 
-			if ( '' !== $max_width_tablet || '' !== $max_width_phone || '' !== $max_width ) {
-				$max_width_options           = $this->advanced_fields['max_width'];
-				$max_width_options_css       = isset( $max_width_options['css'] ) ? $max_width_options['css'] : array();
-				$selector                    = isset( $max_width_options_css['main'] ) ? $max_width_options_css['main'] : '%%order_class%%';
-				$additional_css              = $this->get_max_width_additional_css();
-				$max_width_attrs             = array( 'max_width' );
-
-				// Append !important tag
-				if ( isset( $max_width_options_css['important'] ) ) {
-					$additional_css = ' !important;';
-				}
-
-				if ( $max_width_responsive_active ) {
-					$max_width_values = array(
-						'desktop_only' => $max_width,
-						'tablet'       => $max_width_tablet,
-						'phone'        => $max_width_phone,
-					);
-
-					$max_width_attrs = array_merge( $max_width_attrs, array( 'max_width_tablet', 'max_width_phone' ) );
-				} else {
-					$max_width_values = array(
-						'desktop' => $max_width,
-					);
-				}
-
-				// Update $is_max_width_customized if one of max_width* value is modified
-				foreach ( $max_width_attrs as $max_width_attr ) {
-					if ( $is_max_width_customized ) {
-						break;
-					}
-
-					if ( ! in_array( self::$_->array_get($this->props, $max_width_attr ), array( '', $max_width_default ) ) ) {
-						$is_max_width_customized = true;
-					}
-				}
-
-				et_pb_generate_responsive_css(
-					$max_width_values,
-					$selector,
-					'max-width',
-					$function_name,
-					$additional_css
+			// Module Alignment
+			if ( self::$_->array_get( $field, 'use_module_alignment', true ) ) {
+				$module_alignment_styles = array(
+					'left'   => 'margin-left: 0px !important; margin-right: auto !important;',
+					'center' => 'margin-left: auto !important; margin-right: auto !important;',
+					'right'  => 'margin-left: auto !important; margin-right: 0px !important;',
 				);
-			}
 
-			// Hover styles
-			if ( '' !== $max_width_hover ) {
-				// Apply 100% max-width if there is only hover max-width set so that transiton works
-				$selector = isset( $max_width_options_css['main'] ) ? $max_width_options_css['main'] : '%%order_class%%';
-				$is_max_width_customized = true;
+				$slug             = et_builder_add_prefix( $prefix, 'module_alignment' );
+				$module_alignment = $this->prop( $slug, '' );
 
-				if ( '' === $max_width ) {
-					$hover_max_width = $desktop_default ? $desktop_default : '100%';
-					$hover_base = array(
+				if ( $is_customized && isset( $module_alignment_styles[ $module_alignment ] ) ) {
+					$default_selector  = self::$_->array_get( $field, 'css.main', '%%order_class%%.et_pb_module' );
+					$selector          = self::$_->array_get( $field, 'css.module_alignment', $default_selector );
+
+					self::set_style( $function_name, array(
 						'selector'    => $selector,
-						'declaration' => esc_html( "max-width: $hover_max_width;" ),
-					);
-
-					ET_Builder_Element::set_style( $function_name, $hover_base );
+						'declaration' => $module_alignment_styles[ $module_alignment ],
+						'priority'    => 20,
+					) );
 				}
-
-				$selector_hover = et_pb_hover_options()->add_hover_to_order_class( $selector );
-				$additional_css = $this->get_max_width_additional_css();
-
-				$hover_style = array(
-					'selector' => $selector_hover,
-					'declaration' => esc_html( "max-width: {$max_width_hover}{$additional_css};" )
-				);
-
-				ET_Builder_Element::set_style( $function_name, $hover_style );
 			}
 		}
+	}
 
-		// Module Alignment
-		if ( $this->advanced_fields['max_width']['use_module_alignment'] ) {
-			$module_alignment_styles = array(
-				'left'   => 'margin-left: 0px !important; margin-right: auto !important;',
-				'center' => 'margin-left: auto !important; margin-right: auto !important;',
-				'right'  => 'margin-left: auto !important; margin-right: 0px !important;',
+	public function process_height_options( $function_name ) {
+		if ( ! is_array( self::$_->array_get( $this->advanced_fields, 'height' ) ) ) {
+			return;
+		}
+
+		$hover      = et_pb_hover_options();
+		$responsive = et_pb_responsive_options();
+		$settings   = self::$_->array_get( $this->advanced_fields, "height", array() );
+		$fields     = array_merge( array( '' => $settings ), self::$_->array_get( $settings, 'extra', array() ) );
+
+		foreach ( $fields as $prefix => $settings ) {
+			$prefix           = et_builder_add_prefix( $prefix, '' );
+			$default_selector = self::$_->array_get( $settings, "css.main", $this->main_css_element );
+			$helpers          = array(
+				'height'     => et_pb_height_options( $prefix ),
+				'min_height' => et_pb_min_height_options( $prefix ),
+				'max_height' => et_pb_max_height_options( $prefix ),
 			);
 
-			$module_alignment = isset( $this->props['module_alignment'] ) ? $this->props['module_alignment'] : '';
+			foreach ( $helpers as $key => $helper ) {
+				if ( ! self::$_->array_get( $settings, "use_{$key}", true ) ) {
+					continue;
+				}
 
-			if ( ( $is_max_width_customized || ! $this->advanced_fields['max_width']['use_max_width'] ) && isset( $module_alignment_styles[ $module_alignment ] ) ) {
-				$module_alignment_selector =  self::$_->array_get( $this->advanced_fields, 'max_width.css.module_alignment', '%%order_class%%.et_pb_module' );
+				$slug      = $helper->get_field( $prefix );
+				$field     = self::$_->array_get( $this->fields_unprocessed, $slug, array() );
+				$css_props = $this->field_to_css_prop( $key );
+				$selector  = self::$_->array_get( $settings, "css.{$key}", $default_selector );
 
-				self::set_style( $function_name, array(
-					'selector'    => $module_alignment_selector,
-					'declaration' => $module_alignment_styles[ $module_alignment ],
-					'priority'    => 20,
-				) );
+				if ( $responsive->is_enabled( $slug, $this->props ) ) {
+					$values = array();
+					foreach ( $responsive->get_modes() as $mode ) {
+						$default_field   = $mode == ET_Builder_Module_Helper_ResponsiveOptions::DESKTOP ? 'default' : "default_$mode";
+						$default         = self::$_->array_get( $field, $default_field );
+						$values[ $mode ] = $responsive->get_value( $slug, $this->props, $mode, $default );
+					}
+
+					et_pb_generate_responsive_css( $values, $selector, $css_props, $function_name );
+				} else {
+					$default = self::$_->array_get( $field, 'default' );
+					$value   = $helper->get_value( $this->props, $default );
+
+					if ( $value !== '' && $value !== $default ) {
+						self::set_style( $function_name,
+							array(
+								'selector'    => $selector,
+								'declaration' => sprintf( '%1$s: %2$s;', $css_props, esc_attr( $value ) ),
+							) );
+					}
+				}
+
+				if ( $hover->is_enabled( $slug, $this->props ) ) {
+					$default     = self::$_->array_get( $field, 'default' );
+					$value       = $helper->get_value( $this->props, $default );
+					$hover_value = $hover->get_value( $slug, $this->props, $value );
+					$selector    = $hover->add_hover_to_selectors( $selector );
+
+					if ( $hover_value !== '' && $hover_value !== $value ) {
+						self::set_style( $function_name,
+							array(
+								'selector'    => $selector,
+								'declaration' => sprintf( '%1$s: %2$s;', $css_props, esc_attr( $hover_value ) ),
+							) );
+					}
+				}
+			}
+		}
+	}
+
+	public function process_overflow_options( $function_name ) {
+		if ( ! is_array( self::$_->array_get( $this->advanced_fields, 'overflow', array() ) ) ) {
+			return;
+		}
+
+		$overflow   = et_pb_overflow();
+		$hover      = et_pb_hover_options();
+		$responsive = et_pb_responsive_options();
+		$selector   = self::$_->array_get(
+			$this->advanced_fields,
+			'overflow.css.main',
+			$this->main_css_element
+		);
+		$fields     = array(
+			'overflow-x' => $overflow->get_field_x(),
+			'overflow-y' => $overflow->get_field_y(),
+		);
+		$controls   = ET_Builder_Module_Fields_Factory::get( 'Overflow' )->get_fields();
+
+		foreach ( $fields as $prop => $field ) {
+			if ( $responsive->is_enabled( $field, $this->props ) ) {
+				$values = array();
+				foreach ( $responsive->get_modes() as $mode ) {
+					$default_field   = $mode == ET_Builder_Module_Helper_ResponsiveOptions::DESKTOP ? 'default' : "default_$mode";
+					$default         = self::$_->array_get( $controls[ $field ], $default_field );
+					$values[ $mode ] = $responsive->get_value( $field, $this->props, $mode, $default );
+				}
+
+				et_pb_generate_responsive_css( $values, $selector, $prop, $function_name );
+			} else {
+				$default = self::$_->array_get( $field, 'default' );
+				$value   = self::$_->array_get( $this->props, $field, $default );
+
+				if ( $value !== '' ) {
+					self::set_style( $function_name,
+						array(
+							'selector'    => $selector,
+							'declaration' => sprintf( '%1$s: %2$s;', $field, esc_attr( $value ) ),
+						) );
+				}
+			}
+
+			if ( $hover->is_enabled( $field, $this->props ) ) {
+				$value = $hover->get_value( $field, $this->props, '' );
+
+				if ( '' !== $value ) {
+					self::set_style( $function_name,
+						array(
+							'selector'    => $hover->add_hover_to_selectors( $selector ),
+							'declaration' => sprintf( '%1$s: %2$s;', $field, esc_attr( $value ) ),
+						) );
+				}
 			}
 		}
 	}
@@ -10147,17 +10543,6 @@ class ET_Builder_Element {
 
 				} else {
 					$button_icon_code = '' !== $button_icon ? str_replace( ';', '', str_replace( '&#x', '', html_entity_decode( et_pb_process_font_icon( $button_icon ) ) ) ) : '';
-					$button_icon_size_hover = $button_icon_size = '';
-
-
-					if ( '' !== $button_text_size_processed ) {
-						$button_icon_size = '35' !== $button_icon_code ? '1em' : '1.6em';
-					}
-
-					if ( '' !== $button_text_size_hover_processed ) {
-						$button_icon_size_hover = '35' !== $button_icon_code ? '1em' : '1.6em';
-					}
-
 
 					$main_element_styles_after = sprintf(
 						'%1$s
@@ -10168,10 +10553,8 @@ class ET_Builder_Element {
 						%6$s
 						%7$s',
 						'' !== $button_icon_color ? sprintf( 'color:%1$s;', $button_icon_color ) : '',
-						'' !== $button_icon_code ?
-							sprintf( 'line-height:%1$s;', '35' !== $button_icon_code ? '1.7em' : '1em' )
-							: '',
-						'' !== $button_icon_code ? sprintf( 'font-size:%1$s !important;', $button_icon_size ) : '',
+						'' !== $button_icon_code ? 'line-height: inherit;' : '',
+						'' !== $button_icon_code ? 'font-size: inherit !important;' : '',
 						$is_default_hover_placement ? '' : sprintf( 'opacity:%1$s;', 'off' !== $button_on_hover ? '0' : '1' ),
 						'off' !== $button_on_hover && '' !== $button_icon_code ?
 							sprintf( 'margin-left: %1$s; %2$s: auto;',
@@ -10187,10 +10570,6 @@ class ET_Builder_Element {
 							: '',
 						( ! $is_default_button_icon_placement && in_array( $button_use_icon , array( 'default', 'on' ) ) ? 'display: inline-block;' : '' )
 					);
-
-					if ( '' !== $button_icon_size_hover && $button_icon_size_hover !== $button_icon_size ) {
-						$main_element_styles_after_hover = sprintf( 'font-size: %1$s', $button_icon_size_hover );
-					}
 
 					if ( '' !== $button_icon_color_hover && $button_icon_color_hover !== $button_icon_color ) {
 						$main_element_styles_after_hover = sprintf( 'color: %1$s', $button_icon_color_hover );
@@ -12806,6 +13185,50 @@ class ET_Builder_Element {
 	}
 
 	/**
+	 * Re-encode legacy dynamic content values in an attrs array.
+	 *
+	 * @since 3.20.2
+	 *
+	 * @param array<string, string> $attrs
+	 * @param array<string> $enabled_dynamic_attributes
+	 *
+	 * @return array<string, string>
+	 */
+	protected function _encode_legacy_dynamic_content( $attrs, $enabled_dynamic_attributes ) {
+		if ( is_array( $attrs ) ) {
+			foreach ( $attrs as $field => $value ) {
+				$attrs[ $field ] = $this->_encode_legacy_dynamic_content_value( $field, $value, $enabled_dynamic_attributes );
+			}
+		}
+
+		return $attrs;
+	}
+
+	/**
+	 * Re-encode legacy dynamic content value.
+	 *
+	 * @since 3.20.2
+	 *
+	 * @param string $field
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	protected function _encode_legacy_dynamic_content_value( $field, $value, $enabled_dynamic_attributes ) {
+		if ( ! in_array( $field, $enabled_dynamic_attributes ) ) {
+			return $value;
+		}
+
+		$json = et_builder_clean_dynamic_content( $value );
+
+		if ( preg_match( '/^@ET-DC@(.*?)@$/', $json ) ) {
+			return $value;
+		}
+
+		return $this->_resolve_value_from_json( $field, $json, $enabled_dynamic_attributes );
+	}
+
+	/**
 	 * Resolve a value, be it static or dynamic to a static one.
 	 *
 	 * @since 3.17.2
@@ -12830,6 +13253,62 @@ class ET_Builder_Element {
 		}
 
 		return $builder_value->resolve( $post_id );
+	}
+
+	/**
+	 * Resolve a value from the legacy JSON format of dynamic content.
+	 * This is essentially a migration but is implemented separately
+	 * as it needs to parse every field of every module and do it
+	 * before actual migrations are ran.
+	 *
+	 * @since 3.20.2
+	 *
+	 * @param integer $post_id
+	 * @param string $field
+	 * @param string $value
+	 * @param array<string> $enabled_dynamic_attributes
+	 * @param boolean $serialize
+	 *
+	 * @return string
+	 */
+	protected function _resolve_value_from_json( $field, $value, $enabled_dynamic_attributes ) {
+		if ( ! in_array( $field, $enabled_dynamic_attributes ) ) {
+			return $value;
+		}
+
+		$json = et_builder_clean_dynamic_content( $value );
+
+		// Replace encoded quotes.
+		$json = str_replace( array( '&#8220;', '&#8221;', '&#8243;', "%22" ), '"', $json );
+
+		// Strip <p></p> artifacts from wpautop in before/after settings. Example:
+		// {"dynamic":true,"content":"post_title","settings":{"before":"</p>
+		// <h1>","after":"</h1>
+		// <p>"}}
+		// This is a rough solution implemented due to time constraints.
+		$json = preg_replace( '~
+			("(?:before|after)":")    # $1 = Anchor to the before/after settings.
+			(?:                       # Match cases where the value starts with the offending tag.
+				<\/?p>                # The root of all evil.
+				[\r\n]+               # Whitespace follows the tag.
+			)*
+			(?:                       # Match cases where the value ends with the offending tag.
+				([^"]*)               # $2 = The preceeding value.
+				[\r\n]+               # Whitespace preceedes the tag.
+				<\/?p>                # The root of all evil.
+			)*
+		~xi', '$1$2', $json );
+
+		// Remove line-breaks which break the json strings.
+		$json = preg_replace( '/\r|\n/', '', $json );
+
+		$json_value = et_builder_parse_dynamic_content_json( $json );
+
+		if ( null === $json_value ) {
+			return $value;
+		}
+
+		return $json_value->serialize();
 	}
 
 	/**
@@ -12872,6 +13351,10 @@ class ET_Builder_Element {
 		// Dynamic content values are escaped when they are resolved so we do not want to
 		// double-escape them when using them in the frontend, for example.
 		return et_core_esc_previously( $formatted );
+	}
+
+	protected function field_to_css_prop( $field ) {
+		return str_replace( '_', '-', $field );
 	}
 }
 

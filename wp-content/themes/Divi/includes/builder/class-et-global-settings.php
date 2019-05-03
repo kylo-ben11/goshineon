@@ -4,15 +4,29 @@
  * @todo Rename this class to `ET_Builder_Module_Settings` so that its name clearly indicates its purpose.
  */
 class ET_Global_Settings {
-	private static $_settings = array();
+	private static $_settings      = array();
+	private static $_reinit_values = false;
 
 	public static function init() {
 		// The class can only be initialized once
-		if ( ! empty( self::$_settings ) ) {
+		if ( ! empty( self::$_settings ) && ! self::$_reinit_values ) {
 			return;
 		}
 
+		// Reset _reinit_values property. It should only used once for every reinit() method call
+		if ( self::$_reinit_values ) {
+			self::$_reinit_values = false;
+		}
+
 		self::set_values();
+	}
+
+	/**
+	 * Allow global settings value to be reinitialized. Initially added a to make global
+	 * settings modifieable during unit/integration testing which uses PHPUnit & wp-browser
+	 */
+	public static function reinit() {
+		self::$_reinit_values = true;
 	}
 
 	private static function set_values() {

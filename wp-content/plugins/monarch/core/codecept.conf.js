@@ -41,13 +41,13 @@ const config = {
 		},
 	},
 	helpers:  {
-		WebDriverIO: {
+		WebDriver: {
 			driver:              'browserstack',
 			user:                process.env.BROWSERSTACK_USER,
 			key:                 process.env.BROWSERSTACK_KEY,
 			url:                 `http://${process.env.VIRTUAL_HOST}/${SITE}`,
-			host:                'hub-cloud.browserstack.com',
-			port:                80,
+			// host:                'hub-cloud.browserstack.com',
+			// port:                80,
 			windowSize:          'maximize',
 			smartWait:           5000,
 			restart:             false,
@@ -56,6 +56,7 @@ const config = {
 			uniqueScreenshotNames: true,
 			waitForTimeout:        10000,
 			desiredCapabilities: {
+				browserName:                    'Chrome',
 				resolution:                     '1920x1080',
 				project:                        process.env.BS_PROJECT,
 				build:                          process.env.BS_BUILD,

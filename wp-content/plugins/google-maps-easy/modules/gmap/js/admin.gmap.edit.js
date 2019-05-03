@@ -552,11 +552,12 @@ jQuery(document).ready(function(){
 	jQuery('#gmpMapForm input[name="map_opts[adapt_map_to_screen_height]"]').change(function(){
 		if(parseInt(jQuery(this).val())) {
 			jQuery('.gmpMainHeightOpts').hide(300);
+			jQuery('.gmpAdditionalAdaptHeightOpts').show(300);
 		} else {
 			jQuery('.gmpMainHeightOpts').show(300);
+			jQuery('.gmpAdditionalAdaptHeightOpts').hide(300);
 		}
-	});
-	jQuery('#gmpMapForm input[name="map_opts[adapt_map_to_screen_height]"]').trigger('change');
+	}).trigger('change');
 	// Map Markers List selection
 	gmpInitMapMarkersListWnd();
 	// Ask before leave page without saving

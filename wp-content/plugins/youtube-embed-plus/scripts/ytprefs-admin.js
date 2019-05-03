@@ -105,6 +105,9 @@
             dataType: 'text',
             type: 'get',
             data: '',
+            headers: {
+                'Cache-Control': 'no-cache'
+            },
             async: true
         }).always(function (data_jqXHR, textStatus, jqXHR_errorThrown)
         {
@@ -128,7 +131,51 @@
             }
             else
             {
-                window._EPYTA_.adstxtVerify('');
+                var jqXHR = data_jqXHR;
+                var errorThrown = jqXHR_errorThrown;
+                if (jqXHR.status == 404)
+                {
+                    // retry
+                    $.ajax({
+                        url: location.protocol + "//" + location.hostname + "/ads.txt",
+                        dataType: 'text',
+                        type: 'get',
+                        data: '',
+                        headers: {
+                            'Cache-Control': 'no-cache'
+                        },
+                        async: true
+                    }).always(function (data_jqXHR, textStatus, jqXHR_errorThrown)
+                    {
+                        if (textStatus === 'success')
+                        {
+                            var jqXHR = jqXHR_errorThrown;
+                            var data = data_jqXHR;
+                            switch (jqXHR.status)
+                            {
+                                case 200:
+                                case 301:
+                                case 302:
+                                case 304:
+                                case 307:
+                                    window._EPYTA_.adstxtVerify(data);
+                                    break;
+                                default:
+                                    window._EPYTA_.adstxtVerify('');
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            window._EPYTA_.adstxtVerify('');
+                        }
+                    }
+                    );
+                }
+                else
+                {
+                    window._EPYTA_.adstxtVerify('');
+                }
             }
         });
     };
@@ -188,6 +235,16 @@
         window._EPADashboard_.log("YT API GB");
         window._EPADashboard_.pageReady();
         jQuery('body').fitVidsEP();
+    };
+
+    window._EPYTA_.iabAdd = function (iabVal, iabText, iabTextParent)
+    {
+        var tagText = $('<div class="iab-cat-tag-button" data-tag="' + iabVal + '">' + iabTextParent + ' : ' + iabText + ' &times;</div>');
+        $('.iab-cat-tags-display').append(tagText);
+        $('.iab-cat-tags-display .iab-cat-tag-button').sort(function (a, b)
+        {
+            return $(a).text() > $(b).text() ? 1 : -1;
+        }).appendTo('.iab-cat-tags-display');
     };
 
     $.fn.ytprefsFormJSON = function ()
@@ -615,16 +672,16 @@
             });
 
 
-            var iab = $('.iab-cat-child').val();
-            if (iab.length > 0)
+            var iabValRaw = $('.iab-cat-tags').val();
+            if (iabValRaw.length > 0)
             {
-                var iabPrefix = iab.split('-')[0];
-                $('.iab-cat-child-box').removeClass('hidden');
-                $('.iab-cat-child-box select').prop('disabled', false);
-
-                $('.iab-cat-parent option[value="' + iabPrefix + '"]').prop('selected', true);
-                $('.iab-cat-child option').addClass('hidden');
-                $('.iab-cat-child option[value^="' + iabPrefix + '-"], .iab-cat-child option[value="' + iabPrefix + '"]').removeClass('hidden');
+                var iabCurrent = iabValRaw.split(',');
+                iabCurrent.forEach(function (iabVal)
+                {
+                    var iabText = $('.iab-cat-child option[value="' + iabVal + '"]').text();
+                    var iabTextParent = $('.iab-cat-parent option[value="' + (iabVal.split('-')[0]) + '"]').text();
+                    window._EPYTA_.iabAdd(iabVal, iabText, iabTextParent);
+                });
             }
 
             $('.iab-cat-parent').on('change', function ()
@@ -641,10 +698,45 @@
                     $('.iab-cat-child-box').removeClass('hidden');
                     $('.iab-cat-child-box select').prop('disabled', false);
                     $('.iab-cat-child option').addClass('hidden');
-                    $('.iab-cat-child option[value^="' + iabPrefix + '-"], .iab-cat-child option[value="' + iabPrefix + '"]').removeClass('hidden');
+                    $('.iab-cat-child option[value^="' + iabPrefix + '-"], .iab-cat-child option[value="' + iabPrefix + '"], .iab-cat-child option[value=""]').removeClass('hidden');
+                    $('.iab-cat-child-box select').val('');
                 }
 
 
+            });
+
+            $('.iab-cat-child').on('change', function ()
+            {
+                var iabCurrent = $('.iab-cat-tags').val() ? $('.iab-cat-tags').val().split(',') : [];
+                if (iabCurrent.length < 4)
+                {
+                    var iabVal = $(this).val();
+                    var iabText = $(this).find('option:selected').text();
+                    var iabTextParent = $('.iab-cat-parent').find('option:selected').text();
+                    if (iabVal && iabCurrent.indexOf(iabVal) == -1)
+                    {
+                        iabCurrent.push(iabVal);
+                        $('.iab-cat-tags').val(iabCurrent.join(','));
+                        window._EPYTA_.iabAdd(iabVal, iabText, iabTextParent);
+                    }
+                }
+                else
+                {
+                    alertify.alert('You can choose up to 4 categories maximum. In order to add a new one, you must remove one of the existing ones.');
+                }
+            });
+
+            $('.iab-cat-tags-display').on('click', '.iab-cat-tag-button', function ()
+            {
+                var $tag = $(this);
+                var iabVal = $tag.data('tag');
+                var iabCurrent = $('.iab-cat-tags').val() ? $('.iab-cat-tags').val().split(',') : [];
+                iabCurrent = iabCurrent.filter(function (ele)
+                {
+                    return ele != iabVal;
+                });
+                $('.iab-cat-tags').val(iabCurrent.join(','));
+                $tag.remove();
             });
 
             window._EPYTA_.demoBackgroundColor();
@@ -672,7 +764,7 @@
                 },
                 success: function (response)
                 {
-                    if (response.type === 'error' || !response.data.mtdReport.length)
+                    if (response.type === 'error' || !response.data.mtdReport.length || typeof (response.data.mtdReport[0].date) === 'undefined')
                     {
                         $('.vi-report-error').removeClass('hide');
                         $('.vi-report').addClass('hide');
@@ -794,9 +886,15 @@
 
             $('.ytvi-btn-logout').on('click', function ()
             {
+                var multiCatWarning = '';
+                var iabValRaw = $('.iab-cat-tags').val();
+                if (iabValRaw.length > 0 && iabValRaw.split(',').length > 1)
+                {
+                    multiCatWarning = ' (Note: If you selected more than one video category, you must stay logged in to this settings page for your categories to automatically add variety to your ads)';
+                }
                 alertify.confirm().set({
                     title: "Logout of Monetize settings",
-                    message: "Logging out won't delete your settings. However, it will require you (or any other admins) to re-login to change vi ad settings in the future.<br><br>To actually disable vi ads, make sure the '<strong>vi ads are: On/Off</strong>' button is set to '<strong>Off</strong>.'",
+                    message: "Logging out won't delete your settings. However, it will require you or any other admins to re-login to change vi ad settings in the future" + multiCatWarning + ".<br><br>To actually disable monetization, make sure the '<strong>vi ads are: On/Off</strong>' button is set to '<strong>Off</strong>.'",
                     onok: function ()
                     {
                         $.ajax({
@@ -862,6 +960,14 @@
                             {
                                 $btn.find('strong').text(response.button_text);
                                 $btn.toggleClass('ytvi-btn-active ytvi-btn-inactive');
+                                if ($btn.hasClass('ytvi-btn-active'))
+                                {
+                                    $('.ytvi-msg-congrats').show(200);
+                                }
+                                else
+                                {
+                                    $('.ytvi-msg-congrats').hide();
+                                }
                             }
                         },
                         error: function (xhr, ajaxOptions, thrownError)

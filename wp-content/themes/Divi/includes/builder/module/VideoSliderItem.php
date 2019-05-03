@@ -55,6 +55,7 @@ class ET_Builder_Module_Video_Slider_Item extends ET_Builder_Module {
 			'background'            => false,
 			'fonts'                 => false,
 			'max_width'             => false,
+			'height'                => false,
 			'margin_padding' => false,
 			'button'                => false,
 			'link_options'          => false,

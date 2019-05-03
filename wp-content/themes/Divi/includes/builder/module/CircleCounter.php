@@ -51,6 +51,9 @@ class ET_Builder_Module_Circle_Counter extends ET_Builder_Module {
 				'css' => array(
 					'important' => array( 'custom_margin' ),
 				),
+				'custom_margin' => array(
+					'default' => '0px|auto|30px|auto|false|false',
+				),
 			),
 			'max_width'             => array(
 				'options' => array(

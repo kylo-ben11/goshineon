@@ -104,6 +104,19 @@ class ET_Builder_Module_Contact_Form_Item extends ET_Builder_Module {
 				),
 			),
 			'button'         => false,
+			'height'                => array(
+				'css' => array(
+					'main' => implode(', ', array(
+						'%%order_class%% input[type=text]',
+						'%%order_class%% input[type=email]',
+						'%%order_class%% textarea',
+						'%%order_class%%[data-type=checkbox]',
+						'%%order_class%%[data-type=radio]',
+						'%%order_class%%[data-type=select]',
+						'%%order_class%%[data-type=select] select',
+					))
+				)
+			),
 		);
 	}
 

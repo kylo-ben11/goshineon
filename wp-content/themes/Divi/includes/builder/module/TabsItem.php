@@ -76,6 +76,7 @@ class ET_Builder_Module_Tabs_Item extends ET_Builder_Module {
 			),
 			'text'                  => false,
 			'max_width'             => false,
+			'height'                => false,
 			'button'                => false,
 		);
 

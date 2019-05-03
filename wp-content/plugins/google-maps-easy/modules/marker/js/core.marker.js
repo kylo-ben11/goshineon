@@ -159,7 +159,7 @@ gmpGoogleMarker.prototype.setTitle = function(title, noRefresh) {
 		this._updateInfoWndContent();
 };
 gmpGoogleMarker.prototype.getTitle = function() {
-	return this._markerParams.title;
+	return typeof this._markerParams.title != 'undefined' ? this._markerParams.title : this._markerParams.marker_title;
 };
 gmpGoogleMarker.prototype.getPosition = function() {
 	return this._markerObj.getPosition();

@@ -18,10 +18,10 @@ const config = {
 	timeout:  10000,
 	output:   OUTPUT,
 	helpers:  {
-		WebDriverIO: {
+		WebDriver: {
 			url: `http://${process.env.VIRTUAL_HOST}/${SITE}`,
 			browser: "chrome",
-			windowSize: 'maximize',
+			// windowSize: 'maximize',
 			debug: true,
 			restart: false,
 			smartWait: 5000,

@@ -105,7 +105,7 @@ class ET_Builder_Module_Map_Item extends ET_Builder_Module {
 			esc_attr( $pin_address_lat ),
 			esc_attr( $pin_address_lng ),
 			et_core_esc_previously( $title ),
-			( ! empty( $content ) ? sprintf( '<div class="infowindow">%1$s</div>', $content ) : '' ),
+			( ! ( empty( $content ) && empty( $title ) ) ? sprintf( '<div class="infowindow">%1$s</div>', $content ) : '' ),
 			esc_attr( $title )
 		);
 

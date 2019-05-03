@@ -3,6 +3,12 @@
 // Register assets that need to be fired at head
 function et_fb_enqueue_assets_head() {
 	// Setup WP media.
+	// Around 5.2-alpha, `wp_enqueue_media` started using a function defined in a file
+	// which is only included in admin. Unfortunately there's no safe/reliable way to conditionally
+	// load this other than checking the WP version.
+	if ( version_compare( $GLOBALS['wp_version'], '5.2-alpha-44947', '>=' ) ) {
+		require_once( ABSPATH . 'wp-admin/includes/post.php' );
+	}
 	wp_enqueue_media();
 
 	// Setup Builder Media Library
@@ -57,16 +63,6 @@ function et_fb_enqueue_main_assets() {
 	wp_enqueue_style( 'et-frontend-builder-notification-modal', "{$root}/styles/notification_popup_styles.css", array(), $ver );
 }
 add_action( 'wp_enqueue_scripts', 'et_fb_enqueue_main_assets' );
-
-function et_fb_enqueue_open_sans() {
-	$protocol = is_ssl() ? 'https' : 'http';
-	$query_args = array(
-		'family' => 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800',
-		'subset' => 'latin,latin-ext',
-	);
-
-	wp_enqueue_style( 'et-fb-fonts', esc_url_raw( add_query_arg( $query_args, "$protocol://fonts.googleapis.com/css" ) ), array(), null );
-}
 
 function et_fb_enqueue_google_maps_dependency( $dependencies ) {
 

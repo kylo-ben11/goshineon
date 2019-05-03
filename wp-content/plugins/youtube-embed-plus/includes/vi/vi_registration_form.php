@@ -31,11 +31,28 @@
 <div class="vi-demo-col-content">
     <div class="vi-demo">
         <?php
-        if (self::vi_script_setup_done() && !self::vi_last_login_valid())
+        $multiCatWarning = '';
+        if (!empty(self::$alloptions[self::$opt_vi_js_settings]['iabCategory']))
+        {
+            $iabCategoryList = explode(',', self::$alloptions[self::$opt_vi_js_settings]['iabCategory']);
+            if (count($iabCategoryList) > 1)
+            {
+                $multiCatWarning = ' Note: If you selected more than one video category, you must stay logged in to this settings page for your categories to automatically add variety to your ads.';
+            }
+        }
+        if (self::$alloptions[self::$opt_vi_token] === false)
         {
             ?>
             <div class="login-expire">
-                For your security, your session expires every 30 days. Please login to vi again below to view your settings.
+                For your security, your session has expired. Please login to vi again below to view your settings. <?php echo $multiCatWarning; ?>
+            </div>
+            <?php
+        }
+        else if ((self::vi_script_setup_done() && !self::vi_last_login_valid()))
+        {
+            ?>
+            <div class="login-expire">
+                For your security, your session expires every 30 days. Please login to vi again below to view your settings. <?php echo $multiCatWarning; ?>
             </div>
             <?php
         }
@@ -117,16 +134,16 @@
             <div class="ytvi-registration">
                 <div class="ytvi-step-2-msg">
                     <ol>
-                        <li><strong>Register</strong> below</li>
-                        <li><strong>Check your email</strong> for a confirmation link</li>
+                        <li><strong>Register</strong> below.</li>
+                        <li><strong>Check your email</strong> for a confirmation link. Vi will verify your site for quality standards, so it may take about 48 hours for approval. Weekend signups will be processed starting on Monday.</li>
                         <li><strong>Come right back here</strong> after creating your password
                             <?php
                             $curr_screen = get_current_screen();
-                            echo strpos($curr_screen->id, 'youtube-ep-vi') !== false || strpos($curr_screen->id, 'youtube-my-preferences') !== false ? 'and refresh this page' : 'and <a target="_blank" href="' . admin_url('admin.php?page=youtube-ep-vi') . '">click here</a>'
-                                    ?> (Note: <u><strong>Skip</strong> the "integration tags" step</u> that you might see after confirmation, because this plugin will automatically do that step for you.)
+                            echo strpos($curr_screen->id, 'youtube-ep-vi') !== false || strpos($curr_screen->id, 'youtube-my-preferences') !== false ? 'and refresh this page.' : 'and <a target="_blank" href="' . admin_url('admin.php?page=youtube-ep-vi') . '">click here</a>.'
+                            ?> (Note: <u><strong>Skip</strong> the "integration tags" step</u> that you might see after confirmation, because this plugin will automatically do that step for you.)
                         </li>
                         <li>
-                            <strong>Login below</strong> to complete the setup. 
+                            <strong>Login below</strong> to complete the setup.
                         </li>
                     </ol>
                 </div>

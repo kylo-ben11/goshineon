@@ -51,7 +51,7 @@ class gmapModelGmp extends modelGmp {
 	}
 	public function getParamsList() {
 		$mapOptKeys = dispatcherGmp::applyFilters('mapParamsKeys', 
-				array('width_units', 'membershipEnable', 'adapt_map_to_screen_height',
+				array('width_units', 'membershipEnable', 'adapt_map_to_screen_height', 'selectors',
 					'type' /*used "map_type" insted - as this was already nulled*/, 'map_type', 'map_display_mode', 'map_center', 'language',
 					'enable_zoom', 'enable_mouse_zoom' /*we used "mouse_wheel_zoom" insted of this - same reason as prev. one*/, 'mouse_wheel_zoom',
 					'zoom_type', 'zoom', 'zoom_mobile', 'zoom_min', 'zoom_max', 'type_control', 'zoom_control', 'dbl_click_zoom',
@@ -61,9 +61,10 @@ class gmapModelGmp extends modelGmp {
 					'marker_infownd_type', 'marker_infownd_hide_close_btn', 'marker_infownd_width', 'marker_infownd_width_units',
 					'marker_infownd_height', 'marker_infownd_height_units', 'marker_infownd_bg_color',
 					'marker_clasterer', 'marker_clasterer_icon', 'marker_clasterer_icon_width', 'marker_clasterer_icon_height', 'marker_clasterer_grid_size',
-					'marker_filter_color', 'marker_filter_button_title',
+					'marker_filter_color', 'marker_filter_button_title', 'marker_filter_show_all_parents',
 					// Maybe PRO params - but let them be here - to avoid dublications
-					'markers_list_type', 'markers_list_color', 'is_static'));
+					'markers_list_type', 'markers_list_color', 'markers_list_autoplay', 'markers_list_hide_empty_block',
+					'markers_list_collapse', 'is_static'));
 		return $mapOptKeys;
 	}
 	public function getHtmlOptionsList() {

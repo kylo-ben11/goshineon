@@ -13,6 +13,9 @@ class marker_groupsGmp extends moduleGmp {
 		$tabs[ $this->getCode(). '_edit' ] = array(
 			'label' => __('Edit', GMP_LANG_CODE), 'callback' => array($this, 'getEditTabContent'), 'sort_order' => 60, 'child_of' => $this->getCode(), 'hidden' => 1, 'add_bread' => $this->getCode(),
 		);
+		$tabs[ $this->getCode(). '_options' ] = array(
+			'label' => __('Edit', GMP_LANG_CODE), 'callback' => array($this, 'getOptionsTabContent'), 'sort_order' => 60, 'child_of' => $this->getCode(), 'hidden' => 1, 'add_bread' => $this->getCode(),
+		);
 		return $tabs;
 	}
 	public function getAddNewTabContent() {
@@ -26,6 +29,9 @@ class marker_groupsGmp extends moduleGmp {
 	}
 	public function getTabContent() {
 		return $this->getView()->getTabContent();
+	}
+	public function getOptionsTabContent() {
+		return $this->getView()->getOptionsTabContent();
 	}
 	public function getEditMarkerGroupLink($id) {
 		return frameGmp::_()->getModule('options')->getTabUrl('marker_groups_edit'). '&id='. $id;

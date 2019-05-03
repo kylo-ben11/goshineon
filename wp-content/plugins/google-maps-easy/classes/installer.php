@@ -282,6 +282,7 @@ class installerGmp {
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."htmltype`");
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."markers`");
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."marker_groups`");
+		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."marker_groups_relation`");
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."options_categories`");
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."modules_type`");
 		   $wpdb->query("DROP TABLE IF EXISTS `".$wpPrefix.GMP_DB_PREF."usage_stat`");

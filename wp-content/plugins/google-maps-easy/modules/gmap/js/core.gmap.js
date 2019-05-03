@@ -12,7 +12,7 @@ function gmpGoogleMap(elementId, params, additionalData) {
 		//alert('Please check your Internet connection - we need it to load Google Maps Library from Google Server');
 		//return false;
 	}
-	
+
 	params = params ? params : {};
 	additionalData = additionalData ? additionalData : {};
 	var defaults = {
@@ -127,6 +127,8 @@ gmpGoogleMap.prototype._afterInit = function() {
 		this._fixZoomLevel();
 	}
 	this.resizeMapByHeight();
+	jQuery(window).bind('resize', jQuery.proxy(this.resizeMapByHeight, this));
+	jQuery(window).bind('orientationchange', jQuery.proxy(this.resizeMapByHeight, this));
 	jQuery(document).trigger('gmapAfterMapInit', this);
 };
 gmpGoogleMap.prototype._setMinZoomLevel = function() {
@@ -546,27 +548,68 @@ gmpGoogleMap.prototype.checkMarkersParams = function(markers, needToShow) {
 		}
 	}
 };
-gmpGoogleMap.prototype.resizeMapByHeight = function() {
+gmpGoogleMap.prototype.resizeMapByHeight = function(e, elem) {
 	if(!GMP_DATA.isAdmin && parseInt(this.getParam('adapt_map_to_screen_height')) && this.getRawMapInstance().map_display_mode != 'popup') {
-		var self = this;
-
-		function resizeHeight() {
-			var viewId = self.getParam('view_id')
+		var viewId = this.getParam('view_id')
+			,	selectors = this.getParam('selectors')
+			,	windowObj = jQuery(window)
+			,	windowHeight = windowObj.height()
 			,	mapContainer = jQuery('#gmpMapDetailsContainer_' + viewId)
-			,	mapContainerOffset = mapContainer.length ? mapContainer.offset() : false
-			,	windowHeight = jQuery(window).height();
+			,	height;
 
-			if(mapContainerOffset) {
-				jQuery('#gmpMapDetailsContainer_' + viewId + ', #' + self.getParam('view_html_id')).each(function () {
-					var height = mapContainerOffset.top < windowHeight ? windowHeight - mapContainerOffset.top : windowHeight;
-					jQuery(this).height(height);
+		if(!selectors || (!selectors.content_before && !selectors.content_after)) {
+			var mapContainerOffset = mapContainer.length ? mapContainer.offset() : false;
+			height = mapContainerOffset.top < windowHeight ? windowHeight - mapContainerOffset.top : windowHeight;
+		} else {
+			var contentBefore = jQuery('#wpadminbar, '+ selectors.content_before)	// #wpadminbar - fix for admin area
+				,	contentAfter = jQuery(selectors.content_after)
+				,	contentBeforeHeight = 0
+				,	contentAfterHeight = 0
+				,	proControlsCon = jQuery('#gmpMapProControlsCon_'+ viewId)
+				,	i;
+			if(contentBefore.length) {
+				for(i = 0; i < contentBefore.length; i++) {
+					contentBeforeHeight += jQuery(contentBefore[i]).outerHeight(true);
+				}
+			}
+			if(contentAfter.length) {
+				for(i = 0; i < contentAfter.length; i++) {
+					contentAfterHeight += jQuery(contentAfter[i]).outerHeight(true);
+				}
+			}
+			height = windowHeight - contentBeforeHeight - contentAfterHeight;
+			mapContainer.parents('.gmp_map_opts:first').css({
+				'position': 'fixed'
+			,	'top': contentBeforeHeight
+			,	'left': '0'
+			,	'width': windowObj.width()
+			,	'height': height
+			,	'z-index': 1
+			});
+			if(proControlsCon.find('.gmpMarkersListCollapseShell').length) {
+				mapContainer.parents('.gmp_map_opts:first').css({
+					'overflow-x': 'hidden'
+				,	'overflow-y': 'auto'
 				});
-				self.refresh();
+			}
+			jQuery(selectors.content_before).css({
+				'z-index': 2
+			});
+			jQuery(selectors.content_after).css({
+				'position': 'fixed'
+			,	'bottom': '0'
+			,	'left': '0'
+			,	'width': windowObj.width()
+			,	'z-index': 1
+			});
+			if(elem && elem.length) {
+				height -= elem.outerHeight(true);
 			}
 		}
-		resizeHeight();
-		jQuery(window).bind('resize', resizeHeight);
-		jQuery(window).bind('orientationchange', resizeHeight);
+		jQuery('#gmpMapDetailsContainer_' + viewId + ', #' + this.getParam('view_html_id')).each(function () {
+			jQuery(this).height(height);
+		});
+		this.refresh();
 	}
 };
 gmpGoogleMap.prototype.applyZoomType = function() {
@@ -697,12 +740,26 @@ function gmpGetGeocoder() {
 	return g_gmpGeocoder;
 }
 function changeInfoWndType(map) {
+
 	//This is a standart google maps api class
 	var infowndContent = jQuery('#'+ map._elementId.id).find('.gm-style-iw')
 	,	type = map.getParam('marker_infownd_type')
 	,	hideInfoWndBtn = parseInt(map.getParam('marker_infownd_hide_close_btn'));
-
 	switch(type) {
+		case '':
+		if(infowndContent && infowndContent.length) {
+			infowndContent.each(function() {
+				var $this = jQuery(this)
+				,	wndBody = $this.prev().children().last()
+				,	wndBodyShadow = $this.prev().children(':nth-child(2)')
+				,	wndTail = $this.prev().children(':nth-child(3)')
+				,	wndTailShadow = $this.prev().children().first();
+				$this.css({
+					'border-radius': '0px'
+				});
+			});
+		}
+		break;
 		case 'rounded_edges':
 			if(infowndContent && infowndContent.length) {
 				infowndContent.each(function() {
@@ -713,7 +770,8 @@ function changeInfoWndType(map) {
 					,	wndTailShadow = $this.prev().children().first();
 
 					if(hideInfoWndBtn !== 0) {
-						$this.next('div').hide();
+						//$this.next('div').hide();
+						$this.find(".gm-ui-hover-effect").hide();
 					}
 					$this.find('.gmpInfoWindowtitle').css({
 						'padding': '0'
@@ -770,10 +828,14 @@ function changeInfoWndBgColor(map) {
 		infowndContent.each(function() {
 			var wndBody = jQuery(this).prev().children().last()
 			,	wndTail = jQuery(this).prev().children(':nth-child(3)').children().last();
-
-			wndBody.css('background-color', color);
-			wndTail.prev().children().last().css('background-color', color);
-			wndTail.children().css('background-color', color);
+			//wndBody.css('background-color', color);
+			//wndTail.prev().children().last().css('background-color', color);
+			//wndTail.children().css('background-color', color);
+			infowndContent.css('background-color', color);
+			infowndContent.prev().children().last().css('background-color', color);
+			infowndContent.children().css('background-color', color);
+			jQuery( "<style>.gm-style-iw-t::after { border-top: 11px solid "+color+" !important; }</style>" ).appendTo( "head" );
+			jQuery( "<style>.gm-style .gm-style-iw-d::-webkit-scrollbar-track, .gm-style .gm-style-iw-d::-webkit-scrollbar-track-piece { background: "+color+" !important; }</style>" ).appendTo( "head" );
 		});
 	}
 }

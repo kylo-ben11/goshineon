@@ -156,13 +156,35 @@
 												))?>&nbsp;<?php _e('Px', GMP_LANG_CODE)?></label>
 											</div>
 										</div>
-										<div class="gmpAdditionalHeightOpts sup-col sup-w-50 no-p" style="margin-top: 8px;">
-											<?php echo htmlGmp::checkboxHiddenVal('map_opts[adapt_map_to_screen_height]', array(
-													'value' => $this->editMap && isset($this->map['params']['adapt_map_to_screen_height']) ? $this->map['params']['adapt_map_to_screen_height'] : false,
-											))?>
-											<span style="vertical-align: middle;">
-												<?php _e('Adapt map to screen height', GMP_LANG_CODE)?>
-											</span>
+										<div class="gmpAdditionalHeightOpts sup-col sup-w-100 no-p">
+											<div style="margin-top: 8px;">
+												<?php echo htmlGmp::checkboxHiddenVal('map_opts[adapt_map_to_screen_height]', array(
+														'value' => $this->editMap && isset($this->map['params']['adapt_map_to_screen_height']) ? $this->map['params']['adapt_map_to_screen_height'] : false,
+												))?>
+												<span style="vertical-align: middle;">
+													<?php _e('Adapt map to screen height', GMP_LANG_CODE)?>
+												</span>
+											</div>
+											<div class="gmpAdditionalAdaptHeightOpts">
+												<div style="margin-top: 8px;">
+													<label for="map_opts_map_selectors_content_before">
+														<?php _e('Content Before', GMP_LANG_CODE)?>
+													</label>
+													<?php echo htmlGmp::text('map_opts[selectors][content_before]', array(
+														'value' => $this->editMap && isset($this->map['params']['selectors']['content_before']) ? $this->map['params']['selectors']['content_before'] : '',
+														'placeholder' => '',
+														'attrs' => 'style="width: 100%;" id="map_opts_selector_content_before"'))?>
+												</div>
+												<div style="margin-top: 8px;">
+													<label for="map_opts_map_selectors_content_after">
+														<?php _e('Content After', GMP_LANG_CODE)?>
+													</label>
+													<?php echo htmlGmp::text('map_opts[selectors][content_after]', array(
+														'value' => $this->editMap && isset($this->map['params']['selectors']['content_after']) ? $this->map['params']['selectors']['content_after'] : '',
+														'placeholder' => '',
+														'attrs' => 'style="width: 100%;" id="map_opts_selector_content_after"'))?>
+												</div>
+											</div>
 										</div>
 									</td>
 								</tr>
@@ -307,7 +329,7 @@
 										</td>
 									</tr>
 									<?php */ ?>
-									
+
 									<tr>
 										<td colspan="2" style="padding: 0;">
 											<table class="form-table">
@@ -588,12 +610,77 @@
 											<?php echo htmlGmp::hidden('map_opts[markers_list_type]', array(
 												'value' => $this->editMap && isset($this->map['params']['markers_list_type']) ? $this->map['params']['markers_list_type'] : ''))?>
 											<div id="gmpMapMarkersListSettings" style="display: none;">
-												<div style="margin-top: 10px;">
-													<label for="map_opts_markers_list_color">
-														<?php _e('Markers List Color', GMP_LANG_CODE)?>
-													</label></br>
-													<?php echo htmlGmp::colorpicker('map_opts[markers_list_color]', array(
-														'value' => $this->editMap && isset($this->map['params']['markers_list_color']) ? $this->map['params']['markers_list_color'] : '#55BA68'))?>
+												<div style="margin-top: 10px;clear: both;">
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_color">
+															<?php _e('Markers List Color', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::colorpicker('map_opts[markers_list_color]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_color']) ? $this->map['params']['markers_list_color'] : '#55BA68'))?>
+													</div>
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_hide_empty_block">
+															<?php _e('Hide empty blocks', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[markers_list_hide_empty_block]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_hide_empty_block']) ? $this->map['params']['markers_list_hide_empty_block'] : false,
+															'attrs' => 'id="map_opts_markers_list_hide_empty_block"'))?>
+													</div>
+												</div>
+												<div style="margin-top: 10px;clear: both;">
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_collapse_mobile">
+															<?php _e('Collapse markers list on mobile', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[markers_list_collapse][mobile]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_collapse']['mobile']) ? $this->map['params']['markers_list_collapse']['mobile'] : false,
+															'attrs' => 'id="map_opts_markers_list_collapse_mobile"'))?>
+													</div>
+													<div class="sup-col sup-w-50"></div>
+												</div>
+												<div style="clear: both;">
+													<div class="sup-col" style="width: 100%;">
+														<h4>
+															<span><?php _e('Autoplay options', GMP_LANG_CODE)?></span>
+															<i class="fa fa-question supsystic-tooltip" title="<?php _e('Using for all markers lists types with slides.<br /><br /><b>Steps</b>: Steps to go for each auto play request. Possible value can be 1, 2, -1, -2 ...<br /><br /><b>Idle</b>: Interval to go for next slide since the previous stopped if the slider is auto playing, default value is 3000<br /><br /><b>Duration</b>: Specifies default duration (swipe) for slide in milliseconds, default value is 160', GMP_LANG_CODE)?>" style="float: right;margin-right: -15px;"></i>
+														</h4>
+													</div>
+												</div>
+												<div style="clear: both;">
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_autoplay_enable">
+															<?php _e('Enable Autoplay', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::checkboxHiddenVal('map_opts[markers_list_autoplay][enable]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_autoplay']['enable']) ? $this->map['params']['markers_list_autoplay']['enable'] : false,
+															'attrs' => 'id="map_opts_markers_list_autoplay_enable"'))?>
+													</div>
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_autoplay_steps">
+															<?php _e('Steps', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::text('map_opts[markers_list_autoplay][steps]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_autoplay']['steps']) ? $this->map['params']['markers_list_autoplay']['steps'] : '1',
+															'attrs' => 'style="width: 100%;" id="map_opts_markers_list_autoplay_steps" placeholder="1"'))?>
+													</div>
+												</div>
+												<div style="clear: both;">
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_autoplay_idle">
+															<?php _e('Idle (milliseconds)', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::text('map_opts[markers_list_autoplay][idle]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_autoplay']['idle']) ? $this->map['params']['markers_list_autoplay']['idle'] : '3000',
+															'attrs' => 'style="width: 100%;" id="map_opts_markers_list_autoplay_idle" placeholder="3000"'))?>
+													</div>
+													<div class="sup-col sup-w-50">
+														<label for="map_opts_markers_list_autoplay_duration">
+															<?php _e('Duration (milliseconds)', GMP_LANG_CODE)?>
+														</label><br />
+														<?php echo htmlGmp::text('map_opts[markers_list_autoplay][duration]', array(
+															'value' => $this->editMap && isset($this->map['params']['markers_list_autoplay']['duration']) ? $this->map['params']['markers_list_autoplay']['duration'] : '160',
+															'attrs' => 'style="width: 100%;" id="map_opts_markers_list_autoplay_duration" placeholder="160"'))?>
+													</div>
 												</div>
 											</div>
 										</td>
@@ -1119,26 +1206,41 @@
 									</tr>
 									<tr>
 										<th scope="row">
-											<label for="map_opts_marker_title_color">
+											<label for="map_opts_marker_filter_color">
 												<?php _e('Filter background', GMP_LANG_CODE)?>:
 											</label>
 											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Background color for markers filter. (for 7 markers list type)', GMP_LANG_CODE)?>"></i>
 										</th>
 										<td>
 											<?php echo htmlGmp::colorpicker('map_opts[marker_filter_color]', array(
-												'value' => $this->editMap && isset($this->map['params']['marker_filter_color']) ? $this->map['params']['marker_filter_color'] : '#f1f1f1;'))?>
+												'value' => $this->editMap && isset($this->map['params']['marker_filter_color']) ? $this->map['params']['marker_filter_color'] : '#f1f1f1;',
+												'attrs' => 'id="map_opts_marker_filter_color"',))?>
 										</td>
 									</tr>
 									<tr>
 										<th scope="row">
-											<label for="map_opts_marker_title_color">
+											<label for="map_opts_marker_filter_button_title">
 												<?php _e('Filters select all button title', GMP_LANG_CODE)?>:
 											</label>
 											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Filters select all button title. (for 7 markers list type)', GMP_LANG_CODE)?>"></i>
 										</th>
 										<td>
 											<?php echo htmlGmp::text('map_opts[marker_filter_button_title]', array(
-												'value' => $this->editMap && isset($this->map['params']['marker_filter_button_title']) ? $this->map['params']['marker_filter_button_title'] : 'Select all'))?>
+												'value' => $this->editMap && isset($this->map['params']['marker_filter_button_title']) ? $this->map['params']['marker_filter_button_title'] : 'Select all',
+												'attrs' => 'id="map_opts_marker_filter_button_title"',))?>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											<label for="map_opts_marker_filter_show_all_parents">
+												<?php _e('Show all parent categories in Filter', GMP_LANG_CODE);?>:
+											</label>
+											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Show parent categories even if they have no markers, but their child categories have.', GMP_LANG_CODE); ?>"></i>
+										</th>
+										<td>
+											<?php echo htmlGmp::checkboxHiddenVal('map_opts[marker_filter_show_all_parents]', array(
+												'value' => $this->editMap && isset($this->map['params']['marker_filter_show_all_parents']) ? $this->map['params']['marker_filter_show_all_parents'] : false,
+												'attrs' => 'id="map_opts_marker_filter_show_all_parents"',))?>
 										</td>
 									</tr>
 									<tr style="border-bottom: 1px solid #e3dbdb!important;">
@@ -1625,6 +1727,20 @@
 									</td>
 								</tr>
 								<?php if($isCustSearchAndMarkersPeriodAvailable) { ?>
+								<tr>
+									<th scope="row">
+											<label>
+												<?php _e('Display period for the markers', GMP_LANG_CODE)?>:
+											</label>
+											<i style="float: right;" class="fa fa-question supsystic-tooltip" title="<?php _e('Display markers on the map by a selected period. A marker will automatically start to appear on the specified date and disappear automatically at the appointed time.', GMP_LANG_CODE)?> </br> <a href='https://supsystic.com/example/markers-displaying-by-period/'>https://supsystic.com/example/markers-displaying-by-period/</a> </br></br> <img style='width:100%' src='<?php echo $this->getModule()->getModPath()?>/img/period.gif'>"></i>
+											<?php if(!$this->isPro) { ?>
+												<?php $proLink = frameGmp::_()->getModule('supsystic_promo')->generateMainLink('utm_source=plugin&utm_medium=marker_period_from&utm_campaign=googlemaps'); ?>
+												<br /><span class="gmpProOptMiniLabel"><a target="_blank" href="<?php echo $proLink?>"><?php _e('PRO option', GMP_LANG_CODE)?></a></span>
+											<?php }?>
+									</th>
+									<td>
+									</td>
+								</tr>
 								<tr>
 									<th>
 										<label>

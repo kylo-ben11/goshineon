@@ -5,6 +5,17 @@ class gmap_widgetViewGmp extends viewGmp {
 			foreach($instance as $key => $val) {
 				if(empty($instance[$key])) {
 					unset($instance[$key]);
+				} else {
+					if($key == 'width') {
+						$measures = array('px', '%');
+						foreach($measures as $m) {
+							if(strpos($instance[$key], $m) !== -1) {
+								str_replace($m, '', $instance[$key]);
+								$instance['width_units'] = $m;
+								break;
+							}
+						}
+					}
 				}
 			}
 			echo frameGmp::_()->getModule('gmap')->drawMapFromShortcode($instance);

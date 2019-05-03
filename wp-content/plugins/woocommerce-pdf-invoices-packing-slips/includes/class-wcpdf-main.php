@@ -15,6 +15,7 @@ class Main {
 
 	function __construct()	{
 		add_action( 'wp_ajax_generate_wpo_wcpdf', array($this, 'generate_pdf_ajax' ) );
+		add_action( 'wp_ajax_nopriv_generate_wpo_wcpdf', array($this, 'generate_pdf_ajax' ) );
 		add_filter( 'woocommerce_email_attachments', array( $this, 'attach_pdf_to_email' ), 99, 3 );
 		add_filter( 'wpo_wcpdf_custom_attachment_condition', array( $this, 'disable_free_attachment'), 1001, 4 );
 
@@ -89,6 +90,7 @@ class Main {
 
 		// reload translations because WC may have switched to site locale (by setting the plugin_locale filter to site locale in wc_switch_to_site_locale())
 		WPO_WCPDF()->translations();
+		do_action( 'wpo_wcpdf_reload_attachment_translations' );
 
 		$attach_to_document_types = $this->get_documents_for_email( $email_id, $order );
 		foreach ( $attach_to_document_types as $document_type ) {
@@ -109,15 +111,32 @@ class Main {
 					if ($filemtime = filemtime($pdf_path)) {
 						$time_difference = time() - $filemtime;
 						if ( $time_difference < apply_filters( 'wpo_wcpdf_reuse_attachment_age', 60 ) ) {
-							$attachments[] = $pdf_path;
-							continue;
+							// check if file is still being written to
+							$fp = fopen($pdf_path, 'r+');
+							if ( $locked = $this->file_is_locked( $fp ) ) {
+								// optional delay (ms) to double check if the write process is finished
+								$delay = intval( apply_filters( 'wpo_wcpdf_attachment_locked_file_delay', 250 ) );
+								if ( $delay > 0 ) {
+									usleep( $delay * 1000 );
+									$locked = $this->file_is_locked( $fp );
+								}
+							}
+							fclose($fp);
+
+							if ( !$locked ) {
+								$attachments[] = $pdf_path;
+								continue;
+							} else {
+								// make sure this gets logged
+								throw new \Exception("Failed attachment, file locked");
+							}
 						}
 					}
 				}
 
 				// get pdf data & store
 				$pdf_data = $document->get_pdf();
-				file_put_contents ( $pdf_path, $pdf_data );
+				file_put_contents ( $pdf_path, $pdf_data, LOCK_EX );
 				$attachments[] = $pdf_path;
 
 				do_action( 'wpo_wcpdf_email_attachment', $pdf_path, $document_type, $document );
@@ -136,6 +155,18 @@ class Main {
 		remove_filter( 'wcpdf_disable_deprecation_notices', '__return_true' );
 
 		return $attachments;
+	}
+
+	public function file_is_locked( $fp ) {
+		if (!flock($fp, LOCK_EX|LOCK_NB, $wouldblock)) {
+			if ($wouldblock) {
+				return true; // file is locked
+			} else {
+				return true; // can't lock for whatever reason (could be locked in Windows + PHP5.3)
+			}
+		} else {
+			return false; // not locked
+		}
 	}
 
 	public function get_documents_for_email( $email_id, $order ) {
@@ -169,8 +200,13 @@ class Main {
 	 * Load and generate the template output with ajax
 	 */
 	public function generate_pdf_ajax() {
-		// Check the nonce
-		if( empty( $_GET['action'] ) || !check_admin_referer( $_GET['action'] ) ) {
+		$guest_access = isset( WPO_WCPDF()->settings->debug_settings['guest_access'] );
+		if ( !$guest_access && current_filter() == 'wp_ajax_nopriv_generate_wpo_wcpdf') {
+			wp_die( __( 'You do not have sufficient permissions to access this page.', 'woocommerce-pdf-invoices-packing-slips' ) );
+		}
+
+		// Check the nonce - guest access doesn't use nonces but checks the unique order key (hash)
+		if( empty( $_GET['action'] ) || ( !$guest_access && !check_admin_referer( $_GET['action'] ) ) ) {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'woocommerce-pdf-invoices-packing-slips' ) );
 		}
 
@@ -188,7 +224,7 @@ class Main {
 		}
 
 		// debug enabled by URL
-		if ( isset( $_GET['debug'] ) ) {
+		if ( isset( $_GET['debug'] ) && !( $guest_access || isset( $_GET['my-account'] ) ) ) {
 			$this->enable_debug();
 		}
 
@@ -202,26 +238,39 @@ class Main {
 		// set default is allowed
 		$allowed = true;
 
-		// check if user is logged in
-		if ( ! is_user_logged_in() ) {
-			$allowed = false;
-		}
 
-		// Check the user privileges
-		if( !( current_user_can( 'manage_woocommerce_orders' ) || current_user_can( 'edit_shop_orders' ) ) && !isset( $_GET['my-account'] ) ) {
-			$allowed = false;
-		}
-
-		// User call from my-account page
-		if ( !current_user_can('manage_options') && isset( $_GET['my-account'] ) ) {
-			// Only for single orders!
+		if ( $guest_access && isset( $_GET['order_key'] ) ) {
+			// Guest access with order key
 			if ( count( $order_ids ) > 1 ) {
+				$allowed = false;
+			} else {
+				$order = wc_get_order( $order_ids[0] );
+				if ( !$order || ! hash_equals( $order->get_order_key(), $_GET['order_key'] ) ) {
+					$allowed = false;
+				}
+			}
+		} else {
+			// check if user is logged in
+			if ( ! is_user_logged_in() ) {
 				$allowed = false;
 			}
 
-			// Check if current user is owner of order IMPORTANT!!!
-			if ( ! current_user_can( 'view_order', $order_ids[0] ) ) {
+			// Check the user privileges
+			if( !( current_user_can( 'manage_woocommerce_orders' ) || current_user_can( 'edit_shop_orders' ) ) && !isset( $_GET['my-account'] ) ) {
 				$allowed = false;
+			}
+
+			// User call from my-account page
+			if ( !current_user_can('manage_options') && isset( $_GET['my-account'] ) ) {
+				// Only for single orders!
+				if ( count( $order_ids ) > 1 ) {
+					$allowed = false;
+				}
+
+				// Check if current user is owner of order IMPORTANT!!!
+				if ( ! current_user_can( 'view_order', $order_ids[0] ) ) {
+					$allowed = false;
+				}
 			}
 		}
 
@@ -352,13 +401,17 @@ class Main {
 	 */
 	public function init_tmp ( $tmp_base ) {
 		// create plugin base temp folder
-		@mkdir( $tmp_base );
+		mkdir( $tmp_base );
+
+		if (!is_dir($tmp_base)) {
+			wcpdf_log_error( "Unable to create temp folder {$tmp_base}", 'critical' );
+		}
 
 		// create subfolders & protect
 		$subfolders = array( 'attachments', 'fonts', 'dompdf' );
 		foreach ( $subfolders as $subfolder ) {
 			$path = $tmp_base . $subfolder . '/';
-			@mkdir( $path );
+			mkdir( $path );
 
 			// copy font files
 			if ( $subfolder == 'fonts' ) {
@@ -366,8 +419,8 @@ class Main {
 			}
 
 			// create .htaccess file and empty index.php to protect in case an open webfolder is used!
-			@file_put_contents( $path . '.htaccess', 'deny from all' );
-			@touch( $path . 'index.php' );
+			file_put_contents( $path . '.htaccess', 'deny from all' );
+			touch( $path . 'index.php' );
 		}
 
 	}

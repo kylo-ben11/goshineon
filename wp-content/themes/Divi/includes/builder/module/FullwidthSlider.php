@@ -115,6 +115,11 @@ class ET_Builder_Module_Fullwidth_Slider extends ET_Builder_Module {
 					),
 				),
 			),
+			'height' => array(
+				'css' => array(
+					'main' => '%%order_class%%, %%order_class%% .et_pb_slide',
+				)
+			),
 		);
 
 		$this->custom_css_fields = array(

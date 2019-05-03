@@ -37,7 +37,7 @@ function et_setup_theme() {
 
 	require_once( $template_directory . '/post_thumbnails_divi.php' );
 
-	include( $template_directory . '/includes/widgets.php' );
+    	include_once( $template_directory . '/includes/widgets.php' );
 
 	register_nav_menus( array(
 		'primary-menu'   => esc_html__( 'Primary Menu', 'Divi' ),
@@ -101,6 +101,11 @@ function et_setup_theme() {
 add_action( 'after_setup_theme', 'et_setup_theme' );
 
 function et_divi_load_unminified_scripts( $load ) {
+	/** @see ET_Support_Center::toggle_safe_mode */
+	if ( et_core_is_safe_mode_active() ) {
+		return true;
+	}
+
 	if ( 'false' === et_get_option( 'divi_minify_combine_scripts' ) ) {
 		return true;
 	}
@@ -109,6 +114,11 @@ function et_divi_load_unminified_scripts( $load ) {
 }
 
 function et_divi_load_unminified_styles( $load ) {
+	/** @see ET_Support_Center::toggle_safe_mode */
+	if ( et_core_is_safe_mode_active() ) {
+		return true;
+	}
+
 	if ( 'false' === et_get_option( 'divi_minify_combine_styles' ) ) {
 		return true;
 	}
@@ -751,9 +761,16 @@ function et_divi_customize_register( $wp_customize ) {
 
 	et_builder_init_global_settings();
 
+	// Determine if current request is Design Preview Link. Design Preview Link was added on
+	// WordPress 4.9 and enables user to share customizer change without the need to publish the
+	// customizer change first: save customizer change as draft, copy the link, and share it with
+	// collaborator. Design Preview Link works on non-logged in user
+	// @see https://codex.wordpress.org/Version_4.9
+	$is_customizer_public_shared_link = ! is_admin() && is_customize_preview() && ! $wp_customize->get_messenger_channel();
+
 	if ( isset( $customizer_option_set ) && 'module' === $customizer_option_set ) {
 		// display wp error screen if module customizer disabled for current user
-		if ( ! et_pb_is_allowed( 'module_customizer' ) ) {
+		if ( ! et_pb_is_allowed( 'module_customizer' ) && ! $is_customizer_public_shared_link ) {
 			wp_die( esc_html__( "you don't have sufficient permissions to access this page", 'Divi' ) );
 		}
 
@@ -765,7 +782,7 @@ function et_divi_customize_register( $wp_customize ) {
 		et_divi_customizer_module_settings( $wp_customize );
 	} else {
 		// display wp error screen if theme customizer disabled for current user
-		if ( ! et_pb_is_allowed( 'theme_customizer' ) ) {
+		if ( ! et_pb_is_allowed( 'theme_customizer' ) && ! $is_customizer_public_shared_link ) {
 			wp_die( esc_html__( "you don't have sufficient permissions to access this page", 'Divi' ) );
 		}
 
@@ -6049,6 +6066,11 @@ function et_divi_add_customizer_css() {
 			return;
 		}
 
+		/** @see ET_Support_Center::toggle_safe_mode */
+		if ( et_core_is_safe_mode_active() ) {
+			return;
+		}
+
 		$post_id     = et_core_page_resource_get_the_ID();
 		$is_preview  = is_preview() || isset( $_GET['et_pb_preview_nonce'] ) || is_customize_preview();
 		$is_singular = et_core_page_resource_is_singular();
@@ -6056,7 +6078,7 @@ function et_divi_add_customizer_css() {
 		$disabled_global = 'off' === et_get_option( 'et_pb_static_css_file', 'on' );
 		$disabled_post   = $disabled_global || ( $is_singular && 'off' === get_post_meta( $post_id, '_et_pb_static_css_file', true ) );
 
-		$forced_inline     = $is_preview || $disabled_global || $disabled_post;
+		$forced_inline     = $is_preview || $disabled_global || $disabled_post || post_password_required();
 		$builder_in_footer = 'on' === et_get_option( 'et_pb_css_in_footer', 'off' );
 
 		$unified_styles = $is_singular && ! $forced_inline && ! $builder_in_footer && et_core_is_builder_used_on_current_request();
@@ -7428,7 +7450,12 @@ function et_divi_add_customizer_css() {
 		/* ====================================================
 		 * --------->>> BEGIN MODULE CUSTOMIZER CSS <<<--------
 		 * ==================================================== */
-		ob_start();
+		// Module customizer should only be printed if current page uses builder to avoid module
+		// customizer styling being cached on `et-divi-customizer-global-*css` file which is only
+		// served on non-builder page
+		if ( et_core_is_builder_used_on_current_request() ) {
+
+			ob_start();
 
 			/* Gallery */
 			et_pb_print_module_styles_css( 'et_pb_gallery', array(
@@ -8159,9 +8186,10 @@ function et_divi_add_customizer_css() {
 			 * @param string $module_customizer_css
 			 */
 			$css_output[] = apply_filters( 'et_divi_module_customizer_css_output', ob_get_clean() );
+		}
 
-			// Give the output to the style manager so a static resource can be created and served.
-			$styles_manager->set_data( implode( '\n', $css_output ) );
+		// Give the output to the style manager so a static resource can be created and served.
+		$styles_manager->set_data( implode( '\n', $css_output ) );
 }
 add_action( 'wp', 'et_divi_add_customizer_css' );
 
@@ -8749,7 +8777,7 @@ add_action( 'et_before_content', 'et_do_video_embed_html' );
  */
 function et_delete_post_gallery( $content ) {
     $deleted = false;
-    
+
 	if ( ( is_single() || is_archive() ) && is_main_query() && has_post_format( 'gallery' ) ) :
 		$regex = get_shortcode_regex();
 		preg_match_all( "/{$regex}/s", $content, $matches );
@@ -9282,7 +9310,7 @@ function et_divi_output_content_wrapper_end() {
 }
 
 function et_add_divi_menu() {
-	$core_page = add_menu_page( 'Divi', 'Divi', 'switch_themes', 'et_divi_options', 'et_build_epanel' );
+	$core_page = add_menu_page( 'Divi', 'Divi', 'edit_theme_options', 'et_divi_options', 'et_build_epanel' );
 
 	// Add Theme Options menu only if it's enabled for current user
 	if ( et_pb_is_allowed( 'theme_options' ) ) {
@@ -9379,6 +9407,24 @@ function et_pb_check_options_access() {
 		wp_die( esc_html__( "you don't have sufficient permissions to access this page", 'Divi' ) );
 	}
 }
+
+/**
+ * Divi Support Center
+ *
+ * @since ??
+ */
+function et_add_divi_support_center(){
+	// Make sure we don't load it twice
+	if ( class_exists( 'ET_Support_Center' ) ) {
+		return;
+	}
+
+	include_once 'core/components/SupportCenter.php';
+
+	$support_center = new ET_Support_Center('divi_theme');
+	$support_center->init();
+}
+add_action('init', 'et_add_divi_support_center' );
 
 /**
  * Allowing blog and portfolio module pagination to work in non-hierarchical singular page.
@@ -9538,6 +9584,19 @@ function et_divi_theme_body_class( $classes ) {
 }
 add_filter( 'body_class', 'et_divi_theme_body_class' );
 
+/**
+ * Determine if it's a fresh Divi install by checking for the existence of 'divi_logo' key in 'et_divi' options array.
+ *
+ * @since ??
+ *
+ * @return bool
+ */
+if ( ! function_exists( 'et_divi_is_fresh_install' ) ):
+function et_divi_is_fresh_install() {
+    return false === et_get_option( 'divi_logo' );
+}
+endif;
+
 if ( ! function_exists( 'et_get_original_footer_credits' ) ) :
 function et_get_original_footer_credits() {
 	return sprintf( __( 'Designed by %1$s | Powered by %2$s', 'Divi' ), '<a href="http://www.elegantthemes.com" title="Premium WordPress Themes">Elegant Themes</a>', '<a href="http://www.wordpress.org">WordPress</a>' );
@@ -9613,6 +9672,94 @@ function et_divi_filter_enabled_builder_post_type_options( $options ) {
 endif;
 add_filter( 'et_builder_enabled_builder_post_type_options', 'et_divi_filter_enabled_builder_post_type_options' );
 
+/**
+ * Caches expensive generation of truncate_post content
+ *
+ * @since 3.17.3
+ *
+ * @param bool $custom
+ * @param string $content
+ * @param WP_Post $post
+ *
+ * @return string
+ */
+if ( ! function_exists( 'et_divi_truncate_post_use_custom_content' ) ) :
+function et_divi_truncate_post_use_custom_content( $custom, $content, $post ) {
+	// If post doesn't use builder, no need to compute a custom value
+	if ( ! et_pb_is_pagebuilder_used( $post->ID ) ) {
+		return false;
+	}
+
+	$cached = get_post_meta( $post->ID, '_et_pb_truncate_post', true );
+
+	if ( $cached ) {
+		return $cached;
+	}
+
+	$custom = apply_filters( 'the_content', $content );
+	// Save the result because expensive to compute.
+	update_post_meta( $post->ID, '_et_pb_truncate_post', $custom );
+
+	return $custom;
+}
+endif;
+add_filter( 'et_truncate_post_use_custom_content', 'et_divi_truncate_post_use_custom_content', 10, 3 );
+
+/**
+ * Caches expensive generation of et_first_image
+ *
+ * @since 3.17.3
+ *
+ * @param bool $custom
+ * @param string $content
+ * @param WP_Post $post
+ *
+ * @return string
+ */
+if ( ! function_exists( 'et_divi_first_image_use_custom_content' ) ) :
+function et_divi_first_image_use_custom_content( $custom, $content, $post ) {
+	// If post doesn't use builder, no need to compute a custom value
+	if ( ! et_pb_is_pagebuilder_used( $post->ID ) ) {
+		return false;
+	}
+
+	$cached = get_post_meta( $post->ID, '_et_pb_first_image', true );
+
+	if ( $cached ) {
+		return $cached;
+	}
+
+	$custom = apply_filters( 'the_content', $content );
+	// Save the result because expensive to compute.
+	update_post_meta( $post->ID, '_et_pb_first_image', $custom );
+
+	return $custom;
+}
+endif;
+add_filter( 'et_first_image_use_custom_content', 'et_divi_first_image_use_custom_content', 10, 3 );
+
+/**
+ * Fired when post is saved in VB / BFB / BB
+ *
+ * @since 3.17.3
+ *
+ * @param integer $post_id
+ *
+ * @return void
+ */
+if ( ! function_exists( 'et_divi_save_post' ) ) :
+function et_divi_save_post( $post_id ) {
+	if ( ! $post_id ) {
+		return;
+	}
+
+	// Unset cache
+	update_post_meta( $post_id, '_et_pb_first_image', false );
+	update_post_meta( $post_id, '_et_pb_truncate_post', false );
+}
+endif;
+add_action( 'et_save_post', 'et_divi_save_post', 1 );
+
 if ( ! function_exists( 'et_divi_footer_active_sidebars' ) ):
 	function et_divi_footer_active_sidebars() {
 		$et_active_sidebar = array( 2, 3, 4, 5, 6, 7 );
@@ -9660,7 +9807,7 @@ if ( ! function_exists( 'et_divi_footer_active_sidebars' ) ):
 					break;
 			}
 		}
-		
+
 		return $et_active_sidebar;
 	}
 endif;

@@ -1,4 +1,4 @@
-var g_gmlAllMaps = [];
+var g_gmpAllMaps = [];
 function gmpGetMembershipGmeViewId(map, oldViewId) {
 	var newViewId = oldViewId;
 	if(map && map.getParam && map.getParam('membershipEnable') == '1') {
@@ -95,7 +95,7 @@ function gmpInitMapOnPage(mapData) {
 		mapData.heatmap = _gmpPrepareHeatmapList( mapData.heatmap );
 		newMap.addHeatmap( mapData.heatmap );
 	}
-	g_gmlAllMaps.push( newMap );
+	g_gmpAllMaps.push( newMap );
 }
 function gmpGetMapInfoById(id) {
 	if(typeof(gmpAllMapsInfo) !== 'undefined' && gmpAllMapsInfo && gmpAllMapsInfo.length) {
@@ -119,7 +119,7 @@ function gmpGetMapInfoByViewId(viewId) {
 	return false;
 }
 function gmpGetAllMaps() {
-	return g_gmlAllMaps;
+	return g_gmpAllMaps;
 }
 function gmpGetMapById(id) {
 	var allMaps = gmpGetAllMaps();

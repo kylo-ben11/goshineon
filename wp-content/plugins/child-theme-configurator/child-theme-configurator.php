@@ -6,7 +6,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
     Plugin Name: Child Theme Configurator
     Plugin URI: http://www.childthemeconfigurator.com
     Description: When using the Customizer is not enough - Create child themes and customize styles, templates, functions and more.
-    Version: 2.4.3
+    Version: 2.4.4
     Author: Lilaea Media
     Author URI: http://www.lilaeamedia.com
     Text Domain: child-theme-configurator
@@ -56,16 +56,20 @@ function chld_thm_cfg_version( $src, $handle ) {
 register_uninstall_hook( __FILE__, 'chld_thm_cfg_uninstall' );
 
 function chld_thm_cfg_uninstall() {
-    delete_site_option( CHLD_THM_CFG_OPTIONS );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_configvars' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_qs' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_sel' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_query' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_rule' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_val' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_seq' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_dict_token' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_sel_ndx' );
-    delete_site_option( CHLD_THM_CFG_OPTIONS . '_val_ndx' );
+    foreach( array(
+        '',
+        '_configvars',
+        '_dict_qs',
+        '_dict_sel',
+        '_dict_query',
+        '_dict_rule',
+        '_dict_val',
+        '_dict_seq',
+        '_dict_token',
+        '_sel_ndx',
+        '_val_ndx',
+        '_debug',
+    ) as $key )
+        delete_site_option( CHLD_THM_CFG_OPTIONS . $key );
 }
    
